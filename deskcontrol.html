@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semester Project · Smart Desks · Desk</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">S</div>
+        <div>Semester Project</div>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="active" href="desk.en.html">Overview</a>
+        <a href="#">Telemetry</a>
+        <a href="#">Desks</a>
+        <a href="#">Health</a>
+        <a href="#">Reports</a>
+        <a href="#">Maintenance</a>
+        <a href="#">Settings</a>
+      </nav>
+      <div style="margin-top:1rem; padding:.8rem;" class="helper">
+        <strong>Scope:</strong> usage telemetry, visualization, reports; optional: health tips, desk sync.
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <div>
+      <header class="topbar">
+        <div class="search">
+          <input type="search" placeholder="Search (desks, users, reports, alerts)…" aria-label="Search">
+        </div>
+        <div class="user">
+          <select aria-label="Language">
+            <option>EN</option>
+            <option>ES</option>
+          </select>
+          <div class="avatar" title="Twin">TW</div>
+        </div>
+      </header>
+
+      <main class="main">
+        <!-- KPIs tuned to proposal -->
+        <section class="kpis">
+          <article class="kpi card">
+            <div class="title">Desks online</div>
+            <div class="value">24</div>
+            <div class="delta">+2 added</div>
+          </article>
+          <article class="kpi card">
+            <div class="title">Commands today</div>
+            <div class="value">412</div>
+            <div class="delta">p95 280 ms</div>
+          </article>
+          <article class="kpi card">
+            <div class="title">Success rate</div>
+            <div class="value">98.7%</div>
+            <div class="delta">+0.4 pp</div>
+          </article>
+          <article class="kpi card">
+            <div class="title">Sit / Stand balance</div>
+            <div class="value">62% / 38%</div>
+            <div class="delta"><span class="badge warn">needs balance</span></div>
+          </article>
+        </section>
+
+        <!-- Grid sections -->
+        <section class="grid">
+          <!-- Left: Live Telemetry -->
+          <section class="section card" aria-labelledby="telemetry-title">
+            <div class="title">
+              <h3 id="telemetry-title" style="margin:0">Desks (live telemetry)</h3>
+              <div class="actions">
+                <a class="btn secondary" href="#">Refresh</a>
+                <a class="btn secondary" href="#">Filter</a>
+                <a class="btn" href="#">Export CSV</a>
+              </div>
+            </div>
+            <div class="body table-wrap">
+              <table role="table" aria-describedby="telemetry-title">
+                <thead>
+                  <tr>
+                    <th>Desk ID</th>
+                    <th>Location</th>
+                    <th>Height (cm)</th>
+                    <th>Mode</th>
+                    <th>Usage (sit/stand)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>DX-021</td>
+                    <td>Floor 2 · Zone B</td>
+                    <td>107</td>
+                    <td><span class="badge neutral">stand</span></td>
+                    <td>41 / 59</td>
+                    <td><span class="badge success">ok</span></td>
+                    <td class="actions">
+                      <a class="btn secondary" href="#">Preset: Sit</a>
+                      <a class="btn secondary" href="#">Preset: Stand</a>
+                      <a class="btn" href="#">Sync group</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>DX-017</td>
+                    <td>Floor 1 · Open Area</td>
+                    <td>74</td>
+                    <td><span class="badge neutral">sit</span></td>
+                    <td>72 / 28</td>
+                    <td><span class="badge warn">latency</span></td>
+                    <td class="actions">
+                      <a class="btn secondary" href="#">View log</a>
+                      <a class="btn" href="#">Recalibrate</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>DX-008</td>
+                    <td>Floor 3 · C-12</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td><span class="badge danger">offline</span></td>
+                    <td class="actions">
+                      <a class="btn secondary" href="#">Diagnostics</a>
+                      <a class="btn" href="#">Retry connect</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Right: Alerts -->
+          <section class="section card" aria-labelledby="alerts-title">
+            <div class="title">
+              <h3 id="alerts-title" style="margin:0">Alerts</h3>
+              <div class="actions">
+                <a class="btn secondary" href="#">Filter</a>
+                <a class="btn" href="#">Acknowledge all</a>
+              </div>
+            </div>
+            <div class="body table-wrap">
+              <table role="table" aria-describedby="alerts-title">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Severity</th>
+                    <th>Message</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>12:22</td>
+                    <td><span class="badge danger">high</span></td>
+                    <td>Motor error DX-017: height did not reach target.</td>
+                    <td><a class="btn secondary" href="#">Open</a></td>
+                  </tr>
+                  <tr>
+                    <td>11:58</td>
+                    <td><span class="badge warn">medium</span></td>
+                    <td>Queue latency on control channel (p95 &gt; 300 ms).</td>
+                    <td><a class="btn secondary" href="#">Open</a></td>
+                  </tr>
+                  <tr>
+                    <td>09:10</td>
+                    <td><span class="badge neutral">info</span></td>
+                    <td>New preset profile “Ergonomic v2” deployed.</td>
+                    <td><a class="btn secondary" href="#">Details</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <!-- Reports & Usage -->
+        <section class="section card" aria-labelledby="reports-title">
+          <div class="title">
+            <h3 id="reports-title" style="margin:0">Reports &amp; Usage</h3>
+            <div class="actions">
+              <a class="btn secondary" href="#">Filter</a>
+              <a class="btn secondary" href="#">Generate report</a>
+              <a class="btn" href="#">Export CSV</a>
+            </div>
+          </div>
+          <div class="body table-wrap">
+            <table role="table" aria-describedby="reports-title">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Scope</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>REP-310</td>
+                  <td>Usage overview (week)</td>
+                  <td>All desks</td>
+                  <td><span class="badge success">ready</span></td>
+                  <td>12:28</td>
+                  <td class="actions">
+                    <a class="btn secondary" href="#">View</a>
+                    <a class="btn secondary" href="#">Download</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>REP-298</td>
+                  <td>Maintenance candidates</td>
+                  <td>Floor 2</td>
+                  <td><span class="badge success">ready</span></td>
+                  <td>11:02</td>
+                  <td class="actions">
+                    <a class="btn secondary" href="#">Download</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>REP-287</td>
+                  <td>Sit/Stand balance</td>
+                  <td>Team A</td>
+                  <td><span class="badge warn">pending</span></td>
+                  <td>09:45</td>
+                  <td class="actions">
+                    <a class="btn secondary" href="#">Generate</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Events/Audit -->
+        <section class="section card" aria-labelledby="audit-title">
+          <div class="title">
+            <h3 id="audit-title" style="margin:0">Events</h3>
+            <div class="actions">
+              <a class="btn secondary" href="#">Filter</a>
+              <a class="btn" href="#">Export CSV</a>
+            </div>
+          </div>
+          <div class="body table-wrap">
+            <table role="table" aria-describedby="audit-title">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Actor</th>
+                  <th>Action</th>
+                  <th>Object</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>2025-10-28 12:31</td>
+                  <td>twin@group</td>
+                  <td>sync_desks</td>
+                  <td>Floor 2</td>
+                  <td><span class="badge success">ok</span></td>
+                </tr>
+                <tr>
+                  <td>2025-10-28 11:59</td>
+                  <td>admin@group</td>
+                  <td>save_preset</td>
+                  <td>Ergonomic v2</td>
+                  <td><span class="badge success">ok</span></td>
+                </tr>
+                <tr>
+                  <td>2025-10-28 09:12</td>
+                  <td>viewer@group</td>
+                  <td>download</td>
+                  <td>REP-298</td>
+                  <td><span class="badge success">ok</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</body>
+</html>
