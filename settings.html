@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semester Project · Smart Desks · Admin Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">S</div>
+        <div>Semester Project</div>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="deskcontrol.html">My Desk</a>
+        <a href="healthreport.html">Health & Reports</a>
+        <a class="active" href="settings.en.html">Admin · Settings</a>
+      </nav>
+
+      <section class="sidebar-foot">
+        <p class="foot-title">Current user</p>
+        <p class="foot-meta">Administrator</p>
+        <p class="foot-meta small">System configuration, desks and access control.</p>
+      </section>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main">
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>System & admin settings</h1>
+          <p class="subtitle">
+            Manage desks, cleaning mode, uniform arrangement, WiFi2BLE integration, roles and data policies.
+          </p>
+        </div>
+      </header>
+
+      <!-- Desks overview & global actions -->
+      <section class="section card" style="margin-bottom: 1.4rem;">
+        <div class="title">
+          <h3>Desks overview & global actions</h3>
+          <p class="subtitle">
+            Multi-desk management, cleaning mode and uniform arrangement (RF-AS-01, RF-AS-04, RF-AS-05, RF-AS-06).
+          </p>
+        </div>
+        <div class="body">
+          <div class="toolbar">
+            <button class="btn secondary" type="button">Enter cleaning mode (all desks)</button>
+            <div class="inline-input">
+              <input type="number" class="input input-compact" min="70" max="130" value="95">
+              <button class="btn secondary" type="button">Set uniform height</button>
+            </div>
+          </div>
+          <p class="helper">
+            Cleaning mode moves desks to a suitable height for cleaning. Uniform height applies the selected
+            value (in cm) to all desks or a subset (can be filtered in backend).
+          </p>
+
+          <div class="table-wrap" style="margin-top: 0.8rem;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Desk ID</th>
+                  <th>Label</th>
+                  <th>Location</th>
+                  <th>Assigned user</th>
+                  <th>Height (cm)</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DX-021</td>
+                  <td>Focus desk A</td>
+                  <td>Floor 2 · Zone B</td>
+                  <td>user.dx021@company</td>
+                  <td>107</td>
+                  <td><span class="badge success">online</span></td>
+                  <td class="actions">
+                    <button class="btn secondary" type="button">Rename</button>
+                    <button class="btn secondary" type="button">Reassign user</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>DX-022</td>
+                  <td>Marketing desk</td>
+                  <td>Floor 2 · Zone B</td>
+                  <td>user.dx022@company</td>
+                  <td>75</td>
+                  <td><span class="badge warn">needs attention</span></td>
+                  <td class="actions">
+                    <button class="btn secondary" type="button">Rename</button>
+                    <button class="btn secondary" type="button">Reassign user</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>DX-031</td>
+                  <td>Corner desk</td>
+                  <td>Floor 3 · Project corner</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td><span class="badge danger">offline</span></td>
+                  <td class="actions">
+                    <button class="btn secondary" type="button">Run diagnostics</button>
+                    <button class="btn secondary" type="button">Remove from pool</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid: connectivity + roles -->
+      <section class="grid">
+        <!-- System mode & connectivity -->
+        <section class="section card">
+          <div class="title">
+            <h3>WiFi2BLE & API configuration</h3>
+            <p class="subtitle">
+              Based on the Desk REST API and simulator described in the course Q&A.
+            </p>
+          </div>
+          <div class="body">
+            <form class="form" action="#">
+              <div class="field">
+                <label for="mode">System mode</label>
+                <select id="mode" class="input">
+                  <option>Development · Simulator only</option>
+                  <option>Hybrid · Simulator + selected real desks</option>
+                  <option>Production · Real desks only</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="base-url">Base URL</label>
+                <input id="base-url" class="input" type="text"
+                       placeholder="http://127.0.0.1:8000/api/v2/" value="http://127.0.0.1:8000/api/v2/">
+              </div>
+
+              <div class="field">
+                <label for="api-key">API key</label>
+                <input id="api-key" class="input" type="password"
+                       placeholder="••••••••••••••••••••••••••••••••">
+                <p class="helper">
+                  32-character key as described in the WiFi2BLE simulator README.
+                </p>
+              </div>
+
+              <div class="field">
+                <label for="poll-interval">Polling interval</label>
+                <select id="poll-interval" class="input">
+                  <option>5 s · Real-time feedback</option>
+                  <option selected>10 s · Balanced</option>
+                  <option>30 s · Low network usage</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  <span>Enable health data collection (sit/stand counters, position)</span>
+                </label>
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  <span>Anonymize user IDs in raw telemetry (NFR4 · Security)</span>
+                </label>
+              </div>
+
+              <button class="btn" type="submit">Save connection settings</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Roles & access control -->
+        <section class="section card">
+          <div class="title">
+            <h3>User roles & access control</h3>
+            <p class="subtitle">
+              Assign occupant, manager and administrator roles defined in the proposal (RF-AS-10/11/12).
+            </p>
+          </div>
+          <div class="body table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Assigned desk</th>
+                  <th>Last login</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>alex@company</td>
+                  <td><span class="badge success">administrator</span></td>
+                  <td>All desks</td>
+                  <td>Today · 08:12</td>
+                  <td class="actions">
+                    <a class="btn secondary" href="#">Downgrade</a>
+                    <a class="btn" href="#">Remove</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>manager@company</td>
+                  <td><span class="badge warn">manager</span></td>
+                  <td>Floor 2 · Zone B</td>
+                  <td>Yesterday · 16:04</td>
+                  <td class="actions">
+                    <a class="btn secondary" href="#">Promote</a>
+                    <a class="btn secondary" href="#">Reassign desks</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>user.dx021@company</td>
+                  <td><span class="badge neutral">occupant</span></td>
+                  <td>DX-021</td>
+                  <td>Today · 09:27</td>
+                  <td class="actions">
+                    <a class="btn secondary" href="#">Reset presets</a>
+                    <a class="btn secondary" href="#">Disable account</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="mt-1">
+              <a class="btn secondary" href="#">Invite new user</a>
+              <a class="btn" href="#">Open full user management</a>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Grid: energy + data/privacy -->
+      <section class="grid">
+        <!-- Energy & power-saving policy -->
+        <section class="section card">
+          <div class="title">
+            <h3>Energy & idle power-saving</h3>
+            <p class="subtitle">
+              Implements the “Energy Saving Mode” behavior (FR7) from the proposal.
+            </p>
+          </div>
+          <div class="body">
+            <form class="form" action="#">
+              <div class="field">
+                <label for="idle-timeout">Idle timeout</label>
+                <select id="idle-timeout" class="input">
+                  <option>5 minutes</option>
+                  <option selected>10 minutes</option>
+                  <option>15 minutes</option>
+                  <option>30 minutes</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="wake-mode">Wake-up behavior</label>
+                <select id="wake-mode" class="input">
+                  <option selected>User interaction only (button / panel)</option>
+                  <option>Any network command</option>
+                  <option>User interaction + scheduled tasks</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  <span>Show “Going idle” warning on desk panel before power-saving</span>
+                </label>
+                <label class="checkbox">
+                  <input type="checkbox">
+                  <span>Allow managers to override power-saving for specific desks</span>
+                </label>
+              </div>
+
+              <button class="btn" type="submit">Save energy policy</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Data, privacy & retention -->
+        <section class="section card">
+          <div class="title">
+            <h3>Data & privacy settings</h3>
+            <p class="subtitle">
+              Supports data persistence and security NFRs, plus global health thresholds (RF-AS-07/08).
+            </p>
+          </div>
+          <div class="body">
+            <form class="form" action="#">
+              <div class="field">
+                <label for="retention">Usage data retention</label>
+                <select id="retention" class="input">
+                  <option>90 days</option>
+                  <option selected>180 days</option>
+                  <option>365 days</option>
+                  <option>Custom (via backend config)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="default-range">Default reporting period</label>
+                <select id="default-range" class="input">
+                  <option selected>7 days</option>
+                  <option>30 days</option>
+                  <option>90 days</option>
+                </select>
+                <p class="helper">
+                  Used as the default time window in the Health & Reports view (RF-AS-08).
+                </p>
+              </div>
+
+              <div class="field">
+                <label for="min-stand">Minimum standing ratio target</label>
+                <select id="min-stand" class="input">
+                  <option>20%</option>
+                  <option selected>30%</option>
+                  <option>40%</option>
+                  <option>Custom (backend rule)</option>
+                </select>
+                <p class="helper">
+                  Global health target used when computing health scores and recommendations (RF-AS-07).
+                </p>
+              </div>
+
+              <div class="field">
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  <span>Store only aggregated health metrics for reports</span>
+                </label>
+                <label class="checkbox">
+                  <input type="checkbox" checked>
+                  <span>Mask desk IDs in exported CSV/PDF reports</span>
+                </label>
+                <label class="checkbox">
+                  <input type="checkbox">
+                  <span>Enable advanced logging for debugging (short-term only)</span>
+                </label>
+              </div>
+
+              <button class="btn" type="submit">Save data settings</button>
+            </form>
+          </div>
+        </section>
+      </section>
+
+      <!-- Desk presets templates -->
+      <section class="section card">
+        <div class="title">
+          <h3>Desk preset templates</h3>
+          <p class="subtitle">
+            Admin-defined presets reused by occupants, matching the objective of saving and reusing settings.
+          </p>
+        </div>
+        <div class="body table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Height (cm)</th>
+                <th>Recommended for</th>
+                <th>Visible to</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sit · Deep focus</td>
+                <td>75</td>
+                <td>Heads-down work, long writing sessions</td>
+                <td>All occupants</td>
+                <td class="actions">
+                  <a class="btn secondary" href="#">Edit</a>
+                  <a class="btn secondary" href="#">Disable</a>
+                </td>
+              </tr>
+              <tr>
+                <td>Stand · Daily work</td>
+                <td>107</td>
+                <td>General standing work blocks</td>
+                <td>All occupants</td>
+                <td class="actions">
+                  <a class="btn secondary" href="#">Edit</a>
+                  <a class="btn" href="#">Set as default stand</a>
+                </td>
+              </tr>
+              <tr>
+                <td>Stand · Presentation</td>
+                <td>112</td>
+                <td>Demos, calls and presentations</td>
+                <td>Only project rooms</td>
+                <td class="actions">
+                  <a class="btn secondary" href="#">Edit</a>
+                  <a class="btn secondary" href="#">Duplicate</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-1">
+            <a class="btn secondary" href="#">Add new preset</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

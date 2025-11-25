@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Semester Project · Smart Desks · Desk</title>
+  <title>Smart Desk Supervisor · My Desk</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,226 +12,234 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="logo" aria-hidden="true">S</div>
-        <div>Semester Project</div>
+        <div>Smart Desk Supervisor</div>
       </div>
+
       <nav class="nav" aria-label="Primary navigation">
-        <a class="active" href="desk.en.html">Overview</a>
-        <a href="#">Telemetry</a>
-        <a href="#">Desks</a>
-        <a href="#">Health</a>
-        <a href="#">Reports</a>
-        <a href="#">Maintenance</a>
-        <a href="#">Settings</a>
+        <a href="deskcontrol.html" class="active">
+          <span>My Desk</span>
+        </a>
+        <a href="healthreport.html">
+          <span>Health & Reports</span>
+        </a>
+        <a href="settings.en.html">
+          <span>Admin · Settings</span>
+        </a>
       </nav>
-      <div style="margin-top:1rem; padding:.8rem;" class="helper">
-        <strong>Scope:</strong> usage telemetry, visualization, reports; optional: health tips, desk sync.
-      </div>
+
+      <section class="sidebar-foot">
+        <p class="foot-title">Current user</p>
+        <p class="foot-meta">Occupant · Desk DX-021</p>
+        <p class="foot-meta small">Personal view of the assigned motorized desk.</p>
+      </section>
     </aside>
 
-    <!-- Main area -->
-    <div>
+    <!-- Main content -->
+    <div class="main">
+      <!-- Top bar -->
       <header class="topbar">
-        <div class="search">
-          <input type="search" placeholder="Search (desks, users, reports, alerts)…" aria-label="Search">
+        <div class="topbar-left">
+          <h1>My motorized desk</h1>
+          <p class="subtitle">
+            Direct control of your LINAK desk plus today’s sit/stand balance and recent events.
+          </p>
         </div>
-        <div class="user">
-          <select aria-label="Language">
-            <option>EN</option>
-            <option>ES</option>
-          </select>
-          <div class="avatar" title="Twin">TW</div>
+        <div class="topbar-right">
+          <span class="pill pill-online">WiFi2BLE · connected (simulator)</span>
+          <span class="pill pill-saving">Idle power-saving: ON</span>
         </div>
       </header>
 
-      <main class="main">
-        <!-- KPIs tuned to proposal -->
-        <section class="kpis">
-          <article class="kpi card">
-            <div class="title">Desks online</div>
-            <div class="value">24</div>
-            <div class="delta">+2 added</div>
-          </article>
-          <article class="kpi card">
-            <div class="title">Commands today</div>
-            <div class="value">412</div>
-            <div class="delta">p95 280 ms</div>
-          </article>
-          <article class="kpi card">
-            <div class="title">Success rate</div>
-            <div class="value">98.7%</div>
-            <div class="delta">+0.4 pp</div>
-          </article>
-          <article class="kpi card">
-            <div class="title">Sit / Stand balance</div>
-            <div class="value">62% / 38%</div>
-            <div class="delta"><span class="badge warn">needs balance</span></div>
-          </article>
-        </section>
+      <!-- Connection alert / API status -->
+      <section class="section card" style="margin-bottom: 1rem;">
+        <div class="title">
+          <h3>Connection status</h3>
+        </div>
+        <div class="body">
+          <div class="alert alert-info">
+            <strong>Desk API reachable.</strong> Connected to WiFi2BLE simulator at
+            <code>http://127.0.0.1:8000/api/v2</code>.
+          </div>
+          <p class="helper">
+            If the REST API or simulator is not available, this area should show:
+            <em>“Desk not reachable. Try again or contact support.”</em> (covers RNF-MD-03).
+          </p>
+        </div>
+      </section>
 
-        <!-- Grid sections -->
-        <section class="grid">
-          <!-- Left: Live Telemetry -->
-          <section class="section card" aria-labelledby="telemetry-title">
-            <div class="title">
-              <h3 id="telemetry-title" style="margin:0">Desks (live telemetry)</h3>
-              <div class="actions">
-                <a class="btn secondary" href="#">Refresh</a>
-                <a class="btn secondary" href="#">Filter</a>
-                <a class="btn" href="#">Export CSV</a>
-              </div>
-            </div>
-            <div class="body table-wrap">
-              <table role="table" aria-describedby="telemetry-title">
-                <thead>
-                  <tr>
-                    <th>Desk ID</th>
-                    <th>Location</th>
-                    <th>Height (cm)</th>
-                    <th>Mode</th>
-                    <th>Usage (sit/stand)</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>DX-021</td>
-                    <td>Floor 2 · Zone B</td>
-                    <td>107</td>
-                    <td><span class="badge neutral">stand</span></td>
-                    <td>41 / 59</td>
-                    <td><span class="badge success">ok</span></td>
-                    <td class="actions">
-                      <a class="btn secondary" href="#">Preset: Sit</a>
-                      <a class="btn secondary" href="#">Preset: Stand</a>
-                      <a class="btn" href="#">Sync group</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>DX-017</td>
-                    <td>Floor 1 · Open Area</td>
-                    <td>74</td>
-                    <td><span class="badge neutral">sit</span></td>
-                    <td>72 / 28</td>
-                    <td><span class="badge warn">latency</span></td>
-                    <td class="actions">
-                      <a class="btn secondary" href="#">View log</a>
-                      <a class="btn" href="#">Recalibrate</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>DX-008</td>
-                    <td>Floor 3 · C-12</td>
-                    <td>—</td>
-                    <td>—</td>
-                    <td>—</td>
-                    <td><span class="badge danger">offline</span></td>
-                    <td class="actions">
-                      <a class="btn secondary" href="#">Diagnostics</a>
-                      <a class="btn" href="#">Retry connect</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
+      <!-- KPIs -->
+      <section class="kpis">
+        <article class="card kpi">
+          <h2>Current height</h2>
+          <p class="kpi-main">107 cm</p>
+          <p class="kpi-sub">Target preset: “Stand · Daily work”</p>
+        </article>
 
-          <!-- Right: Alerts -->
-          <section class="section card" aria-labelledby="alerts-title">
-            <div class="title">
-              <h3 id="alerts-title" style="margin:0">Alerts</h3>
-              <div class="actions">
-                <a class="btn secondary" href="#">Filter</a>
-                <a class="btn" href="#">Acknowledge all</a>
-              </div>
-            </div>
-            <div class="body table-wrap">
-              <table role="table" aria-describedby="alerts-title">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Severity</th>
-                    <th>Message</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>12:22</td>
-                    <td><span class="badge danger">high</span></td>
-                    <td>Motor error DX-017: height did not reach target.</td>
-                    <td><a class="btn secondary" href="#">Open</a></td>
-                  </tr>
-                  <tr>
-                    <td>11:58</td>
-                    <td><span class="badge warn">medium</span></td>
-                    <td>Queue latency on control channel (p95 &gt; 300 ms).</td>
-                    <td><a class="btn secondary" href="#">Open</a></td>
-                  </tr>
-                  <tr>
-                    <td>09:10</td>
-                    <td><span class="badge neutral">info</span></td>
-                    <td>New preset profile “Ergonomic v2” deployed.</td>
-                    <td><a class="btn secondary" href="#">Details</a></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </section>
+        <article class="card kpi">
+          <h2>Sit / Stand (today)</h2>
+          <p class="kpi-main">2h 15m / 1h 35m</p>
+          <p class="kpi-sub">Goal: at least 30% of the time standing</p>
+        </article>
 
-        <!-- Reports & Usage -->
-        <section class="section card" aria-labelledby="reports-title">
+        <article class="card kpi">
+          <h2>Movements today</h2>
+          <p class="kpi-main">18</p>
+          <p class="kpi-sub">Desk adjustments (up/down) during the day</p>
+        </article>
+
+        <article class="card kpi">
+          <h2>Errors today</h2>
+          <p class="kpi-main">1</p>
+          <p class="kpi-sub">Anti-collision triggered this morning</p>
+        </article>
+      </section>
+
+      <!-- Desk controls + health tips -->
+      <section class="grid">
+        <section class="section card">
           <div class="title">
-            <h3 id="reports-title" style="margin:0">Reports &amp; Usage</h3>
-            <div class="actions">
-              <a class="btn secondary" href="#">Filter</a>
-              <a class="btn secondary" href="#">Generate report</a>
-              <a class="btn" href="#">Export CSV</a>
+            <h3>Desk controls</h3>
+            <p class="subtitle">These controls will be wired to Desk API endpoints in the backend.</p>
+          </div>
+
+          <div class="desk-controls">
+            <div class="height-display">
+              <span class="label">Live height</span>
+              <span class="value">107 cm</span>
+              <span class="sub">Value read from Desk API (position in cm)</span>
+            </div>
+
+            <!-- Numeric target height (RF-MD-03) -->
+            <div class="field inline-field">
+              <label for="go-height">Go to height (cm)</label>
+              <div class="inline-input">
+                <input id="go-height" type="number" class="input input-compact" min="60" max="130" value="105">
+                <button class="btn secondary" type="button">Move to height</button>
+              </div>
+              <p class="helper">
+                Exact target height in centimeters; the backend will call the corresponding “Set position” Desk API.
+              </p>
+            </div>
+
+            <!-- Basic movement & presets -->
+            <div class="control-buttons">
+              <button class="btn secondary" type="button">Move down</button>
+              <button class="btn secondary" type="button">Move up</button>
+              <button class="btn" type="button">Set preset: Sit</button>
+              <button class="btn" type="button">Set preset: Stand</button>
+            </div>
+
+            <div class="presets">
+              <p class="presets-title">Personal presets</p>
+              <ul class="presets-list">
+                <li><strong>Sit · Deep focus</strong> – 75 cm</li>
+                <li><strong>Stand · Daily work</strong> – 107 cm</li>
+                <li><strong>Stand · Presentation</strong> – 112 cm</li>
+              </ul>
+              <p class="helper">
+                Occupants can save and reuse favorite positions as described in the project objectives.
+              </p>
             </div>
           </div>
+        </section>
+
+        <section class="section card">
+          <div class="title">
+            <h3>Today’s health recommendations</h3>
+            <p class="subtitle">Implements “Health Feedback” for the current user (FR4 idea).</p>
+          </div>
+
+          <ul class="timeline">
+            <li>
+              <div class="dot"></div>
+              <div class="content">
+                <p class="time">Now</p>
+                <p><strong>Time to stand up.</strong> You have been sitting for 52 minutes.</p>
+                <p class="detail">
+                  Switch to your “Stand · Daily work” preset and stay standing at least 15 minutes.
+                </p>
+              </div>
+            </li>
+            <li>
+              <div class="dot"></div>
+              <div class="content">
+                <p class="time">1 h ago</p>
+                <p>Great balance of sit/stand.</p>
+                <p class="detail">
+                  You alternated position every 35 minutes, which matches the recommended pattern.
+                </p>
+              </div>
+            </li>
+            <li>
+              <div class="dot"></div>
+              <div class="content">
+                <p class="time">Yesterday</p>
+                <p>Standing time below target.</p>
+                <p class="detail">
+                  Try adding one extra 20-minute standing block after lunch to reach your daily goal.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- Synchronization and activity log -->
+      <section class="grid">
+        <section class="section card">
+          <div class="title">
+            <h3>Desk synchronization</h3>
+            <p class="subtitle">
+              Example of multi-desk context for this user (FR5: centralized control of multiple desks).
+            </p>
+          </div>
+
           <div class="body table-wrap">
-            <table role="table" aria-describedby="reports-title">
+            <table>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Title</th>
-                  <th>Scope</th>
+                  <th>Desk ID</th>
+                  <th>Location</th>
+                  <th>Height (cm)</th>
+                  <th>Mode</th>
+                  <th>Sit / Stand</th>
                   <th>Status</th>
-                  <th>Created</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>REP-310</td>
-                  <td>Usage overview (week)</td>
-                  <td>All desks</td>
-                  <td><span class="badge success">ready</span></td>
-                  <td>12:28</td>
+                  <td>DX-021</td>
+                  <td>Floor 2 · Zone B</td>
+                  <td>107</td>
+                  <td><span class="badge neutral">stand</span></td>
+                  <td>41 / 59</td>
+                  <td><span class="badge success">ok</span></td>
                   <td class="actions">
-                    <a class="btn secondary" href="#">View</a>
-                    <a class="btn secondary" href="#">Download</a>
+                    <button class="btn secondary" type="button">Set as reference</button>
                   </td>
                 </tr>
                 <tr>
-                  <td>REP-298</td>
-                  <td>Maintenance candidates</td>
-                  <td>Floor 2</td>
-                  <td><span class="badge success">ready</span></td>
-                  <td>11:02</td>
+                  <td>DX-022</td>
+                  <td>Floor 2 · Zone B</td>
+                  <td>75</td>
+                  <td><span class="badge neutral">sit</span></td>
+                  <td>72 / 28</td>
+                  <td><span class="badge warn">attention</span></td>
                   <td class="actions">
-                    <a class="btn secondary" href="#">Download</a>
+                    <button class="btn secondary" type="button">Match DX-021</button>
                   </td>
                 </tr>
                 <tr>
-                  <td>REP-287</td>
-                  <td>Sit/Stand balance</td>
-                  <td>Team A</td>
-                  <td><span class="badge warn">pending</span></td>
-                  <td>09:45</td>
+                  <td>DX-023</td>
+                  <td>Floor 2 · Zone C</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td><span class="badge danger">offline</span></td>
                   <td class="actions">
-                    <a class="btn secondary" href="#">Generate</a>
+                    <button class="btn secondary" type="button">Diagnostics</button>
+                    <button class="btn" type="button">Retry connect</button>
                   </td>
                 </tr>
               </tbody>
@@ -239,54 +247,42 @@
           </div>
         </section>
 
-        <!-- Events/Audit -->
-        <section class="section card" aria-labelledby="audit-title">
+        <section class="section card">
           <div class="title">
-            <h3 id="audit-title" style="margin:0">Events</h3>
-            <div class="actions">
-              <a class="btn secondary" href="#">Filter</a>
-              <a class="btn" href="#">Export CSV</a>
-            </div>
+            <h3>Recent desk events</h3>
+            <p class="subtitle">Errors, power-saving transitions and improper use detected.</p>
           </div>
+
           <div class="body table-wrap">
-            <table role="table" aria-describedby="audit-title">
+            <table>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Actor</th>
-                  <th>Action</th>
-                  <th>Object</th>
-                  <th>Result</th>
+                  <th>Time</th>
+                  <th>Type</th>
+                  <th>Description</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>2025-10-28 12:31</td>
-                  <td>twin@group</td>
-                  <td>sync_desks</td>
-                  <td>Floor 2</td>
-                  <td><span class="badge success">ok</span></td>
+                  <td>09:21</td>
+                  <td><span class="badge danger">error</span></td>
+                  <td>Anti-collision triggered · Column 2</td>
                 </tr>
                 <tr>
-                  <td>2025-10-28 11:59</td>
-                  <td>admin@group</td>
-                  <td>save_preset</td>
-                  <td>Ergonomic v2</td>
-                  <td><span class="badge success">ok</span></td>
+                  <td>09:50</td>
+                  <td><span class="badge neutral">info</span></td>
+                  <td>Desk entered idle power-saving mode</td>
                 </tr>
                 <tr>
-                  <td>2025-10-28 09:12</td>
-                  <td>viewer@group</td>
-                  <td>download</td>
-                  <td>REP-298</td>
+                  <td>11:05</td>
                   <td><span class="badge success">ok</span></td>
+                  <td>Resumed from idle · User interaction detected</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </section>
-
-      </main>
+      </section>
     </div>
   </div>
 </body>
