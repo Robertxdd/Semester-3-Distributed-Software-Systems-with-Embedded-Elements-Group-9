@@ -33,4 +33,14 @@ class Desk extends Model
     {
         return $this->hasMany(DeskError::class);
     }
+
+    public function settings()
+    {
+        return $this->hasMany(DeskSetting::class);
+    }
+
+    public function maintenanceRecords()
+    {
+        return $this->hasMany(MaintenanceRecord::class);
+    }
 }

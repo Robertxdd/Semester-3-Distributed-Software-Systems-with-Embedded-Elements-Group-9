@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DeskController;
 use App\Http\Controllers\DeskDataCollectionController;
+use App\Http\Controllers\DeskDataQueryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/desks', [DeskController::class, 'index']);
@@ -16,3 +17,7 @@ Route::post('/desks/{desk}/stop', [DeskController::class, 'stop']);
 
 // Nueva ruta para disparar data collection
 Route::post('/desks/collect', [DeskDataCollectionController::class, 'collect']);
+
+// Lecturas para UI/informes
+Route::get('/desks/{desk}/state-history', [DeskDataQueryController::class, 'stateHistory']);
+Route::get('/desks/{desk}/usage-summary', [DeskDataQueryController::class, 'usageSummary']);

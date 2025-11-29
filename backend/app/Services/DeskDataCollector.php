@@ -3,9 +3,6 @@
 namespace App\Services;
 
 use App\Models\Desk;
-use App\Models\DeskError;
-use App\Models\DeskStateReading;
-use App\Models\DeskUsageSnapshot;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -13,6 +10,7 @@ class DeskDataCollector
 {
     public function __construct(
         protected DeskSimulatorClient $client,
+        protected DeskDataHandler $handler,
     ) {
     }
 
@@ -55,50 +53,18 @@ class DeskDataCollector
 
                 // 2) Guardar el estado (state)
                 if (!empty($state)) {
-                    DeskStateReading::create([
-                        'desk_id'                    => $desk->id,
-                        'position_mm'                => $state['position_mm']        ?? null,
-                        'speed_mms'                  => $state['speed_mms']          ?? null,
-                        'status'                     => $state['status']             ?? null,
-                        'is_position_lost'           => $state['isPositionLost']     ?? false,
-                        'is_overload_protection_up'  => $state['isOverloadProtectionUp']   ?? false,
-                        'is_overload_protection_down'=> $state['isOverloadProtectionDown'] ?? false,
-                        'is_anti_collision'          => $state['isAntiCollision']    ?? false,
-                        'collected_at'               => $now,
-                    ]);
-
+                    $this->handler->saveStateReading($desk, $state, $now);
                     $summary['state_rows_inserted']++;
                 }
 
                 // 3) Guardar uso (usage)
                 if (!empty($usage)) {
-                    DeskUsageSnapshot::create([
-                        'desk_id'            => $desk->id,
-                        'activations_counter'=> $usage['activationsCounter'] ?? null,
-                        'sit_stand_counter'  => $usage['sitStandCounter']    ?? null,
-                        'collected_at'       => $now,
-                    ]);
-
+                    $this->handler->saveUsageSnapshot($desk, $usage, $now);
                     $summary['usage_rows_inserted']++;
                 }
 
                 // 4) Guardar errores (lastErrors)
-                foreach ($lastErrors as $error) {
-                    $created = DeskError::firstOrCreate(
-                        [
-                            'desk_id'   => $desk->id,
-                            'error_code'=> $error['errorCode'] ?? null,
-                            'time_s'    => $error['time_s']    ?? null,
-                        ],
-                        [
-                            'collected_at' => $now,
-                        ]
-                    );
-
-                    if ($created->wasRecentlyCreated) {
-                        $summary['error_rows_inserted']++;
-                    }
-                }
+                $summary['error_rows_inserted'] += $this->handler->saveErrors($desk, $lastErrors, $now);
 
             } catch (\Throwable $e) {
                 Log::error('Error collecting data for desk '.$deskId.': '.$e->getMessage(), [
