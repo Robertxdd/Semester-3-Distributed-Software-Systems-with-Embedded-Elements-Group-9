@@ -14,5 +14,5 @@ Route::post('/desks/{desk}/up', [DeskController::class, 'moveUp']);
 Route::post('/desks/{desk}/down', [DeskController::class, 'moveDown']);
 Route::post('/desks/{desk}/stop', [DeskController::class, 'stop']);
 
-// 👇 NUEVA RUTA PARA DISPARAR DATA COLLECTION
+// Nueva ruta para disparar data collection
 Route::post('/desks/collect', [DeskDataCollectionController::class, 'collect']);

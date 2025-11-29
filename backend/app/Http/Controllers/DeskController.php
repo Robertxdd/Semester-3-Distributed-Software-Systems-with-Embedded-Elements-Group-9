@@ -15,9 +15,7 @@ class DeskController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $data = $this->validatedData($request);
-
-        $desk = Desk::create($data);
+        $desk = Desk::create($this->validatedData($request, requireName: true));
 
         return response()->json($desk, 201);
     }
@@ -29,7 +27,7 @@ class DeskController extends Controller
 
     public function update(Request $request, Desk $desk): JsonResponse
     {
-        $desk->update($this->validatedData($request));
+        $desk->update($this->validatedData($request, requireName: false));
 
         return response()->json($desk);
     }
@@ -43,35 +41,43 @@ class DeskController extends Controller
 
     public function moveUp(Desk $desk): JsonResponse
     {
-        $desk->update(['state' => 'moving_up']);
+        $desk->update([
+            'height' => $desk->max_height,
+            'state'  => 'stopped',
+        ]);
 
-        return response()->json(['message' => 'Desk moving up']);
+        return response()->json($desk);
     }
 
     public function moveDown(Desk $desk): JsonResponse
     {
-        $desk->update(['state' => 'moving_down']);
+        $desk->update([
+            'height' => $desk->min_height,
+            'state'  => 'stopped',
+        ]);
 
-        return response()->json(['message' => 'Desk moving down']);
+        return response()->json($desk);
     }
 
     public function stop(Desk $desk): JsonResponse
     {
         $desk->update(['state' => 'stopped']);
 
-        return response()->json(['message' => 'Desk stopped']);
+        return response()->json($desk);
     }
 
-    protected function validatedData(Request $request): array
+    protected function validatedData(Request $request, bool $requireName = false): array
     {
-        return $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'external_id' => ['nullable', 'string', 'max:255'],
-            'manufacturer' => ['nullable', 'string', 'max:255'],
-            'height' => ['nullable', 'integer'],
-            'min_height' => ['nullable', 'integer'],
-            'max_height' => ['nullable', 'integer'],
-            'state' => ['nullable', 'string', 'max:255'],
-        ]);
+        $rules = [
+            'name' => $requireName ? ['required', 'string', 'max:255'] : ['sometimes', 'string', 'max:255'],
+            'external_id' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'manufacturer' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'height' => ['sometimes', 'nullable', 'integer'],
+            'min_height' => ['sometimes', 'nullable', 'integer'],
+            'max_height' => ['sometimes', 'nullable', 'integer'],
+            'state' => ['sometimes', 'nullable', 'string', 'max:255'],
+        ];
+
+        return $request->validate($rules);
     }
 }

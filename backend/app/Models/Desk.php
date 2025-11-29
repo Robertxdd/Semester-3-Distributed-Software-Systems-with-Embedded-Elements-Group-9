@@ -11,15 +11,14 @@ class Desk extends Model
 
     protected $fillable = [
         'name',
-        'external_id',   // 👈 NUEVO
-        'manufacturer',  // 👈 NUEVO
+        'external_id',   // linked simulator identifier
+        'manufacturer',  // simulator-reported manufacturer
         'height',
         'min_height',
         'max_height',
         'state',
     ];
 
-    // Relaciones con las nuevas tablas (las crearemos ahora)
     public function stateReadings()
     {
         return $this->hasMany(DeskStateReading::class);
