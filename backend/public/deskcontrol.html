@@ -6,6 +6,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Smart Desk Supervisor · My Desk</title>
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Indicador PicoBricks: estilos propios -->
+  <style>
+    .pico-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #1f2933;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+      font-family: system-ui, sans-serif;
+    }
+
+    .pico-led {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #4b5563;
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6);
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .pico-led.moving {
+      background: #ef4444;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+      animation: picoPulse 0.6s infinite alternate;
+    }
+
+    .pico-led.stopped {
+      background: #374151;
+      box-shadow: none;
+      animation: none;
+    }
+
+    @keyframes picoPulse {
+      from {
+        transform: scale(1);
+        box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+      }
+
+      to {
+        transform: scale(1.15);
+        box-shadow: 0 0 16px rgba(239, 68, 68, 1);
+      }
+    }
+
+    .pico-text {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8rem;
+      line-height: 1.2;
+    }
+
+    .pico-label {
+      font-weight: 600;
+      color: #9ca3af;
+    }
+
+    #picoStateText {
+      color: #e5e7eb;
+    }
+  </style>
 </head>
 
 <body>
@@ -28,7 +93,6 @@
           <span>Admin · Settings</span>
         </a>
       </nav>
-
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
@@ -67,6 +131,15 @@
             If the REST API or simulator is not available, this area should show:
             <em>“Desk not reachable. Try again or contact support.”</em> (covers RNF-MD-03).
           </p>
+
+          <!-- 🔴 Indicador visual sincronizado con el PicoBricks -->
+          <div class="pico-status">
+            <div class="pico-led stopped" id="picoLed"></div>
+            <div class="pico-text">
+              <span class="pico-label">PicoBricks</span>
+              <span id="picoStateText">Desk parado</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -288,6 +361,48 @@
       </section>
     </div>
   </div>
+
+  <!-- Script para sincronizar LED del frontend con el estado del desk -->
+  <script>
+    
+    const API_URL = "http://127.0.0.1:8000/api/desk/1/state";
+
+    const led = document.getElementById("picoLed");
+    const text = document.getElementById("picoStateText");
+
+    const MOVING_VALUES = ["MOVING", "UP", "DOWN"];
+    const STOP_VALUES = ["IDLE", "STOPPED"];
+
+    async function updatePicoStatus() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        const rawState = (data.state || "").toString().toUpperCase();
+
+        if (MOVING_VALUES.includes(rawState)) {
+          led.classList.remove("stopped");
+          led.classList.add("moving");
+          text.textContent = "Desk moving";
+        } else if (STOP_VALUES.includes(rawState)) {
+          led.classList.remove("moving");
+          led.classList.add("stopped");
+          text.textContent = "Desk stopped";
+        } else {
+          led.classList.remove("moving");
+          led.classList.add("stopped");
+          text.textContent = "Desk resting";
+        }
+      } catch (err) {
+        led.classList.remove("moving");
+        led.classList.add("stopped");
+        text.textContent = "Desk without internet";
+      }
+    }
+
+    updatePicoStatus();
+    setInterval(updatePicoStatus, 500);
+  </script>
 </body>
 
 </html>
