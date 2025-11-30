@@ -93,14 +93,12 @@
   </div>
   <script>
 document.querySelector(".form").addEventListener("submit", async function (e) {
-    e.preventDefault(); // evitar recarga de página
+    e.preventDefault();
 
-    // Obtener valores del formulario
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    const role = document.getElementById("role").value;
+    const role = document.getElementById("role").value; // user or admin
 
-    // Petición al backend Laravel
     const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,16 +114,13 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     if (response.ok) {
         alert("Login exitoso ✔");
 
-        // Guardar token
         localStorage.setItem("token", data.token);
 
-        // Redirección según rol
-        if (role === "occupant") {
-            window.location.href = "occupant-dashboard.html";
-        } else if (role === "manager") {
-            window.location.href = "manager-dashboard.html";
-        } else {
-            alert("Este login no permite administradores.");
+        // Redirect based on role
+        if (role === "user") {
+            window.location.href = "user-dashboard.html";
+        } else if (role === "admin") {
+            window.location.href = "admin-dashboard.html";
         }
 
     } else {
@@ -133,6 +128,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     }
 });
 </script>
+
 
 </body>
 </html>
