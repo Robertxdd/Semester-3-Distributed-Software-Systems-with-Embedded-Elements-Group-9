@@ -53,7 +53,7 @@
       <nav class="nav">
         <a href="deskcontrol.html" class="active"><span>My Desk</span></a>
         <a href="healthreport.html"><span>Health & Reports</span></a>
-        <a href="settings.html"><span>Admin · Settings</span></a>
+        <a href="settings.html"><span>Admin - Settings</span></a>
         <a href="manager.html"><span>Manager</span></a>
       </nav>
 
@@ -153,8 +153,8 @@
 
   <!-- Full working API + KPI logic -->
   <script>
-    const DESK_ID = 1;
     const BASE = "/api/desks";
+    let currentDeskId = null;
 
     const btnUp = document.getElementById("btn-up");
     const btnDown = document.getElementById("btn-down");
@@ -171,35 +171,57 @@
     const kpiMoves = document.getElementById("kpi-moves");
     const kpiErrors = document.getElementById("kpi-errors");
 
+    const authHeaders = () => {
+      const token = localStorage.getItem("token");
+      return token ? { "Authorization": `Bearer ${token}` } : {};
+    };
+
     function logState(heightCm, status = "stopped") {
+      if (!currentDeskId) return;
       const positionMm = Math.round(heightCm * 10);
-      return fetch(`${BASE}/${DESK_ID}/log-state`, {
+      return fetch(`${BASE}/${currentDeskId}/log-state`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ position_mm: positionMm, status })
       }).then(() => loadTodayStats());
     }
 
     function move(url) {
-      return fetch(url, { method: "POST" }).then(r => r.json()).then(data => {
-        updateUI(data);
-        if (data.height !== undefined) {
-          logState(data.height, data.state || "moving");
-        }
-      });
+      return fetch(url, { method: "POST", headers: authHeaders() })
+        .then(r => {
+          if (!r.ok) throw new Error(`Move failed: ${r.status}`);
+          return r.json();
+        })
+        .then(data => {
+          updateUI(data);
+          if (data.height !== undefined) {
+            logState(data.height, data.state || "moving");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          picoStateText.textContent = "Move failed";
+        });
     }
 
-    btnUp.onclick = () => move(`${BASE}/${DESK_ID}/up`);
-    btnDown.onclick = () => move(`${BASE}/${DESK_ID}/down`);
+    btnUp.onclick = () => currentDeskId && move(`${BASE}/${currentDeskId}/up`);
+    btnDown.onclick = () => currentDeskId && move(`${BASE}/${currentDeskId}/down`);
     btnGo.onclick = () => {
+      if (!currentDeskId) return;
       const h = Number(document.getElementById("go-height").value);
-      fetch(`${BASE}/${DESK_ID}`, {
+      fetch(`${BASE}/${currentDeskId}`, {
         method: "PUT",
-        headers: {"Content-Type": "application/json"},
+        headers: {"Content-Type": "application/json", ...authHeaders()},
         body: JSON.stringify({ height: h, state: "stopped" })
-      }).then(r => r.json()).then(data => {
+      }).then(r => {
+        if (!r.ok) throw new Error(`Set height failed: ${r.status}`);
+        return r.json();
+      }).then(data => {
         updateUI(data);
         logState(h, data.state || "stopped");
+      }).catch(err => {
+        console.error(err);
+        picoStateText.textContent = "Failed to set height";
       });
     };
 
@@ -230,8 +252,12 @@
     }
 
     function poll() {
-      fetch(`${BASE}/${DESK_ID}`)
-        .then(r => r.json())
+      if (!currentDeskId) return;
+      fetch(`${BASE}/${currentDeskId}`, { headers: authHeaders() })
+        .then(r => {
+          if (!r.ok) throw new Error(`Status ${r.status}`);
+          return r.json();
+        })
         .then(updateUI)
         .catch(() => {
           picoStateText.textContent = "Desk offline";
@@ -239,12 +265,13 @@
         });
     }
 
-    setInterval(poll, 500);
-    poll();
-
     function loadTodayStats() {
-      fetch(`${BASE}/${DESK_ID}/today-stats`)
-        .then(r => r.json())
+      if (!currentDeskId) return;
+      fetch(`${BASE}/${currentDeskId}/today-stats`, { headers: authHeaders() })
+        .then(r => {
+          if (!r.ok) throw new Error(`Stats failed ${r.status}`);
+          return r.json();
+        })
         .then(data => {
           const standing = data.standing_minutes ?? 0;
           const sitting = data.sitting_minutes ?? 0;
@@ -265,8 +292,27 @@
         });
     }
 
-    loadTodayStats();
-    setInterval(loadTodayStats, 60000);
+    async function initDesk() {
+      try {
+        const desksRes = await fetch(BASE, { headers: authHeaders() });
+        if (!desksRes.ok) throw new Error(`Desk list failed: ${desksRes.status}`);
+        const desks = await desksRes.json();
+        if (!desks.length) {
+          picoStateText.textContent = "No desks registered";
+          return;
+        }
+        currentDeskId = desks.find(d => d.id === 1)?.id ?? desks[0].id;
+        poll();
+        loadTodayStats();
+        setInterval(poll, 500);
+        setInterval(loadTodayStats, 60000);
+      } catch (err) {
+        console.error(err);
+        picoStateText.textContent = "Failed to load desks";
+      }
+    }
+
+    initDesk();
   </script>
 
 </body>
