@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart Desk Supervisor · My Desk</title>
+  <title>Smart Desk Supervisor - My Desk</title>
   <link rel="stylesheet" href="styles.css">
 
   <style>
@@ -54,11 +54,12 @@
         <a href="deskcontrol.html" class="active"><span>My Desk</span></a>
         <a href="healthreport.html"><span>Health & Reports</span></a>
         <a href="settings.html"><span>Admin · Settings</span></a>
+        <a href="manager.html"><span>Manager</span></a>
       </nav>
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
-        <p class="foot-meta">Occupant · Desk DX-021</p>
+        <p class="foot-meta">Logged in</p>
       </section>
     </aside>
 
@@ -101,7 +102,7 @@
         <article class="card kpi">
           <h2>Sit / Stand (today)</h2>
           <p class="kpi-main" id="kpi-sitstand">0h 00m / 0h 00m</p>
-          <p class="kpi-sub">Sit < 90 cm, Stand ≥ 90 cm</p>
+          <p class="kpi-sub">Based on collected desk state</p>
         </article>
 
         <article class="card kpi">
@@ -153,7 +154,7 @@
   <!-- Full working API + KPI logic -->
   <script>
     const DESK_ID = 1;
-    const BASE = "http://127.0.0.1:8000/api/desks";
+    const BASE = "/api/desks";
 
     const btnUp = document.getElementById("btn-up");
     const btnDown = document.getElementById("btn-down");
@@ -170,18 +171,7 @@
     const kpiMoves = document.getElementById("kpi-moves");
     const kpiErrors = document.getElementById("kpi-errors");
 
-    let lastHeight = null;
-    let sitTime = 0;
-    let standTime = 0;
-    let movementCount = 0;
-    let errorCount = 0;
-    let lastMode = null;
-
-    const SIT_THRESHOLD = 90;
-
     function move(url) {
-      movementCount++;
-      kpiMoves.textContent = movementCount;
       return fetch(url, { method: "POST" }).then(r => r.json()).then(updateUI);
     }
 
@@ -189,8 +179,6 @@
     btnDown.onclick = () => move(`${BASE}/${DESK_ID}/down`);
     btnGo.onclick = () => {
       const h = Number(document.getElementById("go-height").value);
-      movementCount++;
-      kpiMoves.textContent = movementCount;
       fetch(`${BASE}/${DESK_ID}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
@@ -215,20 +203,6 @@
       heightDisplay.textContent = height + " cm";
       kpiHeight.textContent = height + " cm";
 
-      if (lastHeight !== null && height !== lastHeight) {
-        movementCount++;
-        kpiMoves.textContent = movementCount;
-      }
-      lastHeight = height;
-
-      const mode = height < SIT_THRESHOLD ? "sit" : "stand";
-      lastMode = mode;
-
-      if (state === "ERROR") {
-        errorCount++;
-        kpiErrors.textContent = errorCount;
-      }
-
       if (["MOVING", "UP", "DOWN"].includes(state)) {
         picoLed.classList.add("moving");
         picoStateText.textContent = "Desk moving";
@@ -251,18 +225,31 @@
     setInterval(poll, 500);
     poll();
 
-    setInterval(() => {
-  if (lastMode === "sit") sitTime++;
-  if (lastMode === "stand") standTime++;
+    function loadTodayStats() {
+      fetch(`${BASE}/${DESK_ID}/today-stats`)
+        .then(r => r.json())
+        .then(data => {
+          const standing = data.standing_minutes ?? 0;
+          const sitting = data.sitting_minutes ?? 0;
+          const moves = data.movements_today ?? 0;
+          const errors = data.errors_today ?? 0;
 
-  const sM = Math.floor(sitTime / 60);
-  const sS = sitTime % 60;
+          const standingH = Math.floor(standing / 60);
+          const standingM = standing % 60;
+          const sittingH = Math.floor(sitting / 60);
+          const sittingM = sitting % 60;
 
-  const stM = Math.floor(standTime / 60);
-  const stS = standTime % 60;
+          kpiSitStand.textContent = `${sittingH}h ${sittingM}m / ${standingH}h ${standingM}m`;
+          kpiMoves.textContent = moves;
+          kpiErrors.textContent = errors;
+        })
+        .catch(err => {
+          console.error("Failed to load today stats", err);
+        });
+    }
 
-  kpiSitStand.textContent = `${sM}m ${sS}s / ${stM}m ${stS}s`;
-}, 1000);
+    loadTodayStats();
+    setInterval(loadTodayStats, 60000);
   </script>
 
 </body>
