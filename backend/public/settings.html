@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart Desk Supervisor · Admin Settings</title>
+  <title>Smart Desk Supervisor - Admin Settings</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -30,7 +30,7 @@
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
         <p class="foot-meta">Administrator</p>
-        <p class="foot-meta small">System configuration & access control.</p>
+        <p class="foot-meta small">Configuration placeholders (not wired).</p>
       </section>
     </aside>
 
@@ -41,16 +41,8 @@
         <div class="topbar-left">
           <h1>System & admin settings</h1>
           <p class="subtitle">
-            Configure connection to the Desk API, user roles, energy policy and data retention.
+            These controls are placeholders; backend wiring pending.
           </p>
-        </div>
-        <div class="topbar-right topbar-actions">
-          <button class="btn secondary" type="button">
-            Theme: Dark / Light
-          </button>
-          <button class="btn secondary" type="button">
-            Logout
-          </button>
         </div>
       </header>
 
@@ -61,7 +53,7 @@
           <div class="title">
             <h3>WiFi2BLE & API configuration</h3>
             <p class="subtitle">
-              Basic connection settings for the Desk REST API (simulator or real hardware).
+              Connection settings for the Desk REST API (simulator or real hardware).
             </p>
           </div>
           <div class="body">
@@ -77,14 +69,12 @@
 
               <div class="field">
                 <label for="base-url">Base URL</label>
-                <input id="base-url" class="input" type="text"
-                       placeholder="http://127.0.0.1:8000/api/v2/" value="http://127.0.0.1:8000/api/v2/">
+                <input id="base-url" class="input" type="text" placeholder="http://127.0.0.1:8000/api/v2/">
               </div>
 
               <div class="field">
                 <label for="api-key">API key</label>
-                <input id="api-key" class="input" type="password"
-                       placeholder="••••••••••••••••••••••••••••••••">
+                <input id="api-key" class="input" type="password" placeholder="Enter simulator API key">
                 <p class="helper">
                   32-character key as described in the WiFi2BLE simulator README.
                 </p>
@@ -110,7 +100,7 @@
                 </label>
               </div>
 
-              <button class="btn" type="submit">Save connection settings</button>
+              <button class="btn" type="button" disabled>Save connection settings (placeholder)</button>
             </form>
           </div>
         </section>
@@ -120,44 +110,11 @@
           <div class="title">
             <h3>User roles & access control</h3>
             <p class="subtitle">
-              Simple overview of occupants, managers and administrators.
+              Overview will load from the backend; no static users are shown.
             </p>
           </div>
           <div class="body table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Assigned desk / scope</th>
-                  <th>Last login</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>alex@company</td>
-                  <td><span class="badge success">administrator</span></td>
-                  <td>All desks</td>
-                  <td>Today · 08:12</td>
-                </tr>
-                <tr>
-                  <td>manager@company</td>
-                  <td><span class="badge warn">manager</span></td>
-                  <td>Floor 2 · Zone B</td>
-                  <td>Yesterday · 16:04</td>
-                </tr>
-                <tr>
-                  <td>user.dx021@company</td>
-                  <td><span class="badge neutral">occupant</span></td>
-                  <td>DX-021</td>
-                  <td>Today · 09:27</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="mt-1">
-              <a class="btn secondary" href="#">Invite new user</a>
-            </div>
+            <div class="helper">User list will be populated from the API (no fake rows).</div>
           </div>
         </section>
       </section>
@@ -169,7 +126,7 @@
           <div class="title">
             <h3>Energy & idle power-saving</h3>
             <p class="subtitle">
-              Simple policy for when desks should enter low-power mode.
+              Placeholder controls for power-saving policy.
             </p>
           </div>
           <div class="body">
@@ -192,14 +149,7 @@
                 </select>
               </div>
 
-              <div class="field">
-                <label class="checkbox">
-                  <input type="checkbox" checked>
-                  <span>Show “Going idle” warning on desk panel before power-saving</span>
-                </label>
-              </div>
-
-              <button class="btn" type="submit">Save energy policy</button>
+              <button class="btn" type="button" disabled>Save energy policy (placeholder)</button>
             </form>
           </div>
         </section>
@@ -209,7 +159,7 @@
           <div class="title">
             <h3>Data & privacy</h3>
             <p class="subtitle">
-              Retention period and basic privacy options for usage data.
+              Retention and privacy options will be wired to backend settings.
             </p>
           </div>
           <div class="body">
@@ -230,11 +180,11 @@
                 </label>
                 <label class="checkbox">
                   <input type="checkbox" checked>
-                  <span>Mask desk IDs in exported CSV/PDF reports</span>
+                  <span>Mask desk IDs in exported reports</span>
                 </label>
               </div>
 
-              <button class="btn" type="submit">Save data settings</button>
+              <button class="btn" type="button" disabled>Save data settings (placeholder)</button>
             </form>
           </div>
         </section>
