@@ -70,7 +70,7 @@
   <script>
     const authHeaders = () => {
       const token = localStorage.getItem('token');
-      return token - { 'Authorization': `Bearer ${token}` } : {};
+      return token ? { 'Authorization': `Bearer ${token}` } : {};
     };
 
     function renderDesks(desks) {
@@ -80,7 +80,7 @@
       list.innerHTML = '';
       desks.forEach(d => {
         const li = document.createElement('li');
-        li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id - ` - External: ${d.external_id}` : '');
+        li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id ? ` - External: ${d.external_id}` : '');
 
         const remove = document.createElement('button');
         remove.textContent = 'Delete';
