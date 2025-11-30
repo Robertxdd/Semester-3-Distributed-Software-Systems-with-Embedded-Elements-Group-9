@@ -55,23 +55,23 @@
       <section class="kpis">
         <article class="card kpi">
           <h2>Active desks</h2>
-          <p class="kpi-main">--</p>
-          <p class="kpi-sub">Will load from backend data</p>
+          <p class="kpi-main" id="kpi-active-desks">--</p>
+          <p class="kpi-sub">Total desks from backend</p>
         </article>
         <article class="card kpi">
           <h2>Balanced sit/stand users</h2>
-          <p class="kpi-main">--</p>
-          <p class="kpi-sub">Users meeting the standing target (to be fetched)</p>
+          <p class="kpi-main" id="kpi-balanced">--</p>
+          <p class="kpi-sub">Standing >= 60 minutes today</p>
         </article>
         <article class="card kpi">
           <h2>Maintenance alerts</h2>
-          <p class="kpi-main">--</p>
-          <p class="kpi-sub badge-inline warn">Will list collision/offline desks</p>
+          <p class="kpi-main" id="kpi-maintenance">--</p>
+          <p class="kpi-sub badge-inline warn">Errors logged today</p>
         </article>
         <article class="card kpi">
           <h2>Energy saving</h2>
-          <p class="kpi-main">--</p>
-          <p class="kpi-sub">Power-saving compliance (to be implemented)</p>
+          <p class="kpi-main" id="kpi-energy">--</p>
+          <p class="kpi-sub">Health recommendation status</p>
         </article>
       </section>
 
@@ -87,15 +87,15 @@
 
           <div class="body">
             <div class="chart-placeholder">
-              <p class="chart-title">Chart â€“ Sit vs Stand over time</p>
+              <p class="chart-title">Chart - Sit vs Stand over time</p>
               <p class="chart-text">
-                Real chart will be rendered from backend data for the selected range.
+                Will render from backend data (placeholder for now).
               </p>
             </div>
 
             <div class="health-summary">
-              <p><strong>Health score: --</strong></p>
-              <p class="helper">Health recommendation will appear here from the API.</p>
+              <p><strong id="health-score">Health score: --</strong></p>
+              <p class="helper" id="health-helper">Health recommendation will appear here from the API.</p>
             </div>
           </div>
         </section>
@@ -133,5 +133,70 @@
     </div>
   </div>
 </body>
+<script>
+  const BASE = '/api';
+  const DEFAULT_DESK_ID = 1;
 
+  const els = {
+    active: document.getElementById('kpi-active-desks'),
+    balanced: document.getElementById('kpi-balanced'),
+    maintenance: document.getElementById('kpi-maintenance'),
+    energy: document.getElementById('kpi-energy'),
+    healthScore: document.getElementById('health-score'),
+    healthHelper: document.getElementById('health-helper'),
+  };
+
+  const authHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
+
+  async function fetchJson(url) {
+    const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...authHeaders() } });
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.json();
+  }
+
+  function updateKpisFromStats(stats) {
+    const standing = stats.standing_minutes ?? 0;
+    const sitting = stats.sitting_minutes ?? 0;
+    const meets = stats.meets_recommendation;
+
+    els.balanced.textContent = `${standing}m standing / ${sitting}m sitting`;
+    els.maintenance.textContent = stats.errors_today ?? 0;
+    els.energy.textContent = meets ? 'On target' : 'Below target';
+    els.healthScore.textContent = meets ? 'Health score: OK' : 'Health score: Needs attention';
+    els.healthHelper.textContent = stats.health_message || 'No message from backend.';
+  }
+
+  async function loadOverview() {
+    try {
+      const desks = await fetchJson(`${BASE}/desks`);
+      els.active.textContent = desks.length;
+
+      if (!desks.length) {
+        els.balanced.textContent = '--';
+        els.maintenance.textContent = '--';
+        els.energy.textContent = '--';
+        els.healthScore.textContent = 'Health score: --';
+        els.healthHelper.textContent = 'No desks registered.';
+        return;
+      }
+
+      const targetDesk = desks.find(d => d.id === DEFAULT_DESK_ID) || desks[0];
+      const stats = await fetchJson(`${BASE}/desks/${targetDesk.id}/today-stats`);
+      updateKpisFromStats(stats);
+    } catch (err) {
+      console.error('Failed to load health data', err);
+      els.active.textContent = 'Error';
+      els.balanced.textContent = 'Error';
+      els.maintenance.textContent = 'Error';
+      els.energy.textContent = 'Error';
+      els.healthHelper.textContent = 'Could not load data from backend.';
+    }
+  }
+
+  loadOverview();
+  setInterval(loadOverview, 60000);
+</script>
 </html>
