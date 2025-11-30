@@ -112,7 +112,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
     const data = await response.json();
 
     if (response.ok) {
-        alert("Login exitoso ✔");
+        alert("Successfull log in ✔");
 
         localStorage.setItem("token", data.token);
 
@@ -124,7 +124,7 @@ document.querySelector(".form").addEventListener("submit", async function (e) {
         }
 
     } else {
-        alert(data.message || "Error en login ❌");
+        alert(data.message || "Error in login ❌");
     }
 });
 </script>
