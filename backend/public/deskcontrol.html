@@ -7,7 +7,6 @@
   <title>Smart Desk Supervisor · My Desk</title>
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Indicador PicoBricks: estilos propios -->
   <style>
     .pico-status {
       display: inline-flex;
@@ -27,117 +26,65 @@
       height: 14px;
       border-radius: 999px;
       background: #4b5563;
-      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.6);
-      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+      transition: .15s;
     }
 
     .pico-led.moving {
       background: #ef4444;
-      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
-      animation: picoPulse 0.6s infinite alternate;
+      animation: pulse 0.6s infinite alternate;
     }
 
-    .pico-led.stopped {
-      background: #374151;
-      box-shadow: none;
-      animation: none;
-    }
-
-    @keyframes picoPulse {
-      from {
-        transform: scale(1);
-        box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
-      }
-
-      to {
-        transform: scale(1.15);
-        box-shadow: 0 0 16px rgba(239, 68, 68, 1);
-      }
-    }
-
-    .pico-text {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.8rem;
-      line-height: 1.2;
-    }
-
-    .pico-label {
-      font-weight: 600;
-      color: #9ca3af;
-    }
-
-    #picoStateText {
-      color: #e5e7eb;
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.15); }
     }
   </style>
 </head>
 
 <body>
   <div class="app">
-    <!-- Sidebar -->
+
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo" aria-hidden="true">S</div>
+        <div class="logo">S</div>
         <div>Smart Desk Supervisor</div>
       </div>
 
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="deskcontrol.html" class="active">
-          <span>My Desk</span>
-        </a>
-        <a href="healthreport.html">
-          <span>Health & Reports</span>
-        </a>
-        <a href="settings.html">
-          <span>Admin · Settings</span>
-        </a>
+      <nav class="nav">
+        <a href="deskcontrol.html" class="active"><span>My Desk</span></a>
+        <a href="healthreport.html"><span>Health & Reports</span></a>
+        <a href="settings.html"><span>Admin · Settings</span></a>
       </nav>
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
         <p class="foot-meta">Occupant · Desk DX-021</p>
-        <p class="foot-meta small">Personal view of the assigned motorized desk.</p>
       </section>
     </aside>
 
-    <!-- Main content -->
     <div class="main">
-      <!-- Top bar -->
+
       <header class="topbar">
         <div class="topbar-left">
           <h1>My motorized desk</h1>
-          <p class="subtitle">
-            Direct control of your LINAK desk plus today’s sit/stand balance and recent events.
-          </p>
-        </div>
-        <div class="topbar-right">
-          <span class="pill pill-online">WiFi2BLE · connected (simulator)</span>
-          <span class="pill pill-saving">Idle power-saving: ON</span>
+          <p class="subtitle">Live control + sit/stand balance today</p>
         </div>
       </header>
 
-      <!-- Connection alert / API status -->
-      <section class="section card" style="margin-bottom: 1rem;">
-        <div class="title">
-          <h3>Connection status</h3>
-        </div>
+      <!-- Connection status -->
+      <section class="section card">
+        <div class="title"><h3>Connection status</h3></div>
         <div class="body">
-          <div class="alert alert-info">
-            <strong>Desk API reachable.</strong> Connected to WiFi2BLE simulator at
-            <code>http://127.0.0.1:8000/api/v2</code>.
-          </div>
-          <p class="helper">
-            If the REST API or simulator is not available, this area should show:
-            <em>“Desk not reachable. Try again or contact support.”</em> (covers RNF-MD-03).
-          </p>
 
-          <!-- 🔴 Indicador visual sincronizado con el PicoBricks -->
+          <div class="alert alert-info">
+            <strong>Desk API reachable.</strong> Using simulator at <code>127.0.0.1:8000</code>.
+          </div>
+
           <div class="pico-status">
             <div class="pico-led stopped" id="picoLed"></div>
             <div class="pico-text">
               <span class="pico-label">PicoBricks</span>
-              <span id="picoStateText">Desk parado</span>
+              <span id="picoStateText">Desk stopped</span>
             </div>
           </div>
         </div>
@@ -147,262 +94,176 @@
       <section class="kpis">
         <article class="card kpi">
           <h2>Current height</h2>
-          <p class="kpi-main">107 cm</p>
-          <p class="kpi-sub">Target preset: “Stand · Daily work”</p>
+          <p class="kpi-main" id="kpi-height">0 cm</p>
+          <p class="kpi-sub">Live reading from the desk</p>
         </article>
 
         <article class="card kpi">
           <h2>Sit / Stand (today)</h2>
-          <p class="kpi-main">2h 15m / 1h 35m</p>
-          <p class="kpi-sub">Goal: at least 30% of the time standing</p>
+          <p class="kpi-main" id="kpi-sitstand">0h 00m / 0h 00m</p>
+          <p class="kpi-sub">Sit < 90 cm, Stand ≥ 90 cm</p>
         </article>
 
         <article class="card kpi">
           <h2>Movements today</h2>
-          <p class="kpi-main">18</p>
-          <p class="kpi-sub">Desk adjustments (up/down) during the day</p>
+          <p class="kpi-main" id="kpi-moves">0</p>
+          <p class="kpi-sub">Up/Down adjustments</p>
         </article>
 
         <article class="card kpi">
           <h2>Errors today</h2>
-          <p class="kpi-main">1</p>
-          <p class="kpi-sub">Anti-collision triggered this morning</p>
+          <p class="kpi-main" id="kpi-errors">0</p>
+          <p class="kpi-sub">Collision or motor faults</p>
         </article>
       </section>
 
-      <!-- Desk controls + health tips -->
-      <section class="grid">
-        <section class="section card">
-          <div class="title">
-            <h3>Desk controls</h3>
-            <p class="subtitle">These controls will be wired to Desk API endpoints in the backend.</p>
+      <section class="section card">
+        <div class="title">
+          <h3>Desk controls</h3>
+        </div>
+
+        <div class="desk-controls">
+
+          <div class="height-display">
+            <span class="label">Live height</span>
+            <span class="value">0 cm</span>
           </div>
 
-          <div class="desk-controls">
-            <div class="height-display">
-              <span class="label">Live height</span>
-              <span class="value">107 cm</span>
-              <span class="sub">Value read from Desk API (position in cm)</span>
-            </div>
-
-            <!-- Numeric target height (RF-MD-03) -->
-            <div class="field inline-field">
-              <label for="go-height">Go to height (cm)</label>
-              <div class="inline-input">
-                <input id="go-height" type="number" class="input input-compact" min="60" max="130" value="105">
-                <button class="btn secondary" type="button">Move to height</button>
-              </div>
-              <p class="helper">
-                Exact target height in centimeters; the backend will call the corresponding “Set position” Desk API.
-              </p>
-            </div>
-
-            <!-- Basic movement & presets -->
-            <div class="control-buttons">
-              <button class="btn secondary" type="button">Move down</button>
-              <button class="btn secondary" type="button">Move up</button>
-              <button class="btn" type="button">Set preset: Sit</button>
-              <button class="btn" type="button">Set preset: Stand</button>
-            </div>
-
-            <div class="presets">
-              <p class="presets-title">Personal presets</p>
-              <ul class="presets-list">
-                <li><strong>Sit · Deep focus</strong> – 75 cm</li>
-                <li><strong>Stand · Daily work</strong> – 107 cm</li>
-                <li><strong>Stand · Presentation</strong> – 112 cm</li>
-              </ul>
-              <p class="helper">
-                Occupants can save and reuse favorite positions as described in the project objectives.
-              </p>
+          <div class="field inline-field">
+            <label>Go to height (cm)</label>
+            <div class="inline-input">
+              <input id="go-height" type="number" value="105" min="60" max="130">
+              <button class="btn secondary" id="btn-go">Move to height</button>
             </div>
           </div>
-        </section>
 
-        <section class="section card">
-          <div class="title">
-            <h3>Today’s health recommendations</h3>
-            <p class="subtitle">Implements “Health Feedback” for the current user (FR4 idea).</p>
+          <div class="control-buttons">
+            <button class="btn secondary" id="btn-down">Move down</button>
+            <button class="btn secondary" id="btn-up">Move up</button>
+            <button class="btn" id="preset-sit">Set preset: Sit</button>
+            <button class="btn" id="preset-stand">Set preset: Stand</button>
           </div>
 
-          <ul class="timeline">
-            <li>
-              <div class="dot"></div>
-              <div class="content">
-                <p class="time">Now</p>
-                <p><strong>Time to stand up.</strong> You have been sitting for 52 minutes.</p>
-                <p class="detail">
-                  Switch to your “Stand · Daily work” preset and stay standing at least 15 minutes.
-                </p>
-              </div>
-            </li>
-            <li>
-              <div class="dot"></div>
-              <div class="content">
-                <p class="time">1 h ago</p>
-                <p>Great balance of sit/stand.</p>
-                <p class="detail">
-                  You alternated position every 35 minutes, which matches the recommended pattern.
-                </p>
-              </div>
-            </li>
-            <li>
-              <div class="dot"></div>
-              <div class="content">
-                <p class="time">Yesterday</p>
-                <p>Standing time below target.</p>
-                <p class="detail">
-                  Try adding one extra 20-minute standing block after lunch to reach your daily goal.
-                </p>
-              </div>
-            </li>
-          </ul>
-        </section>
+        </div>
       </section>
 
-      <!-- Synchronization and activity log -->
-      <section class="grid">
-        <section class="section card">
-          <div class="title">
-            <h3>Desk synchronization</h3>
-            <p class="subtitle">
-              Example of multi-desk context for this user (FR5: centralized control of multiple desks).
-            </p>
-          </div>
-
-          <div class="body table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Desk ID</th>
-                  <th>Location</th>
-                  <th>Height (cm)</th>
-                  <th>Mode</th>
-                  <th>Sit / Stand</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>DX-021</td>
-                  <td>Floor 2 · Zone B</td>
-                  <td>107</td>
-                  <td><span class="badge neutral">stand</span></td>
-                  <td>41 / 59</td>
-                  <td><span class="badge success">ok</span></td>
-                  <td class="actions">
-                    <button class="btn secondary" type="button">Set as reference</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>DX-022</td>
-                  <td>Floor 2 · Zone B</td>
-                  <td>75</td>
-                  <td><span class="badge neutral">sit</span></td>
-                  <td>72 / 28</td>
-                  <td><span class="badge warn">attention</span></td>
-                  <td class="actions">
-                    <button class="btn secondary" type="button">Match DX-021</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>DX-023</td>
-                  <td>Floor 2 · Zone C</td>
-                  <td>—</td>
-                  <td>—</td>
-                  <td>—</td>
-                  <td><span class="badge danger">offline</span></td>
-                  <td class="actions">
-                    <button class="btn secondary" type="button">Diagnostics</button>
-                    <button class="btn" type="button">Retry connect</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="section card">
-          <div class="title">
-            <h3>Recent desk events</h3>
-            <p class="subtitle">Errors, power-saving transitions and improper use detected.</p>
-          </div>
-
-          <div class="body table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Type</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>09:21</td>
-                  <td><span class="badge danger">error</span></td>
-                  <td>Anti-collision triggered · Column 2</td>
-                </tr>
-                <tr>
-                  <td>09:50</td>
-                  <td><span class="badge neutral">info</span></td>
-                  <td>Desk entered idle power-saving mode</td>
-                </tr>
-                <tr>
-                  <td>11:05</td>
-                  <td><span class="badge success">ok</span></td>
-                  <td>Resumed from idle · User interaction detected</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </section>
     </div>
   </div>
 
-  <!-- Script para sincronizar LED del frontend con el estado del desk -->
+  <!-- Full working API + KPI logic -->
   <script>
-    
-    const API_URL = "http://127.0.0.1:8000/api/desk/1/state";
+    const DESK_ID = 1;
+    const BASE = "http://127.0.0.1:8000/api/desks";
 
-    const led = document.getElementById("picoLed");
-    const text = document.getElementById("picoStateText");
+    const btnUp = document.getElementById("btn-up");
+    const btnDown = document.getElementById("btn-down");
+    const btnGo = document.getElementById("btn-go");
+    const presetSit = document.getElementById("preset-sit");
+    const presetStand = document.getElementById("preset-stand");
 
-    const MOVING_VALUES = ["MOVING", "UP", "DOWN"];
-    const STOP_VALUES = ["IDLE", "STOPPED"];
+    const heightDisplay = document.querySelector(".height-display .value");
+    const picoLed = document.getElementById("picoLed");
+    const picoStateText = document.getElementById("picoStateText");
 
-    async function updatePicoStatus() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+    const kpiHeight = document.getElementById("kpi-height");
+    const kpiSitStand = document.getElementById("kpi-sitstand");
+    const kpiMoves = document.getElementById("kpi-moves");
+    const kpiErrors = document.getElementById("kpi-errors");
 
-        const rawState = (data.state || "").toString().toUpperCase();
+    let lastHeight = null;
+    let sitTime = 0;
+    let standTime = 0;
+    let movementCount = 0;
+    let errorCount = 0;
+    let lastMode = null;
 
-        if (MOVING_VALUES.includes(rawState)) {
-          led.classList.remove("stopped");
-          led.classList.add("moving");
-          text.textContent = "Desk moving";
-        } else if (STOP_VALUES.includes(rawState)) {
-          led.classList.remove("moving");
-          led.classList.add("stopped");
-          text.textContent = "Desk stopped";
-        } else {
-          led.classList.remove("moving");
-          led.classList.add("stopped");
-          text.textContent = "Desk resting";
-        }
-      } catch (err) {
-        led.classList.remove("moving");
-        led.classList.add("stopped");
-        text.textContent = "Desk without internet";
+    const SIT_THRESHOLD = 90;
+
+    function move(url) {
+      movementCount++;
+      kpiMoves.textContent = movementCount;
+      return fetch(url, { method: "POST" }).then(r => r.json()).then(updateUI);
+    }
+
+    btnUp.onclick = () => move(`${BASE}/${DESK_ID}/up`);
+    btnDown.onclick = () => move(`${BASE}/${DESK_ID}/down`);
+    btnGo.onclick = () => {
+      const h = Number(document.getElementById("go-height").value);
+      movementCount++;
+      kpiMoves.textContent = movementCount;
+      fetch(`${BASE}/${DESK_ID}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ height: h, state: "stopped" })
+      }).then(r => r.json()).then(updateUI);
+    };
+
+    presetSit.onclick = () => {
+      document.getElementById("go-height").value = 75;
+      btnGo.click();
+    };
+
+    presetStand.onclick = () => {
+      document.getElementById("go-height").value = 107;
+      btnGo.click();
+    };
+
+    function updateUI(data) {
+      const height = data.height;
+      const state = (data.state || "").toUpperCase();
+
+      heightDisplay.textContent = height + " cm";
+      kpiHeight.textContent = height + " cm";
+
+      if (lastHeight !== null && height !== lastHeight) {
+        movementCount++;
+        kpiMoves.textContent = movementCount;
+      }
+      lastHeight = height;
+
+      const mode = height < SIT_THRESHOLD ? "sit" : "stand";
+      lastMode = mode;
+
+      if (state === "ERROR") {
+        errorCount++;
+        kpiErrors.textContent = errorCount;
+      }
+
+      if (["MOVING", "UP", "DOWN"].includes(state)) {
+        picoLed.classList.add("moving");
+        picoStateText.textContent = "Desk moving";
+      } else {
+        picoLed.classList.remove("moving");
+        picoStateText.textContent = "Desk stopped";
       }
     }
 
-    updatePicoStatus();
-    setInterval(updatePicoStatus, 500);
-  </script>
-</body>
+    function poll() {
+      fetch(`${BASE}/${DESK_ID}`)
+        .then(r => r.json())
+        .then(updateUI)
+        .catch(() => {
+          picoStateText.textContent = "Desk offline";
+          picoLed.classList.remove("moving");
+        });
+    }
 
+    setInterval(poll, 500);
+    poll();
+
+    setInterval(() => {
+  if (lastMode === "sit") sitTime++;
+  if (lastMode === "stand") standTime++;
+
+  const sM = Math.floor(sitTime / 60);
+  const sS = sitTime % 60;
+
+  const stM = Math.floor(standTime / 60);
+  const stS = standTime % 60;
+
+  kpiSitStand.textContent = `${sM}m ${sS}s / ${stM}m ${stS}s`;
+}, 1000);
+  </script>
+
+</body>
 </html>
