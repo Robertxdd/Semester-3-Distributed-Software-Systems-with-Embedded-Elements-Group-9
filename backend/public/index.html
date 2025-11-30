@@ -91,5 +91,48 @@
       </section>
     </main>
   </div>
+  <script>
+document.querySelector(".form").addEventListener("submit", async function (e) {
+    e.preventDefault(); // evitar recarga de página
+
+    // Obtener valores del formulario
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+
+    // Petición al backend Laravel
+    const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email,
+            password: password,
+            role: role
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        alert("Login exitoso ✔");
+
+        // Guardar token
+        localStorage.setItem("token", data.token);
+
+        // Redirección según rol
+        if (role === "occupant") {
+            window.location.href = "occupant-dashboard.html";
+        } else if (role === "manager") {
+            window.location.href = "manager-dashboard.html";
+        } else {
+            alert("Este login no permite administradores.");
+        }
+
+    } else {
+        alert(data.message || "Error en login ❌");
+    }
+});
+</script>
+
 </body>
 </html>

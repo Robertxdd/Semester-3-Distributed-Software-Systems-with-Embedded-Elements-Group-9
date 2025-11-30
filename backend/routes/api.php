@@ -21,3 +21,6 @@ Route::post('/desks/collect', [DeskDataCollectionController::class, 'collect']);
 // Lecturas para UI/informes
 Route::get('/desks/{desk}/state-history', [DeskDataQueryController::class, 'stateHistory']);
 Route::get('/desks/{desk}/usage-summary', [DeskDataQueryController::class, 'usageSummary']);
+
+
+Route::post('/login', [AuthController::class, 'login']);
