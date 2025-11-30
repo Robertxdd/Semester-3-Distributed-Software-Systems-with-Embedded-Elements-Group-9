@@ -24,6 +24,7 @@ Route::post('/desks/collect', [DeskDataCollectionController::class, 'collect']);
 Route::get('/desks/{desk}/state-history', [DeskDataQueryController::class, 'stateHistory']);
 Route::get('/desks/{desk}/usage-summary', [DeskDataQueryController::class, 'usageSummary']);
 Route::get('/desks/{desk}/today-stats', [DeskStatsController::class, 'todayStats']);
+Route::post('/desks/{desk}/log-state', [DeskStatsController::class, 'logState']);
 
 
 Route::post('/login', [AuthController::class, 'login']);

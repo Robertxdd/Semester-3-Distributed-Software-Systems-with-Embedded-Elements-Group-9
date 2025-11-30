@@ -171,8 +171,22 @@
     const kpiMoves = document.getElementById("kpi-moves");
     const kpiErrors = document.getElementById("kpi-errors");
 
+    function logState(heightCm, status = "stopped") {
+      const positionMm = Math.round(heightCm * 10);
+      return fetch(`${BASE}/${DESK_ID}/log-state`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ position_mm: positionMm, status })
+      }).then(() => loadTodayStats());
+    }
+
     function move(url) {
-      return fetch(url, { method: "POST" }).then(r => r.json()).then(updateUI);
+      return fetch(url, { method: "POST" }).then(r => r.json()).then(data => {
+        updateUI(data);
+        if (data.height !== undefined) {
+          logState(data.height, data.state || "moving");
+        }
+      });
     }
 
     btnUp.onclick = () => move(`${BASE}/${DESK_ID}/up`);
@@ -183,7 +197,10 @@
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ height: h, state: "stopped" })
-      }).then(r => r.json()).then(updateUI);
+      }).then(r => r.json()).then(data => {
+        updateUI(data);
+        logState(h, data.state || "stopped");
+      });
     };
 
     presetSit.onclick = () => {

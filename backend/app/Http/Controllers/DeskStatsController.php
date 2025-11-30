@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Desk;
 use App\Services\DeskDataHandler;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DeskStatsController extends Controller
 {
@@ -24,5 +25,25 @@ class DeskStatsController extends Controller
             'meets_recommendation' => $health['meets_recommendation'] ?? false,
             'health_message' => $health['message'] ?? '',
         ]);
+    }
+
+    public function logState(Request $request, Desk $desk, DeskDataHandler $handler): JsonResponse
+    {
+        $data = $request->validate([
+            'position_mm' => ['required', 'integer'],
+            'status' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $handler->saveStateReading($desk, [
+            'position_mm' => $data['position_mm'],
+            'speed_mms' => null,
+            'status' => $data['status'] ?? null,
+            'isPositionLost' => false,
+            'isOverloadProtectionUp' => false,
+            'isOverloadProtectionDown' => false,
+            'isAntiCollision' => false,
+        ], now());
+
+        return response()->json(['message' => 'State logged']);
     }
 }
