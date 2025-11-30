@@ -16,7 +16,7 @@
       <nav class="nav">
         <a href="deskcontrol.html"><span>My Desk</span></a>
         <a href="healthreport.html"><span>Health & Reports</span></a>
-        <a href="settings.html"><span>Admin · Settings</span></a>
+        <a href="settings.html"><span>Admin - Settings</span></a>
         <a href="manager.html" class="active"><span>Manager</span></a>
       </nav>
     </aside>
@@ -25,7 +25,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <h1>Manager view</h1>
-          <p class="subtitle">Work in progress – admin-only area</p>
+          <p class="subtitle">Work in progress - admin-only area</p>
         </div>
       </header>
 
@@ -36,28 +36,131 @@
           <ul id="manager-desks"></ul>
         </div>
       </section>
+
+      <section class="section card">
+        <div class="title"><h3>Add a desk</h3></div>
+        <div class="body">
+          <div class="grid two">
+            <label class="field">
+              <span>Name</span>
+              <input id="desk-name" class="input" type="text" placeholder="DESK 9999">
+            </label>
+            <label class="field">
+              <span>External ID</span>
+              <input id="desk-external" class="input" type="text" placeholder="aa:bb:cc:dd:ee:ff">
+            </label>
+          </div>
+          <div class="grid two">
+            <label class="field">
+              <span>Manufacturer</span>
+              <input id="desk-mfr" class="input" type="text" placeholder="Desk-O-Matic Co.">
+            </label>
+            <label class="field">
+              <span>Height (cm)</span>
+              <input id="desk-height" class="input" type="number" placeholder="0">
+            </label>
+          </div>
+          <button class="btn" id="btn-create-desk" type="button">Create desk</button>
+          <p class="helper" id="manager-hint">Creates via POST /api/desks.</p>
+        </div>
+      </section>
     </div>
   </div>
 
   <script>
-    // Simple load of all desks to show something useful. No auth enforcement here.
-    fetch('/api/desks')
-      .then(res => res.json())
-      .then(desks => {
-        const status = document.getElementById('manager-status');
-        const list = document.getElementById('manager-desks');
-        status.textContent = `Found ${desks.length} desks.`;
-        list.innerHTML = '';
-        desks.forEach(d => {
-          const li = document.createElement('li');
-          li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id ? ` - External: ${d.external_id}` : '');
-          list.appendChild(li);
-        });
-      })
-      .catch(err => {
+    const authHeaders = () => {
+      const token = localStorage.getItem('token');
+      return token - { 'Authorization': `Bearer ${token}` } : {};
+    };
+
+    function renderDesks(desks) {
+      const status = document.getElementById('manager-status');
+      const list = document.getElementById('manager-desks');
+      status.textContent = `Found ${desks.length} desks.`;
+      list.innerHTML = '';
+      desks.forEach(d => {
+        const li = document.createElement('li');
+        li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id - ` - External: ${d.external_id}` : '');
+
+        const remove = document.createElement('button');
+        remove.textContent = 'Delete';
+        remove.className = 'btn secondary';
+        remove.style.marginLeft = '0.75rem';
+        remove.onclick = async () => {
+          try {
+            const res = await fetch(`/api/desks/${d.id}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json', ...authHeaders() }
+            });
+            if (res.ok) {
+              loadDesks();
+            } else {
+              alert('Failed to delete desk');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Network error deleting desk');
+          }
+        };
+
+        li.appendChild(remove);
+        list.appendChild(li);
+      });
+    }
+
+    async function loadDesks() {
+      try {
+        const res = await fetch('/api/desks', { headers: authHeaders() });
+        const desks = await res.json();
+        renderDesks(desks);
+      } catch (err) {
         console.error(err);
         document.getElementById('manager-status').textContent = 'Failed to load desks';
-      });
+      }
+    }
+
+    async function createDesk() {
+      const name = document.getElementById('desk-name').value.trim();
+      const external_id = document.getElementById('desk-external').value.trim();
+      const manufacturer = document.getElementById('desk-mfr').value.trim();
+      const height = document.getElementById('desk-height').value;
+
+      if (!name) {
+        alert('Name is required');
+        return;
+      }
+
+      const body = { name };
+      if (external_id) body.external_id = external_id;
+      if (manufacturer) body.manufacturer = manufacturer;
+      if (height) body.height = Number(height);
+
+      try {
+        const res = await fetch('/api/desks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || 'Failed to create desk');
+        }
+
+        document.getElementById('manager-hint').textContent = 'Desk created.';
+        document.getElementById('desk-name').value = '';
+        document.getElementById('desk-external').value = '';
+        document.getElementById('desk-mfr').value = '';
+        document.getElementById('desk-height').value = '';
+        loadDesks();
+      } catch (err) {
+        console.error(err);
+        alert('Error creating desk: ' + err.message);
+      }
+    }
+
+    document.getElementById('btn-create-desk').onclick = createDesk;
+    loadDesks();
   </script>
 </body>
 </html>

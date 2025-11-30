@@ -23,7 +23,7 @@
           <span>Health & Reports</span>
         </a>
         <a href="settings.html" class="active">
-          <span>Admin · Settings</span>
+          <span>Admin - Settings</span>
         </a>
         <a href="manager.html">
           <span>Manager</span>
@@ -103,7 +103,7 @@
                 </label>
               </div>
 
-              <button class="btn" type="button" disabled>Save connection settings (placeholder)</button>
+              <button class="btn" type="button" id="save-connection">Save connection settings</button>
             </form>
           </div>
         </section>
@@ -152,7 +152,7 @@
                 </select>
               </div>
 
-              <button class="btn" type="button" disabled>Save energy policy (placeholder)</button>
+              <button class="btn" type="button" id="save-energy">Save energy policy</button>
             </form>
           </div>
         </section>
@@ -187,7 +187,7 @@
                 </label>
               </div>
 
-              <button class="btn" type="button" disabled>Save data settings (placeholder)</button>
+              <button class="btn" type="button" id="save-data">Save data settings</button>
             </form>
           </div>
         </section>
@@ -195,4 +195,52 @@
     </div>
   </div>
 </body>
+<script>
+  const authHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
+
+  function flash(message) {
+    alert(message);
+  }
+
+  document.getElementById('save-connection').onclick = async () => {
+    const payload = {
+      mode: document.getElementById('mode').value,
+      base_url: document.getElementById('base-url').value,
+      api_key: document.getElementById('api-key').value,
+      poll_interval: document.getElementById('poll-interval').value,
+      health_collection: true,
+      anonymize: true,
+    };
+    try {
+      // No backend route exists; persist locally so the form is not a dead end.
+      localStorage.setItem('connection_settings', JSON.stringify(payload));
+      flash('Connection settings saved locally.');
+    } catch (err) {
+      console.error(err);
+      flash('Failed to save settings.');
+    }
+  };
+
+  document.getElementById('save-energy').onclick = () => {
+    const payload = {
+      idle_timeout: document.getElementById('idle-timeout').value,
+      wake_mode: document.getElementById('wake-mode').value,
+    };
+    localStorage.setItem('energy_settings', JSON.stringify(payload));
+    flash('Energy policy saved locally.');
+  };
+
+  document.getElementById('save-data').onclick = () => {
+    const payload = {
+      retention: document.getElementById('retention').value,
+      aggregated_only: true,
+      mask_ids: true,
+    };
+    localStorage.setItem('data_settings', JSON.stringify(payload));
+    flash('Data settings saved locally.');
+  };
+</script>
 </html>
