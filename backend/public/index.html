@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart Desk Supervisor · Sign in</title>
+  <title>Smart Desk Supervisor - Sign in</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -53,19 +53,16 @@
 
           <div class="field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" class="input" placeholder="••••••••" required>
+            <input id="password" name="password" type="password" class="input" placeholder="********" required>
           </div>
 
           <div class="field">
             <label for="role">Role</label>
             <select id="role" name="role" class="input">
-              <option value="occupant">Occupant · Personal desk view</option>
-              <option value="manager">Manager · Reports & space planning</option>
+              <option value="user">User · Desk view & reports</option>
               <option value="admin">Administrator · System configuration</option>
             </select>
-            <p class="helper">
-              Roles match our project proposal (occupant, manager, administrator).
-            </p>
+            <p class="helper">Role must match the user record (admin or user).</p>
           </div>
 
           <div class="alt-actions">
@@ -85,49 +82,48 @@
           </button>
 
           <p class="helper">
-            This screen is UI-only. Connect it to your real authentication endpoint in the backend.
+            This screen now calls the real authentication endpoint in the backend.
           </p>
         </form>
       </section>
     </main>
   </div>
   <script>
-document.querySelector(".form").addEventListener("submit", async function (e) {
+  document.querySelector(".form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const role = document.getElementById("role").value; // user or admin
 
-    const response = await fetch("http://localhost:8000/api/login", {
+    try {
+      const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: email,
-            password: password,
-            role: role
-        })
-    });
+        body: JSON.stringify({ email, password, role })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-        alert("Successfull log in ✔");
+      if (!response.ok) {
+        alert(data.message || "Error in login");
+        return;
+      }
 
-        localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.token);
 
-        // Redirect based on role
-        if (role === "user") {
-            window.location.href = "user-dashboard.html";
-        } else if (role === "admin") {
-            window.location.href = "admin-dashboard.html";
-        }
-
-    } else {
-        alert(data.message || "Error in login ❌");
+      // Redirect based on role to existing pages
+      if (role === "admin") {
+        window.location.href = "deskcontrol.html";
+      } else {
+        window.location.href = "healthreport.html";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network or server error");
     }
-});
-</script>
+  });
+  </script>
 
 
 </body>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeskController;
 use App\Http\Controllers\DeskDataCollectionController;
 use App\Http\Controllers\DeskDataQueryController;
