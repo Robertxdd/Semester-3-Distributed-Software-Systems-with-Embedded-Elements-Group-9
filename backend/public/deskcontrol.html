@@ -155,6 +155,8 @@
   <script>
     const BASE = "/api/desks";
     let currentDeskId = null;
+    let lastLoggedHeight = null;
+    let currentHeight = 0;
 
     const btnUp = document.getElementById("btn-up");
     const btnDown = document.getElementById("btn-down");
@@ -176,53 +178,62 @@
       return token ? { "Authorization": `Bearer ${token}` } : {};
     };
 
+    function setStatus(text, isError = false) {
+      picoStateText.textContent = text;
+      picoLed.classList.toggle("moving", false);
+      if (isError) {
+        picoLed.style.background = "#ef4444";
+      } else {
+        picoLed.style.background = "";
+      }
+    }
+
     function logState(heightCm, status = "stopped") {
       if (!currentDeskId) return;
       const positionMm = Math.round(heightCm * 10);
+      lastLoggedHeight = heightCm;
       return fetch(`${BASE}/${currentDeskId}/log-state`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ position_mm: positionMm, status })
-      }).then(() => loadTodayStats());
+      }).then(() => loadTodayStats()).catch(() => {});
     }
 
-    function move(url) {
-      return fetch(url, { method: "POST", headers: authHeaders() })
+    function setHeight(targetHeight) {
+      if (!currentDeskId) return;
+      const target = clamp(targetHeight, 60, 130);
+      return fetch(`${BASE}/${currentDeskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ height: target, state: "stopped" })
+      })
         .then(r => {
-          if (!r.ok) throw new Error(`Move failed: ${r.status}`);
+          if (!r.ok) throw new Error(`Set height failed: ${r.status}`);
           return r.json();
         })
         .then(data => {
           updateUI(data);
-          if (data.height !== undefined) {
-            logState(data.height, data.state || "moving");
-          }
+          logState(target, data.state || "stopped");
         })
         .catch(err => {
           console.error(err);
-          picoStateText.textContent = "Move failed";
+          setStatus("Move failed", true);
         });
     }
 
-    btnUp.onclick = () => currentDeskId && move(`${BASE}/${currentDeskId}/up`);
-    btnDown.onclick = () => currentDeskId && move(`${BASE}/${currentDeskId}/down`);
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
+    function adjustHeight(deltaCm) {
+      const target = clamp((currentHeight || 0) + deltaCm, 60, 130);
+      setHeight(target);
+    }
+
+    btnUp.onclick = () => currentDeskId && adjustHeight(2);
+    btnDown.onclick = () => currentDeskId && adjustHeight(-2);
     btnGo.onclick = () => {
       if (!currentDeskId) return;
       const h = Number(document.getElementById("go-height").value);
-      fetch(`${BASE}/${currentDeskId}`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json", ...authHeaders()},
-        body: JSON.stringify({ height: h, state: "stopped" })
-      }).then(r => {
-        if (!r.ok) throw new Error(`Set height failed: ${r.status}`);
-        return r.json();
-      }).then(data => {
-        updateUI(data);
-        logState(h, data.state || "stopped");
-      }).catch(err => {
-        console.error(err);
-        picoStateText.textContent = "Failed to set height";
-      });
+      setHeight(h);
     };
 
     presetSit.onclick = () => {
@@ -239,8 +250,11 @@
       const height = data.height;
       const state = (data.state || "").toUpperCase();
 
-      heightDisplay.textContent = height + " cm";
-      kpiHeight.textContent = height + " cm";
+      if (typeof height === "number") {
+        currentHeight = height;
+        heightDisplay.textContent = height + " cm";
+        kpiHeight.textContent = height + " cm";
+      }
 
       if (["MOVING", "UP", "DOWN"].includes(state)) {
         picoLed.classList.add("moving");
@@ -258,10 +272,14 @@
           if (!r.ok) throw new Error(`Status ${r.status}`);
           return r.json();
         })
-        .then(updateUI)
+        .then(data => {
+          updateUI(data);
+          if (data.height !== undefined && data.height !== lastLoggedHeight) {
+            logState(data.height, data.state || "stopped");
+          }
+        })
         .catch(() => {
-          picoStateText.textContent = "Desk offline";
-          picoLed.classList.remove("moving");
+          setStatus("Desk offline", true);
         });
     }
 
@@ -298,17 +316,17 @@
         if (!desksRes.ok) throw new Error(`Desk list failed: ${desksRes.status}`);
         const desks = await desksRes.json();
         if (!desks.length) {
-          picoStateText.textContent = "No desks registered";
+          setStatus("No desks registered", true);
           return;
         }
         currentDeskId = desks.find(d => d.id === 1)?.id ?? desks[0].id;
         poll();
         loadTodayStats();
-        setInterval(poll, 500);
+        setInterval(poll, 2000);
         setInterval(loadTodayStats, 60000);
       } catch (err) {
         console.error(err);
-        picoStateText.textContent = "Failed to load desks";
+        setStatus("Failed to load desks", true);
       }
     }
 
