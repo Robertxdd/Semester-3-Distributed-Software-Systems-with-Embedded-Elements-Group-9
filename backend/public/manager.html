@@ -32,8 +32,12 @@
       <section class="section card">
         <div class="title"><h3>Registered desks</h3></div>
         <div class="body">
-          <p id="manager-status">Loading desks...</p>
+          <div class="toolbar">
+            <p id="manager-status">Loading desks...</p>
+            <button class="btn secondary" id="btn-refresh" type="button">Refresh</button>
+          </div>
           <ul id="manager-desks"></ul>
+          <p class="helper" id="id-hint"></p>
         </div>
       </section>
 
@@ -78,6 +82,12 @@
       const list = document.getElementById('manager-desks');
       status.textContent = `Found ${desks.length} desks.`;
       list.innerHTML = '';
+      const hint = document.getElementById('id-hint');
+      const hasDesk1 = desks.some(d => d.id === 1);
+      hint.textContent = hasDesk1
+        ? 'Desk #1 is present.'
+        : 'Desk #1 no longer exists (was deleted). IDs are auto-increment; new desks keep growing.';
+
       desks.forEach(d => {
         const li = document.createElement('li');
         li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id ? ` - External: ${d.external_id}` : '');
@@ -95,7 +105,7 @@
             if (res.ok) {
               loadDesks();
             } else {
-              alert('Failed to delete desk');
+              alert(`Failed to delete desk (#${d.id})`);
             }
           } catch (err) {
             console.error(err);
@@ -111,11 +121,13 @@
     async function loadDesks() {
       try {
         const res = await fetch('/api/desks', { headers: authHeaders() });
+        if (!res.ok) throw new Error(`List failed: ${res.status}`);
         const desks = await res.json();
         renderDesks(desks);
       } catch (err) {
         console.error(err);
         document.getElementById('manager-status').textContent = 'Failed to load desks';
+        document.getElementById('id-hint').textContent = '';
       }
     }
 
@@ -160,6 +172,7 @@
     }
 
     document.getElementById('btn-create-desk').onclick = createDesk;
+    document.getElementById('btn-refresh').onclick = loadDesks;
     loadDesks();
   </script>
 </body>
