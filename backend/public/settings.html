@@ -6,135 +6,151 @@
   <title>Smart Desk Supervisor - Admin Settings</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+
+<body class="theme-dark">
   <div class="app">
+
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
         <div class="logo" aria-hidden="true">S</div>
-        <div>Smart Desk Supervisor</div>
+        <div class="brand-text">
+          <span class="brand-title">Smart Desk</span>
+          <span class="brand-subtitle">Supervisor</span>
+        </div>
       </div>
 
       <nav class="nav" aria-label="Primary navigation">
-        <a href="deskcontrol.html">
-          <span>My Desk</span>
+        <a href="deskcontrol.html" class="nav-item">
+          <span class="nav-label">My Desk</span>
         </a>
-        <a href="healthreport.html">
-          <span>Health & Reports</span>
+        <a href="healthreport.html" class="nav-item">
+          <span class="nav-label">Health & Reports</span>
         </a>
-        <a href="settings.html" class="active">
-          <span>Admin - Settings</span>
+        <a href="settings.html" class="nav-item active">
+          <span class="nav-label">Admin – Settings</span>
         </a>
-        <a href="manager.html">
-          <span>Manager</span>
+        <a href="manager.html" class="nav-item">
+          <span class="nav-label">Manager</span>
         </a>
       </nav>
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
         <p class="foot-meta">Administrator</p>
-        <p class="foot-meta small">Configuration placeholders (not wired).</p>
+        <p class="foot-meta small">Full admin access.</p>
       </section>
     </aside>
 
     <!-- Main content -->
     <div class="main">
+
       <!-- Top bar -->
       <header class="topbar">
         <div class="topbar-left">
           <h1>System & admin settings</h1>
           <p class="subtitle">
-            These controls are placeholders; backend wiring pending.
+            Configure connectivity, energy policy and data retention for Smart Desks.
           </p>
+        </div>
+        <div class="topbar-right">
+          <span class="pill pill-success">Normal mode</span>
         </div>
       </header>
 
-      <!-- Grid: connectivity + roles -->
-      <section class="grid">
-        <!-- System mode & connectivity -->
-        <section class="section card">
-          <div class="title">
-            <h3>WiFi2BLE & API configuration</h3>
-            <p class="subtitle">
-              Connection settings for the Desk REST API (simulator or real hardware).
-            </p>
+      <!-- Main grid -->
+      <section class="page-grid">
+
+        <!-- API configuration -->
+        <section class="section card card-accent">
+          <div class="card-header">
+            <div>
+              <h3>WiFi2BLE & API configuration</h3>
+              <p class="subtitle">
+                Connection settings for the Desk REST API (simulator or real hardware).
+              </p>
+            </div>
+            <span class="card-tag">Connectivity</span>
           </div>
-          <div class="body">
+
+          <div class="card-body">
             <form class="form" action="#">
+
               <div class="field">
                 <label for="mode">System mode</label>
                 <select id="mode" class="input">
-                  <option>Development - Simulator only</option>
-                  <option>Hybrid - Simulator + selected real desks</option>
-                  <option>Production - Real desks only</option>
+                  <option>Development · Simulator only</option>
+                  <option>Hybrid · Simulator + selected real desks</option>
+                  <option>Production · Real desks only</option>
                 </select>
               </div>
 
               <div class="field">
                 <label for="base-url">Base URL</label>
-                <input id="base-url" class="input" type="text" placeholder="http://127.0.0.1:8000/api/v2/">
+                <input id="base-url" class="input" type="text"
+                  placeholder="http://127.0.0.1:8000/api/">
               </div>
 
               <div class="field">
                 <label for="api-key">API key</label>
-                <input id="api-key" class="input" type="password" placeholder="Enter simulator API key">
+                <input id="api-key" class="input" type="password" placeholder="Enter API key">
                 <p class="helper">
-                  32-character key as described in the WiFi2BLE simulator README.
+                  Optional: 32-character key for authenticated simulators.
                 </p>
               </div>
 
               <div class="field">
                 <label for="poll-interval">Polling interval</label>
                 <select id="poll-interval" class="input">
-                  <option>5 s - Real-time feedback</option>
-                  <option selected>10 s - Balanced</option>
-                  <option>30 s - Low network usage</option>
+                  <option>5 s · Real-time feedback</option>
+                  <option selected>10 s · Balanced</option>
+                  <option>30 s · Low network usage</option>
                 </select>
               </div>
 
               <div class="field">
                 <label class="checkbox">
                   <input type="checkbox" checked>
-                  <span>Enable health data collection (sit/stand counters, position)</span>
+                  <span>Enable health data collection</span>
                 </label>
+
                 <label class="checkbox">
                   <input type="checkbox" checked>
-                  <span>Anonymize user IDs in raw telemetry</span>
+                  <span>Anonymize user IDs in telemetry</span>
                 </label>
               </div>
 
               <button class="btn" type="button" id="save-connection">Save connection settings</button>
-              <p class="helper" id="connection-status" aria-live="polite"></p>
             </form>
           </div>
         </section>
 
-        <!-- Roles & access control -->
+        <!-- Roles -->
         <section class="section card">
-          <div class="title">
-            <h3>User roles & access control</h3>
-            <p class="subtitle">
-              Overview will load from the backend; no static users are shown.
-            </p>
+          <div class="card-header">
+            <div>
+              <h3>User roles & access control</h3>
+              <p class="subtitle">Overview of user permissions.</p>
+            </div>
+            <span class="card-tag card-tag-soft">Read-only</span>
           </div>
           <div class="body table-wrap">
-            <div class="helper" id="roles-helper">User list will be populated from the API (no fake rows).</div>
+            <div class="helper">User list will be loaded from the API.</div>
           </div>
         </section>
-      </section>
 
-      <!-- Grid: energy + data/privacy -->
-      <section class="grid">
-        <!-- Energy & power-saving policy -->
+        <!-- Energy -->
         <section class="section card">
-          <div class="title">
-            <h3>Energy & idle power-saving</h3>
-            <p class="subtitle">
-              Placeholder controls for power-saving policy.
-            </p>
+          <div class="card-header">
+            <div>
+              <h3>Energy & idle power-saving</h3>
+              <p class="subtitle">Define how desks behave with no activity.</p>
+            </div>
+            <span class="card-tag">Energy</span>
           </div>
-          <div class="body">
-            <form class="form" action="#">
+
+          <div class="card-body">
+            <form class="form">
               <div class="field">
                 <label for="idle-timeout">Idle timeout</label>
                 <select id="idle-timeout" class="input">
@@ -148,27 +164,28 @@
               <div class="field">
                 <label for="wake-mode">Wake-up behavior</label>
                 <select id="wake-mode" class="input">
-                  <option selected>User interaction only (button / panel)</option>
+                  <option selected>User interaction only</option>
                   <option>Any network command</option>
                 </select>
               </div>
 
               <button class="btn" type="button" id="save-energy">Save energy policy</button>
-              <p class="helper" id="energy-status" aria-live="polite"></p>
             </form>
           </div>
         </section>
 
-        <!-- Data, privacy & retention -->
+        <!-- Data -->
         <section class="section card">
-          <div class="title">
-            <h3>Data & privacy</h3>
-            <p class="subtitle">
-              Retention and privacy options will be wired to backend settings.
-            </p>
+          <div class="card-header">
+            <div>
+              <h3>Data & privacy</h3>
+              <p class="subtitle">Control usage metrics and anonymization.</p>
+            </div>
+            <span class="card-tag">Privacy</span>
           </div>
-          <div class="body">
-            <form class="form" action="#">
+
+          <div class="card-body">
+            <form class="form">
               <div class="field">
                 <label for="retention">Usage data retention</label>
                 <select id="retention" class="input">
@@ -178,11 +195,12 @@
                 </select>
               </div>
 
-              <div class="field">
+              <div class="field field-stack">
                 <label class="checkbox">
                   <input type="checkbox" checked>
-                  <span>Store only aggregated health metrics for reports</span>
+                  <span>Store only aggregated metrics</span>
                 </label>
+
                 <label class="checkbox">
                   <input type="checkbox" checked>
                   <span>Mask desk IDs in exported reports</span>
@@ -190,105 +208,54 @@
               </div>
 
               <button class="btn" type="button" id="save-data">Save data settings</button>
-              <p class="helper" id="data-status" aria-live="polite"></p>
             </form>
           </div>
         </section>
+
       </section>
     </div>
   </div>
-</body>
-<script>
-  const authHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
-  };
 
-  const setStatus = (id, msg, ok = true) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = msg;
-    el.style.color = ok ? '#a7f3d0' : '#fca5a5';
-  };
-
-  const loadSaved = () => {
-    try {
-      const conn = JSON.parse(localStorage.getItem('connection_settings') || '{}');
-      if (conn.mode) document.getElementById('mode').value = conn.mode;
-      if (conn.base_url) document.getElementById('base-url').value = conn.base_url;
-      if (conn.api_key) document.getElementById('api-key').value = conn.api_key;
-      if (conn.poll_interval) document.getElementById('poll-interval').value = conn.poll_interval;
-
-      const energy = JSON.parse(localStorage.getItem('energy_settings') || '{}');
-      if (energy.idle_timeout) document.getElementById('idle-timeout').value = energy.idle_timeout;
-      if (energy.wake_mode) document.getElementById('wake-mode').value = energy.wake_mode;
-
-      const data = JSON.parse(localStorage.getItem('data_settings') || '{}');
-      if (data.retention) document.getElementById('retention').value = data.retention;
-    } catch (err) {
-      console.error('Failed to load saved settings', err);
+  <script>
+    function flash(message) {
+      alert(message);
     }
-  };
 
-  document.getElementById('save-connection').onclick = async () => {
-    const payload = {
-      mode: document.getElementById('mode').value,
-      base_url: document.getElementById('base-url').value,
-      api_key: document.getElementById('api-key').value,
-      poll_interval: document.getElementById('poll-interval').value,
-      health_collection: true,
-      anonymize: true,
-    };
-    try {
+    document.getElementById('save-connection').onclick = () => {
+      const payload = {
+        mode: document.getElementById('mode').value,
+        base_url: document.getElementById('base-url').value,
+        api_key: document.getElementById('api-key').value,
+        poll_interval: document.getElementById('poll-interval').value,
+        health_collection: true,
+        anonymize: true,
+      };
+
       localStorage.setItem('connection_settings', JSON.stringify(payload));
-      setStatus('connection-status', 'Saved locally.');
-    } catch (err) {
-      console.error(err);
-      setStatus('connection-status', 'Failed to save.', false);
-    }
-  };
-
-  document.getElementById('save-energy').onclick = () => {
-    const payload = {
-      idle_timeout: document.getElementById('idle-timeout').value,
-      wake_mode: document.getElementById('wake-mode').value,
+      flash('Connection settings saved locally.');
     };
-    localStorage.setItem('energy_settings', JSON.stringify(payload));
-    setStatus('energy-status', 'Energy policy saved locally.');
-  };
 
-  document.getElementById('save-data').onclick = () => {
-    const payload = {
-      retention: document.getElementById('retention').value,
-      aggregated_only: true,
-      mask_ids: true,
+    document.getElementById('save-energy').onclick = () => {
+      const payload = {
+        idle_timeout: document.getElementById('idle-timeout').value,
+        wake_mode: document.getElementById('wake-mode').value,
+      };
+
+      localStorage.setItem('energy_settings', JSON.stringify(payload));
+      flash('Energy policy saved locally.');
     };
-    localStorage.setItem('data_settings', JSON.stringify(payload));
-    setStatus('data-status', 'Data settings saved locally.');
-  };
 
-  const updateRolesCard = async () => {
-    const helper = document.getElementById('roles-helper');
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        helper.textContent = 'No token stored; login to load data.';
-        return;
-      }
-      const res = await fetch('/api/desks', { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) {
-        helper.textContent = `API reachable, but returned ${res.status}.`;
-        return;
-      }
-      const desks = await res.json();
-      helper.textContent = `API reachable. Desks available: ${desks.length}.`;
-    } catch (err) {
-      console.error(err);
-      helper.textContent = 'Failed to reach API.';
-    }
-  };
+    document.getElementById('save-data').onclick = () => {
+      const payload = {
+        retention: document.getElementById('retention').value,
+        aggregated_only: true,
+        mask_ids: true,
+      };
 
-  loadSaved();
-  updateRolesCard();
-</script>
+      localStorage.setItem('data_settings', JSON.stringify(payload));
+      flash('Data settings saved locally.');
+    };
+  </script>
+
+</body>
 </html>
