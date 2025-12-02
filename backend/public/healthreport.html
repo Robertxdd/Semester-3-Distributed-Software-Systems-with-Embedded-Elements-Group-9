@@ -49,6 +49,10 @@
             Sit/stand statistics, health scores, breakdowns and space utilization will be pulled from the API.
           </p>
         </div>
+        <div class="topbar-right">
+          <span class="pill pill-online">Live API</span>
+          <span class="pill pill-saving">Idle saving on</span>
+        </div>
       </header>
 
       <!-- KPIs -->
@@ -204,7 +208,7 @@
       tr.innerHTML = `
         <td>${when}</td>
         <td>${cm}</td>
-        <td>${item.status || '—'} ${flags.length ? '[' + flags.join(',') + ']' : ''}</td>
+        <td>${item.status || 'Unknown'} ${flags.length ? '[' + flags.join(',') + ']' : ''}</td>
       `;
       els.stateBody.appendChild(tr);
     });
@@ -235,7 +239,7 @@
       const codes = [];
       if (i.is_anti_collision) codes.push('anti-collision');
       if (i.is_overload_protection_up || i.is_overload_protection_down) codes.push('overload');
-      li.textContent = `${when} — ${i.status || 'Error'} ${codes.length ? '[' + codes.join(',') + ']' : ''}`;
+      li.textContent = `${when} - ${i.status || 'Error'} ${codes.length ? '[' + codes.join(',') + ']' : ''}`;
       els.errorsList.appendChild(li);
     });
   }

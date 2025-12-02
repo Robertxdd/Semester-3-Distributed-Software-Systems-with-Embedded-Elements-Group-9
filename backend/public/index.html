@@ -12,26 +12,38 @@
     <aside class="login-hero">
       <header class="brand">
         <div class="logo" aria-hidden="true">S</div>
-        <div>Smart Desk Supervisor</div>
+        <div>
+          <div>Smart Desk Supervisor</div>
+          <div class="helper" style="margin-top: 0.15rem;">Distributed desks, healthier teams</div>
+        </div>
       </header>
 
       <section class="hero-copy">
-        <p class="eyebrow">Distributed systems Â· Desk Usage Supervision</p>
-        <h1>Healthier habits and smarter desks for your office.</h1>
+        <p class="eyebrow">Distributed desk supervision</p>
+        <h1>Healthier habits and orchestration-ready desk control.</h1>
         <p>
-          Our system collects sit/stand statistics, monitors breakdowns, and helps
-          you synchronize and manage every LINAK desk from a single dashboard.
+          Live desk telemetry, sit/stand balance, and maintenance insights in one
+          interface. Designed for labs and offices that want a calm, premium feel.
         </p>
+
+        <div class="hero-grid">
+          <div class="hero-chip">Instant posture recommendations based on your last movements</div>
+          <div class="hero-chip">Role-aware dashboards (admin, manager, individual)</div>
+          <div class="hero-chip">Energy-aware defaults with idle savings baked in</div>
+        </div>
 
         <div class="hero-illustration">
           <p class="hero-kpi">
             <strong>+41%</strong> balanced sit/stand time
           </p>
           <p class="hero-kpi">
-            <strong>â†“28%</strong> maintenance incidents
+            <strong>? 28%</strong> maintenance incidents
           </p>
           <p class="hero-kpi">
             <strong>Idle power saving</strong> enabled by default
+          </p>
+          <p class="hero-kpi">
+            <strong>Manager view</strong> ready for real API data
           </p>
         </div>
       </section>
@@ -42,7 +54,7 @@
       <section class="card login-card">
         <h2>Sign in to your workspace</h2>
         <p class="login-meta">
-          Choose your role to access desk control, health dashboards, or reports.
+          Pick your role to access desk control, health dashboards, or manager reports.
         </p>
 
         <form class="form" method="post" action="#">
@@ -53,14 +65,14 @@
 
           <div class="field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" class="input" placeholder="********" required>
+            <input id="password" name="password" type="password" class="input" placeholder="••••••••" required>
           </div>
 
           <div class="field">
             <label for="role">Role</label>
             <select id="role" name="role" class="input">
-              <option value="user">User Â· Desk view & reports</option>
-              <option value="admin">Administrator Â· System configuration</option>
+              <option value="user">User - Desk view & reports</option>
+              <option value="admin">Administrator - System configuration</option>
             </select>
             <p class="helper">Role must match the user record (admin or user).</p>
           </div>
@@ -82,7 +94,7 @@
           </button>
 
           <p class="helper">
-            This screen now calls the real authentication endpoint in the backend.
+            This screen calls the real authentication endpoint in the backend.
           </p>
         </form>
       </section>
@@ -124,7 +136,5 @@
     }
   });
   </script>
-
-
 </body>
 </html>
