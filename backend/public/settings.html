@@ -43,160 +43,263 @@
     </aside>
 
     <!-- Main content -->
-    <div class="main">
+    <main class="main settings-main">
 
-      <!-- Top bar -->
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1>System & admin settings</h1>
-          <p class="subtitle">
-            Configure connectivity, energy policy and data retention for Smart Desks.
-          </p>
+      <!-- Polished header -->
+      <header class="settings-hero">
+        <div class="hero-left">
+          <div class="hero-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+              <path d="M12 4.5c.5 0 1 .05 1.47.15l.72-1.3a1 1 0 0 1 1.36-.38l1.9 1.1a1 1 0 0 1 .38 1.36l-.74 1.28a6.97 6.97 0 0 1 1.45 2.5l1.48.1a1 1 0 0 1 .94 1v2.2a1 1 0 0 1-.94 1l-1.5.1a6.97 6.97 0 0 1-1.45 2.5l.74 1.27a1 1 0 0 1-.38 1.36l-1.9 1.1a1 1 0 0 1-1.36-.38l-.72-1.3A7 7 0 0 1 12 19.5a7 7 0 0 1-1.47-.15l-.72 1.3a1 1 0 0 1-1.36.38l-1.9-1.1a1 1 0 0 1-.38-1.36l.74-1.27a6.97 6.97 0 0 1-1.45-2.5l-1.5-.1a1 1 0 0 1-.94-1v-2.2a1 1 0 0 1 .94-1l1.5-.1a6.97 6.97 0 0 1 1.45-2.5l-.74-1.28a1 1 0 0 1 .38-1.36l1.9-1.1a1 1 0 0 1 1.36.38l.72 1.3c.48-.1.97-.15 1.47-.15Zm0 3a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z" />
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">System &amp; Admin</p>
+            <h1>System &amp; admin settings</h1>
+            <p class="subtitle hero-desc">
+              Configure connectivity, energy policy and data retention for Smart Desks with a clear, premium control surface.
+            </p>
+            <div class="hero-chips">
+              <span class="chip chip-live"><span class="dot"></span>Encrypted link</span>
+              <span class="chip chip-soft"><span class="dot dot-soft"></span>BLE bridge ready</span>
+              <span class="chip chip-muted">0 unresolved alerts</span>
+            </div>
+          </div>
         </div>
-        <div class="topbar-right">
-          <span class="pill pill-success">Normal mode</span>
-          <span class="pill">Local only</span>
+        <div class="hero-right">
+          <div class="mode-toggle" role="group" aria-label="System access mode">
+            <input type="radio" id="mode-toggle-normal" name="mode-toggle" checked>
+            <label for="mode-toggle-normal">Normal mode</label>
+            <input type="radio" id="mode-toggle-local" name="mode-toggle">
+            <label for="mode-toggle-local">Local only</label>
+            <span class="toggle-pill"></span>
+          </div>
+          <div class="hero-meta">
+            <span class="pill pill-success">Normal mode</span>
+            <span class="pill pill-ghost">Local only</span>
+            <p class="helper">Switch to local-only when working offline or during maintenance.</p>
+          </div>
         </div>
       </header>
 
       <!-- Main grid -->
-      <section class="page-grid">
+      <section class="settings-grid">
 
         <!-- API configuration -->
-        <section class="section card card-accent">
-          <div class="card-header">
+        <article class="card card-primary settings-card">
+          <header class="card-header">
             <div>
-              <h3>WiFi2BLE & API configuration</h3>
+              <p class="eyebrow">Connectivity / API</p>
+              <h3>WiFi2BLE &amp; API configuration</h3>
               <p class="subtitle">
                 Connection settings for the Desk REST API (simulator or real hardware).
               </p>
             </div>
-            <span class="card-tag">Connectivity</span>
-          </div>
+            <div class="card-status">
+              <span class="chip chip-live"><span class="dot"></span>Online</span>
+              <span class="chip chip-soft">TLS enabled</span>
+            </div>
+          </header>
 
           <div class="card-body">
-            <form class="form" action="#">
-
-              <div class="field">
-                <label for="mode">System mode</label>
-                <select id="mode" class="input">
-                  <option>Development - Simulator only</option>
-                  <option>Hybrid - Simulator + selected real desks</option>
-                  <option>Production - Real desks only</option>
-                </select>
+            <form class="form form-grid" action="#">
+              <div class="field modern">
+                <span class="field-title">System mode</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M7 7.5h10v3H7zm0 6h10v3H7z" />
+                    </svg>
+                  </span>
+                  <select id="mode" class="input">
+                    <option>Development - Simulator only</option>
+                    <option>Hybrid - Simulator + selected real desks</option>
+                    <option>Production - Real desks only</option>
+                  </select>
+                </div>
               </div>
 
-              <div class="field">
-                <label for="base-url">Base URL</label>
-                <input id="base-url" class="input" type="text"
-                  placeholder="http://127.0.0.1:8000/api/">
+              <div class="field modern">
+                <span class="field-title">Base URL</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 2c.7 0 1.38.11 2.02.32A11 11 0 0 0 12 9c-.72 0-1.41-.11-2.05-.33A7 7 0 0 1 12 5Zm-3.44.98c.6.2 1.25.32 1.94.37A9 9 0 0 0 9 9c-1.02-.08-1.97-.36-2.8-.8a7.03 7.03 0 0 1 2.36-2.22ZM5.18 10a8.96 8.96 0 0 0 2.91.74A11 11 0 0 0 8 12c0 .43.02.86.08 1.28A9 9 0 0 0 5.17 14 7 7 0 0 1 5.18 10Zm.99 4.8c.87-.38 1.86-.62 2.94-.7.15.97.4 1.86.73 2.65a7.03 7.03 0 0 1-3.67-1.95ZM12 19a7 7 0 0 1-1.92-.27 10.9 10.9 0 0 1-.9-3.22c.78-.06 1.6-.06 2.44.01.84.07 1.64.2 2.4.38A10.8 10.8 0 0 1 13.92 18.7 7 7 0 0 1 12 19Zm3.46-.98a10.9 10.9 0 0 0 .72-2.65 9.5 9.5 0 0 1 2.94.7 7.03 7.03 0 0 1-3.66 1.95ZM18.83 14a9 9 0 0 0-2.91-1.22 10.3 10.3 0 0 0 .08-1.3c0-.43-.02-.86-.08-1.28a9 9 0 0 0 2.9-.74 7 7 0 0 1 .01 4.54ZM15 5.98a7 7 0 0 1 2.66 2.23 9 9 0 0 1-2.75.8A10.9 10.9 0 0 0 14.42 6.2 7 7 0 0 1 15 5.98Z" />
+                    </svg>
+                  </span>
+                  <input id="base-url" class="input" type="text" placeholder="http://127.0.0.1:8000/api/">
+                </div>
               </div>
 
-              <div class="field">
-                <label for="api-key">API key</label>
-                <input id="api-key" class="input" type="password" placeholder="Enter API key">
-                <p class="helper">
-                  Optional: 32-character key for authenticated simulators.
-                </p>
+              <div class="field modern">
+                <span class="field-title">API key</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M15 2a5 5 0 0 0-5 5c0 .45.06.88.17 1.28L4.1 14.35a1 1 0 0 0-.3.71V17a1 1 0 0 0 1 1h1v1a1 1 0 0 0 1 1h1v1a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2.58l1.25-1.26A5 5 0 1 0 15 2Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" />
+                    </svg>
+                  </span>
+                  <input id="api-key" class="input" type="password" placeholder="Enter API key">
+                </div>
+                <p class="helper">Optional: 32-character key for authenticated simulators.</p>
               </div>
 
-              <div class="field">
-                <label for="poll-interval">Polling interval</label>
-                <select id="poll-interval" class="input">
-                  <option>5 s - Real-time feedback</option>
-                  <option selected>10 s - Balanced</option>
-                  <option>30 s - Low network usage</option>
-                </select>
+              <div class="field modern">
+                <span class="field-title">Polling interval</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M11 2h2v2h-2zm1 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Zm-1 1h2v4h3v2h-5z" />
+                    </svg>
+                  </span>
+                  <select id="poll-interval" class="input">
+                    <option>5 s - Real-time feedback</option>
+                    <option selected>10 s - Balanced</option>
+                    <option>30 s - Low network usage</option>
+                  </select>
+                </div>
               </div>
 
-              <div class="field">
+              <div class="field modern inline-options">
                 <label class="checkbox">
                   <input type="checkbox" checked>
                   <span>Enable health data collection</span>
                 </label>
-
                 <label class="checkbox">
                   <input type="checkbox" checked>
                   <span>Anonymize user IDs in telemetry</span>
                 </label>
               </div>
-
-              <button class="btn" type="button" id="save-connection">Save connection settings</button>
             </form>
           </div>
-        </section>
+          <footer class="card-footer">
+            <div class="footer-note">
+              <p class="helper">Saving applies instantly to the WiFi2BLE bridge and simulator endpoints.</p>
+            </div>
+            <button class="btn" type="button" id="save-connection">Save connection settings</button>
+          </footer>
+        </article>
 
         <!-- Roles -->
-        <section class="section card">
-          <div class="card-header">
+        <article class="card settings-card">
+          <header class="card-header">
             <div>
-              <h3>User roles & access control</h3>
-              <p class="subtitle">Overview of user permissions.</p>
+              <p class="eyebrow">Access control</p>
+              <h3>User roles &amp; permissions</h3>
+              <p class="subtitle">Read-only summary of role mappings.</p>
             </div>
-            <span class="card-tag card-tag-soft">Read-only</span>
+            <span class="chip chip-soft">Read-only</span>
+          </header>
+          <div class="card-body roles-list">
+            <div class="role-row">
+              <div>
+                <p class="role-title">Administrator</p>
+                <p class="helper">Full control - can edit connectivity, energy and privacy policies</p>
+              </div>
+              <span class="pill pill-success">3 active</span>
+            </div>
+            <div class="role-row">
+              <div>
+                <p class="role-title">Manager</p>
+                <p class="helper">Can change desk schedules - no API credential access</p>
+              </div>
+              <span class="pill pill-ghost">5 active</span>
+            </div>
+            <div class="role-row">
+              <div>
+                <p class="role-title">Viewer</p>
+                <p class="helper">Read-only visibility of health and reports</p>
+              </div>
+              <span class="pill pill-ghost">12 active</span>
+            </div>
+            <div class="role-placeholder helper">User list will be loaded from the API.</div>
           </div>
-          <div class="body table-wrap">
-            <div class="helper">User list will be loaded from the API.</div>
-          </div>
-        </section>
+        </article>
 
         <!-- Energy -->
-        <section class="section card">
-          <div class="card-header">
+        <article class="card settings-card">
+          <header class="card-header">
             <div>
-              <h3>Energy & idle power-saving</h3>
+              <p class="eyebrow">Energy</p>
+              <h3>Energy &amp; idle power-saving</h3>
               <p class="subtitle">Define how desks behave with no activity.</p>
             </div>
-            <span class="card-tag">Energy</span>
-          </div>
+            <span class="chip chip-live"><span class="dot"></span>Optimized</span>
+          </header>
 
           <div class="card-body">
-            <form class="form">
-              <div class="field">
-                <label for="idle-timeout">Idle timeout</label>
-                <select id="idle-timeout" class="input">
-                  <option>5 minutes</option>
-                  <option selected>10 minutes</option>
-                  <option>15 minutes</option>
-                  <option>30 minutes</option>
-                </select>
+            <form class="form form-grid">
+              <div class="field modern">
+                <span class="field-title">Idle timeout</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M13 2a9 9 0 0 0 0 18c2.98 0 5.61-1.5 7.2-3.8A8 8 0 0 1 11.8 4.8c.36-1.05.87-2.04 1.5-2.8h-.3Z" />
+                    </svg>
+                  </span>
+                  <select id="idle-timeout" class="input">
+                    <option>5 minutes</option>
+                    <option selected>10 minutes</option>
+                    <option>15 minutes</option>
+                    <option>30 minutes</option>
+                  </select>
+                </div>
               </div>
 
-              <div class="field">
-                <label for="wake-mode">Wake-up behavior</label>
-                <select id="wake-mode" class="input">
-                  <option selected>User interaction only</option>
-                  <option>Any network command</option>
-                </select>
+              <div class="field modern">
+                <span class="field-title">Wake-up behavior</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M13 2 6 13h5v9l7-12h-5z" />
+                    </svg>
+                  </span>
+                  <select id="wake-mode" class="input">
+                    <option selected>User interaction only</option>
+                    <option>Any network command</option>
+                  </select>
+                </div>
               </div>
-
-              <button class="btn" type="button" id="save-energy">Save energy policy</button>
             </form>
           </div>
-        </section>
+          <footer class="card-footer">
+            <div class="footer-note">
+              <p class="helper">Applies to all paired desks. Idle timeouts pause motion to save energy.</p>
+            </div>
+            <button class="btn" type="button" id="save-energy">Save energy policy</button>
+          </footer>
+        </article>
 
         <!-- Data -->
-        <section class="section card">
-          <div class="card-header">
+        <article class="card settings-card">
+          <header class="card-header">
             <div>
-              <h3>Data & privacy</h3>
+              <p class="eyebrow">Privacy</p>
+              <h3>Data &amp; privacy</h3>
               <p class="subtitle">Control usage metrics and anonymization.</p>
             </div>
-            <span class="card-tag">Privacy</span>
-          </div>
+            <span class="chip chip-soft">Privacy</span>
+          </header>
 
           <div class="card-body">
-            <form class="form">
-              <div class="field">
-                <label for="retention">Usage data retention</label>
-                <select id="retention" class="input">
-                  <option>90 days</option>
-                  <option selected>180 days</option>
-                  <option>365 days</option>
-                </select>
+            <form class="form form-grid">
+              <div class="field modern">
+                <span class="field-title">Usage data retention</span>
+                <div class="input-shell has-icon">
+                  <span class="input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                      <path d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4H4Zm0 6h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Zm6-7v2h4V3Zm0 10v2h4v-2Z" />
+                    </svg>
+                  </span>
+                  <select id="retention" class="input">
+                    <option>90 days</option>
+                    <option selected>180 days</option>
+                    <option>365 days</option>
+                  </select>
+                </div>
               </div>
 
-              <div class="field field-stack">
+              <div class="field modern field-stack">
                 <label class="checkbox">
                   <input type="checkbox" checked>
                   <span>Store only aggregated metrics</span>
@@ -207,14 +310,18 @@
                   <span>Mask desk IDs in exported reports</span>
                 </label>
               </div>
-
-              <button class="btn" type="button" id="save-data">Save data settings</button>
             </form>
           </div>
-        </section>
+          <footer class="card-footer">
+            <div class="footer-note">
+              <p class="helper">Aggregated metrics and masked IDs preserve privacy while keeping insights accurate.</p>
+            </div>
+            <button class="btn" type="button" id="save-data">Save data settings</button>
+          </footer>
+        </article>
 
       </section>
-    </div>
+    </main>
   </div>
 
   <script>
