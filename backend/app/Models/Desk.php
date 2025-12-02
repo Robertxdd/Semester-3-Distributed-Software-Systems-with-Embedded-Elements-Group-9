@@ -17,6 +17,10 @@ class Desk extends Model
         'min_height',
         'max_height',
         'state',
+        'location_building',
+        'location_floor',
+        'location_zone',
+        'linak_address',
     ];
 
     public function stateReadings()
@@ -42,5 +46,10 @@ class Desk extends Model
     public function maintenanceRecords()
     {
         return $this->hasMany(MaintenanceRecord::class);
+    }
+
+    public function state()
+    {
+        return $this->hasOne(DeskState::class, 'desk_id');
     }
 }

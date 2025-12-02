@@ -1,30 +1,58 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DeskController;
-use App\Http\Controllers\DeskDataCollectionController;
-use App\Http\Controllers\DeskDataQueryController;
-use App\Http\Controllers\DeskStatsController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AuthApiController;
+use App\Http\Controllers\DeskCommandController;
+use App\Http\Controllers\DeskViewController;
+use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\SystemSettingsController;
+use App\Http\Controllers\TelemetryController;
+use App\Http\Controllers\UserSelfController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/desks', [DeskController::class, 'index']);
-Route::post('/desks', [DeskController::class, 'store']);
-Route::get('/desks/{desk}', [DeskController::class, 'show']);
-Route::put('/desks/{desk}', [DeskController::class, 'update']);
-Route::delete('/desks/{desk}', [DeskController::class, 'destroy']);
+// Auth
+Route::post('/auth/login', [AuthApiController::class, 'login']);
 
-Route::post('/desks/{desk}/up', [DeskController::class, 'moveUp']);
-Route::post('/desks/{desk}/down', [DeskController::class, 'moveDown']);
-Route::post('/desks/{desk}/stop', [DeskController::class, 'stop']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/auth/me', [AuthApiController::class, 'me']);
 
-// Nueva ruta para disparar data collection
-Route::post('/desks/collect', [DeskDataCollectionController::class, 'collect']);
+    // Telemetry ingest
+    Route::post('/desks/{deskId}/telemetry', [TelemetryController::class, 'ingest']);
 
-// Lecturas para UI/informes
-Route::get('/desks/{desk}/state-history', [DeskDataQueryController::class, 'stateHistory']);
-Route::get('/desks/{desk}/usage-summary', [DeskDataQueryController::class, 'usageSummary']);
-Route::get('/desks/{desk}/today-stats', [DeskStatsController::class, 'todayStats']);
-Route::post('/desks/{desk}/log-state', [DeskStatsController::class, 'logState']);
+    // Desk commands
+    Route::post('/desks/{desk}/commands/set-height', [DeskCommandController::class, 'setHeight']);
+    Route::post('/desks/{desk}/commands/preset', [DeskCommandController::class, 'preset']);
+    Route::post('/desks/bulk/commands/set-height', [DeskCommandController::class, 'bulkSetHeight']);
 
+    // User (occupant) endpoints
+    Route::get('/users/me/active-desk', [UserSelfController::class, 'activeDeskEndpoint']);
+    Route::get('/users/me/usage', [UserSelfController::class, 'usage']);
+    Route::get('/users/me/health-summary', [UserSelfController::class, 'healthSummary']);
+    Route::get('/users/me/presets', [UserSelfController::class, 'getPresets']);
+    Route::put('/users/me/presets', [UserSelfController::class, 'putPresets']);
+    Route::get('/users/me/reminders', [UserSelfController::class, 'getReminders']);
+    Route::put('/users/me/reminders', [UserSelfController::class, 'putReminders']);
+    Route::get('/users/me/notifications', [UserSelfController::class, 'notifications']);
+    Route::patch('/users/me/notifications/{id}/read', [UserSelfController::class, 'markNotification']);
 
-Route::post('/login', [AuthController::class, 'login']);
+    // Manager/Admin desk view
+    Route::get('/desks', [DeskViewController::class, 'index']);
+    Route::get('/desks/{desk}', [DeskViewController::class, 'show']);
+    Route::get('/desks/{desk}/usage', [DeskViewController::class, 'usage']);
+    Route::get('/desks/{desk}/errors', [DeskViewController::class, 'errors']);
+
+    // Reports
+    Route::get('/reports/errors', [ReportsController::class, 'errors']);
+    Route::patch('/errors/{errorId}/resolve', [ReportsController::class, 'resolveError']);
+    Route::get('/reports/usage-summary', [ReportsController::class, 'usageSummary']);
+    Route::get('/reports/space-optimization', [ReportsController::class, 'spaceOptimization']);
+
+    // Admin
+    Route::get('/users', [AdminUserController::class, 'index']);
+    Route::post('/users', [AdminUserController::class, 'store']);
+    Route::patch('/users/{id}', [AdminUserController::class, 'update']);
+    Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
+
+    Route::get('/system-settings', [SystemSettingsController::class, 'index']);
+    Route::put('/system-settings', [SystemSettingsController::class, 'updateSettings']);
+});
