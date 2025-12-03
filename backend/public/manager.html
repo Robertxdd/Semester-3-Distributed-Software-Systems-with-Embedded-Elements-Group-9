@@ -26,7 +26,10 @@
       <header class="topbar">
         <div class="topbar-left">
           <h1>Manager view</h1>
-          <p class="subtitle">Work in progress - admin-only area</p>
+          <p class="subtitle">Admin-only area with desk registry and quick actions.</p>
+        </div>
+        <div class="topbar-right">
+          <span class="pill">Work in progress</span>
         </div>
         <div class="topbar-actions">
           <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
@@ -101,6 +104,8 @@
       return token ? { 'Authorization': `Bearer ${token}` } : {};
     };
 
+    let newDeskHighlightId = null;
+
     function renderDesks(desks) {
       const status = document.getElementById('manager-status');
       const list = document.getElementById('manager-desks');
@@ -116,10 +121,14 @@
         const li = document.createElement('li');
         li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id ? ` - External: ${d.external_id}` : '');
 
+        if (newDeskHighlightId && d.id === newDeskHighlightId) {
+          li.classList.add('desk-flash');
+          setTimeout(() => li.classList.remove('desk-flash'), 1600);
+        }
+
         const remove = document.createElement('button');
         remove.textContent = 'Delete';
         remove.className = 'btn secondary';
-        remove.style.marginLeft = '0.75rem';
         remove.onclick = async () => {
           try {
             const res = await fetch(`/api/desks/${d.id}`, {
@@ -148,6 +157,7 @@
         if (!res.ok) throw new Error(`List failed: ${res.status}`);
         const desks = await res.json();
         renderDesks(desks);
+        newDeskHighlightId = null;
       } catch (err) {
         console.error(err);
         document.getElementById('manager-status').textContent = 'Failed to load desks';
@@ -181,6 +191,15 @@
         if (!res.ok) {
           const text = await res.text();
           throw new Error(text || 'Failed to create desk');
+        }
+
+        try {
+          const created = await res.json();
+          if (created && created.id) {
+            newDeskHighlightId = created.id;
+          }
+        } catch (_) {
+          newDeskHighlightId = null;
         }
 
         document.getElementById('manager-hint').textContent = 'Desk created.';
