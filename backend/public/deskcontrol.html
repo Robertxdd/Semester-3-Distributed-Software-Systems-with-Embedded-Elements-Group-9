@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Smart Desk Supervisor - My Desk</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 
   <style>
     .pico-status {
@@ -69,6 +70,10 @@
         <div class="topbar-left">
           <h1>My motorized desk</h1>
           <p class="subtitle">Live control + sit/stand balance today</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+          <button class="btn secondary" type="button" data-logout>Logout</button>
         </div>
       </header>
 
@@ -153,6 +158,12 @@
 
   <!-- Full working API + KPI logic -->
   <script>
+    initThemeToggle();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "index.html";
+    }
+
     const BASE = "/api/desks";
     let currentDeskId = null;
     let lastLoggedHeight = null;
@@ -177,6 +188,26 @@
       const token = localStorage.getItem("token");
       return token ? { "Authorization": `Bearer ${token}` } : {};
     };
+
+    async function logout() {
+      const token = localStorage.getItem("token");
+      try {
+        if (token) {
+          await fetch("/api/logout", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+        }
+      } catch (err) {
+        console.warn("Logout failed", err);
+      }
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
+    }
+
+    document.querySelectorAll("[data-logout]").forEach(btn => {
+      btn.addEventListener("click", logout);
+    });
 
     function setStatus(text, isError = false) {
       picoStateText.textContent = text;

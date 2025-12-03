@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Smart Desk Supervisor - Admin Settings</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 <body>
   <div class="app">
@@ -46,6 +47,10 @@
           <p class="subtitle">
             These controls are placeholders; backend wiring pending.
           </p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+          <button class="btn secondary" type="button" data-logout>Logout</button>
         </div>
       </header>
 
@@ -199,6 +204,25 @@
   </div>
 </body>
 <script>
+  initThemeToggle();
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'index.html';
+  }
+
+  async function logout() {
+    try {
+      if (token) {
+        await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+      }
+    } catch (err) {
+      console.warn('Logout failed', err);
+    }
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  }
+  document.querySelectorAll('[data-logout]').forEach(btn => btn.addEventListener('click', logout));
+
   const authHeaders = () => {
     const token = localStorage.getItem('token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};

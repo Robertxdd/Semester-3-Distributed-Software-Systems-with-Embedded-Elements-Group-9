@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Desk Supervisor - Create Account</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <div class="login-wrap">
+    <aside class="login-hero">
+      <header class="brand">
+        <div class="logo" aria-hidden="true">S</div>
+        <div>Smart Desk Supervisor</div>
+      </header>
+
+      <section class="hero-copy">
+        <p class="eyebrow">Create your workspace access</p>
+        <h1>Register and start supervising your desk.</h1>
+        <p>
+          Once registered, you can log in, control your desk, and view health dashboards.
+        </p>
+      </section>
+    </aside>
+
+    <main class="login-panel">
+      <section class="card login-card">
+        <div class="top-actions">
+          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+          <a class="btn secondary" href="index.html">Back to login</a>
+        </div>
+
+        <h2>Create your account</h2>
+        <p class="login-meta">
+          Accounts are user-level by default. Admin roles must be elevated manually.
+        </p>
+
+        <form class="form" id="register-form">
+          <div class="field">
+            <label for="name">Full name</label>
+            <input id="name" name="name" type="text" class="input" placeholder="Jane Doe" required>
+          </div>
+
+          <div class="field">
+            <label for="email">Work email</label>
+            <input id="email" name="email" type="email" class="input" placeholder="you@company.com" required>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" class="input" placeholder="********" required>
+          </div>
+
+          <div class="field">
+            <label for="password_confirmation">Confirm password</label>
+            <input id="password_confirmation" name="password_confirmation" type="password" class="input" placeholder="********" required>
+          </div>
+
+          <button class="btn" type="submit">Create account</button>
+          <p class="helper">You will be signed in automatically after creating the account.</p>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    initThemeToggle();
+    document.getElementById("register-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const password_confirmation = document.getElementById("password_confirmation").value;
+
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password, password_confirmation })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.message || "Registration failed");
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+        // Default flow: go to user dashboard
+        window.location.href = "healthreport.html";
+      } catch (err) {
+        console.error(err);
+        alert("Network or server error");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Smart Desk Supervisor - Sign in</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 <body>
   <div class="login-wrap">
@@ -16,7 +17,7 @@
       </header>
 
       <section class="hero-copy">
-        <p class="eyebrow">Distributed systems · Desk Usage Supervision</p>
+        <p class="eyebrow">Distributed systems · Desk usage supervision</p>
         <h1>Healthier habits and smarter desks for your office.</h1>
         <p>
           Our system collects sit/stand statistics, monitors breakdowns, and helps
@@ -40,6 +41,11 @@
     <!-- Right: Login form -->
     <main class="login-panel">
       <section class="card login-card">
+        <div class="top-actions">
+          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+          <a class="btn secondary" href="register.html">Create account</a>
+        </div>
+
         <h2>Sign in to your workspace</h2>
         <p class="login-meta">
           Choose your role to access desk control, health dashboards, or reports.
@@ -89,6 +95,7 @@
     </main>
   </div>
   <script>
+  initThemeToggle();
   document.querySelector(".form").addEventListener("submit", async function (e) {
     e.preventDefault();
 

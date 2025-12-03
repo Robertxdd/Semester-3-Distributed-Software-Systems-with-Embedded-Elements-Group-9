@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Smart Desk Supervisor - Health & Reports</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 
 <body>
@@ -48,6 +49,10 @@
           <p class="subtitle">
             Sit/stand statistics, health scores, breakdowns and space utilization will be pulled from the API.
           </p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+          <button class="btn secondary" type="button" data-logout>Logout</button>
         </div>
       </header>
 
@@ -148,6 +153,25 @@
   </div>
 </body>
 <script>
+  initThemeToggle();
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'index.html';
+  }
+
+  async function logout() {
+    try {
+      if (token) {
+        await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+      }
+    } catch (err) {
+      console.warn('Logout failed', err);
+    }
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  }
+  document.querySelectorAll('[data-logout]').forEach(btn => btn.addEventListener('click', logout));
+
   const BASE = '/api';
   const DEFAULT_DESK_ID = 1;
   let targetDeskId = null;
@@ -204,7 +228,7 @@
       tr.innerHTML = `
         <td>${when}</td>
         <td>${cm}</td>
-        <td>${item.status || 'â€”'} ${flags.length ? '[' + flags.join(',') + ']' : ''}</td>
+        <td>${item.status || '—'} ${flags.length ? '[' + flags.join(',') + ']' : ' '}</td>
       `;
       els.stateBody.appendChild(tr);
     });
@@ -235,7 +259,7 @@
       const codes = [];
       if (i.is_anti_collision) codes.push('anti-collision');
       if (i.is_overload_protection_up || i.is_overload_protection_down) codes.push('overload');
-      li.textContent = `${when} â€” ${i.status || 'Error'} ${codes.length ? '[' + codes.join(',') + ']' : ''}`;
+      li.textContent = `${when} — ${i.status || 'Error'} ${codes.length ? '[' + codes.join(',') + ']' : ' '}`;
       els.errorsList.appendChild(li);
     });
   }
