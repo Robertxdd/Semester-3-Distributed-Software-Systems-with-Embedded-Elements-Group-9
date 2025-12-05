@@ -15,8 +15,13 @@ export const fetchDeskUsage = (id: number) => apiFetch<DeskUsageEntry[]>(`/desks
 
 export const fetchDeskErrors = (id: number) => apiFetch<DeskErrorItem[]>(`/desks/${id}/errors`);
 
-export const fetchTodayUsage = (from: string, to: string) =>
-  apiFetch<UsageSummary>(`/users/me/usage?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+export const fetchTodayUsage = (from: string, to: string, deskId?: number) => {
+  const params = new URLSearchParams();
+  params.set('from', from);
+  params.set('to', to);
+  if (deskId) params.set('deskId', String(deskId));
+  return apiFetch<UsageSummary>(`/users/me/usage?${params.toString()}`);
+};
 
 export const sendPreset = (deskId: number, preset: string) =>
   apiFetch(`/desks/${deskId}/commands/preset`, {
@@ -40,6 +45,12 @@ export const fetchDesks = (filters: FilterParams = {}) => {
   const query = params.toString();
   return apiFetch<DeskState[]>(`/desks${query ? `?${query}` : ''}`);
 };
+
+export const createDesk = (payload: Partial<DeskState> & { name: string }) =>
+  apiFetch<DeskState>('/desks', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
 
 export const bulkSetHeight = (deskIds: number[], height: number) =>
   apiFetch('/desks/bulk/commands/set-height', {

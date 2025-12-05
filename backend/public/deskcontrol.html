@@ -77,6 +77,26 @@
         </div>
       </header>
 
+      <section class="section card">
+        <div class="title"><h3>Select desk</h3></div>
+        <div class="body">
+          <div class="grid three">
+            <label class="field">
+              <span>Desk to control</span>
+              <select class="input" id="desk-select"></select>
+              <p class="helper" id="desk-select-hint">Loading desks...</p>
+            </label>
+            <div class="field">
+              <span>Actions</span>
+              <div class="flex" style="gap: 8px; flex-wrap: wrap;">
+                <button class="btn secondary" type="button" id="btn-reload-desks">Reload desks</button>
+                <button class="btn secondary" type="button" id="btn-refresh-desk">Refresh selected</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Connection status -->
       <section class="section card">
         <div class="title"><h3>Connection status</h3></div>
@@ -168,12 +188,17 @@
     let currentDeskId = null;
     let lastLoggedHeight = null;
     let currentHeight = 0;
+    let desksCache = [];
 
     const btnUp = document.getElementById("btn-up");
     const btnDown = document.getElementById("btn-down");
     const btnGo = document.getElementById("btn-go");
     const presetSit = document.getElementById("preset-sit");
     const presetStand = document.getElementById("preset-stand");
+    const deskSelect = document.getElementById("desk-select");
+    const deskSelectHint = document.getElementById("desk-select-hint");
+    const btnReloadDesks = document.getElementById("btn-reload-desks");
+    const btnRefreshDesk = document.getElementById("btn-refresh-desk");
 
     const heightDisplay = document.querySelector(".height-display .value");
     const picoLed = document.getElementById("picoLed");
@@ -296,6 +321,64 @@
       }
     }
 
+    function renderDeskOptions() {
+      deskSelect.innerHTML = "";
+      if (!desksCache.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No desks found";
+        deskSelect.appendChild(opt);
+        deskSelectHint.textContent = "No desks available";
+        return;
+      }
+      desksCache.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        const loc = [d.location_building, d.location_floor, d.location_zone].filter(Boolean).join("/");
+        opt.textContent = `#${d.id} - ${d.name || 'Desk'}${loc ? ` (${loc})` : ''}`;
+        deskSelect.appendChild(opt);
+      });
+      if (currentDeskId) {
+        deskSelect.value = currentDeskId;
+      }
+      deskSelectHint.textContent = `${desksCache.length} desks`;
+    }
+
+    async function loadDeskList() {
+      deskSelectHint.textContent = "Loading desks...";
+      try {
+        const res = await fetch(BASE, { headers: authHeaders() });
+        if (!res.ok) throw new Error(`Desk list failed: ${res.status}`);
+        desksCache = await res.json();
+        renderDeskOptions();
+        if (!currentDeskId && desksCache.length) {
+          currentDeskId = desksCache[0].id;
+          deskSelect.value = currentDeskId;
+          poll();
+          loadTodayStats();
+        }
+        if (!desksCache.length) {
+          setStatus("No desks registered", true);
+        }
+      } catch (err) {
+        console.error(err);
+        deskSelectHint.textContent = "Failed to load desks";
+      }
+    }
+
+    function changeDesk(id) {
+      if (!id) return;
+      currentDeskId = Number(id);
+      lastLoggedHeight = null;
+      setStatus("Loading desk...");
+      poll();
+      loadTodayStats();
+    }
+
+    deskSelect.addEventListener("change", (e) => changeDesk(e.target.value));
+    btnReloadDesks.addEventListener("click", loadDeskList);
+    btnRefreshDesk.addEventListener("click", () => currentDeskId && changeDesk(currentDeskId));
+
     function poll() {
       if (!currentDeskId) return;
       fetch(`${BASE}/${currentDeskId}`, { headers: authHeaders() })
@@ -342,23 +425,9 @@
     }
 
     async function initDesk() {
-      try {
-        const desksRes = await fetch(BASE, { headers: authHeaders() });
-        if (!desksRes.ok) throw new Error(`Desk list failed: ${desksRes.status}`);
-        const desks = await desksRes.json();
-        if (!desks.length) {
-          setStatus("No desks registered", true);
-          return;
-        }
-        currentDeskId = desks.find(d => d.id === 1)?.id ?? desks[0].id;
-        poll();
-        loadTodayStats();
-        setInterval(poll, 2000);
-        setInterval(loadTodayStats, 60000);
-      } catch (err) {
-        console.error(err);
-        setStatus("Failed to load desks", true);
-      }
+      await loadDeskList();
+      setInterval(poll, 2000);
+      setInterval(loadTodayStats, 60000);
     }
 
     initDesk();
