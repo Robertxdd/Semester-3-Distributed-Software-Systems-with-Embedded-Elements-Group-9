@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -46,6 +46,63 @@
           </div>
           <ul id="manager-desks"></ul>
           <p class="helper" id="id-hint"></p>
+        </div>
+      </section>
+
+      <section class="section card">
+        <div class="title"><h3>Fleet usage dashboards</h3></div>
+        <div class="chart-grid">
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Posture mix (all desks)</strong>
+                <p class="helper">Standing vs sitting minutes</p>
+              </div>
+              <span class="pill" id="mgr-total-min">--</span>
+            </div>
+            <div id="mgr-donut" class="donut" style="background: conic-gradient(#22c55e 0% 50%, #f97316 50% 100%);">
+              <div class="donut-center">
+                <strong id="mgr-stand-pct">0%</strong>
+                <span class="helper">standing share</span>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="legend-item"><span class="dot sitting"></span> <span>Sitting <span id="mgr-sit-pct">0%</span></span></div>
+              <div class="legend-item"><span class="dot standing"></span> <span>Standing <span id="mgr-stand-legend">0%</span></span></div>
+            </div>
+          </div>
+
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Top active desks</strong>
+                <p class="helper">By total minutes</p>
+              </div>
+              <span class="pill" id="mgr-top-count">--</span>
+            </div>
+            <div class="spark-bars compact" id="mgr-bars"></div>
+            <p class="helper">Highlights the busiest desks in the selected range.</p>
+          </div>
+
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Movement quality</strong>
+                <p class="helper">Average posture changes</p>
+              </div>
+              <span class="pill" id="mgr-moves">--</span>
+            </div>
+            <div class="insight" style="margin-bottom: 0.5rem;">
+              <span class="label">Standing share</span>
+              <div class="value" id="mgr-stand-share">--</div>
+              <p class="helper">Aim for 40-60% across the fleet.</p>
+            </div>
+            <div class="insight">
+              <span class="label">Total desk time</span>
+              <div class="value" id="mgr-total-time">--</div>
+              <p class="helper">Aggregated sitting + standing minutes.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -104,6 +161,19 @@
       return token ? { 'Authorization': `Bearer ${token}` } : {};
     };
 
+    const usageEls = {
+      donut: document.getElementById('mgr-donut'),
+      standPct: document.getElementById('mgr-stand-pct'),
+      standLegend: document.getElementById('mgr-stand-legend'),
+      sitPct: document.getElementById('mgr-sit-pct'),
+      totalMin: document.getElementById('mgr-total-min'),
+      bars: document.getElementById('mgr-bars'),
+      topCount: document.getElementById('mgr-top-count'),
+      moves: document.getElementById('mgr-moves'),
+      standShareText: document.getElementById('mgr-stand-share'),
+      totalTimeText: document.getElementById('mgr-total-time'),
+    };
+
     let newDeskHighlightId = null;
 
     function renderDesks(desks) {
@@ -151,12 +221,77 @@
       });
     }
 
+    async function loadFleetUsage(desks) {
+      if (!desks.length) {
+        usageEls.totalMin.textContent = '0 min';
+        usageEls.donut.style.background = 'conic-gradient(#22c55e 0% 50%, #f97316 50% 100%)';
+        usageEls.standPct.textContent = '0%';
+        usageEls.standLegend.textContent = '0%';
+        usageEls.sitPct.textContent = '0%';
+        usageEls.bars.innerHTML = '';
+        usageEls.topCount.textContent = 'Top 0';
+        usageEls.moves.textContent = '0';
+        usageEls.standShareText.textContent = '0%';
+        usageEls.totalTimeText.textContent = '0 min';
+        return;
+      }
+
+      const results = await Promise.all(desks.map(async d => {
+        try {
+          const res = await fetch(`/api/desks/${d.id}/today-stats`, { headers: authHeaders() });
+          if (!res.ok) throw new Error();
+          const stats = await res.json();
+          return { desk: d, stats };
+        } catch (_) {
+          return null;
+        }
+      }));
+
+      const valid = results.filter(Boolean);
+      const totalSit = valid.reduce((sum, r) => sum + (r.stats.sitting_minutes || 0), 0);
+      const totalStand = valid.reduce((sum, r) => sum + (r.stats.standing_minutes || 0), 0);
+      const totalMoves = valid.reduce((sum, r) => sum + (r.stats.movements_today || 0), 0);
+      const total = totalSit + totalStand || 1;
+      const standShare = Math.round((totalStand / total) * 100);
+      const sitShare = 100 - standShare;
+
+      usageEls.donut.style.background = `conic-gradient(#22c55e 0% ${standShare}%, #f97316 ${standShare}% 100%)`;
+      usageEls.standPct.textContent = `${standShare}%`;
+      usageEls.standLegend.textContent = `${standShare}%`;
+      usageEls.sitPct.textContent = `${sitShare}%`;
+      usageEls.totalMin.textContent = `${totalSit + totalStand} min`;
+      usageEls.moves.textContent = `${Math.round(totalMoves / (valid.length || 1))} avg moves`;
+      usageEls.standShareText.textContent = `${standShare}% standing`;
+      usageEls.totalTimeText.textContent = `${totalSit + totalStand} min`;
+
+      const top = valid
+        .map(r => {
+          const totalMinutes = (r.stats.sitting_minutes || 0) + (r.stats.standing_minutes || 0);
+          return { name: r.desk.name || `Desk ${r.desk.id}`, total: totalMinutes };
+        })
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 5);
+      usageEls.topCount.textContent = `Top ${top.length}`;
+      usageEls.bars.innerHTML = '';
+      const maxTotal = Math.max(1, ...top.map(t => t.total));
+      top.forEach(t => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.innerHTML = `
+          <div class="fill" style="height:${(t.total / maxTotal) * 100}%"></div>
+          <span class="bar-label">${t.name}</span>
+        `;
+        usageEls.bars.appendChild(bar);
+      });
+    }
+
     async function loadDesks() {
       try {
         const res = await fetch('/api/desks', { headers: authHeaders() });
         if (!res.ok) throw new Error(`List failed: ${res.status}`);
         const desks = await res.json();
         renderDesks(desks);
+        loadFleetUsage(desks);
         newDeskHighlightId = null;
       } catch (err) {
         console.error(err);

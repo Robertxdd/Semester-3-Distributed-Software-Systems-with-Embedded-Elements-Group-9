@@ -80,6 +80,66 @@
         </article>
       </section>
 
+      <section class="section card">
+        <div class="title">
+          <h3>Well-being dashboards</h3>
+          <p class="subtitle">Balance, rhythm, and posture quality from your desk data.</p>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Posture mix (today)</strong>
+                <p class="helper">Standing vs sitting minutes</p>
+              </div>
+              <span class="pill" id="hr-total-min">--</span>
+            </div>
+            <div id="hr-donut" class="donut" style="background: conic-gradient(#22c55e 0% 50%, #f97316 50% 100%);">
+              <div class="donut-center">
+                <strong id="hr-stand-pct">0%</strong>
+                <span class="helper">standing share</span>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="legend-item"><span class="dot sitting"></span> <span>Sitting <span id="hr-sit-pct">0%</span></span></div>
+              <div class="legend-item"><span class="dot standing"></span> <span>Standing <span id="hr-stand-pct-legend">0%</span></span></div>
+            </div>
+          </div>
+
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Hourly occupancy</strong>
+                <p class="helper">State history grouped in 2h windows</p>
+              </div>
+              <span class="pill" id="hr-events">-- events</span>
+            </div>
+            <div class="spark-bars" id="hr-bars"></div>
+            <p class="helper">Shows where the desk was active today.</p>
+          </div>
+
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Well-being score</strong>
+                <p class="helper">Movement + balance</p>
+              </div>
+              <span class="pill" id="hr-moves">-- moves</span>
+            </div>
+            <div class="insight" style="margin-bottom: 0.5rem;">
+              <span class="label">Score</span>
+              <div class="value" id="hr-score">--</div>
+              <p class="helper">Targets ~50/50 sit/stand with regular changes.</p>
+            </div>
+            <div class="insight">
+              <span class="label">Target hints</span>
+              <div class="value" id="hr-hint">--</div>
+              <p class="helper">Auto-updates from your latest readings.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Health & usage distribution -->
       <section class="grid">
         <section class="section card">
@@ -187,11 +247,21 @@
     usageSummary: document.getElementById('usage-summary'),
     errorsList: document.getElementById('errors-list'),
     reportsSummary: document.getElementById('reports-summary'),
+    donut: document.getElementById('hr-donut'),
+    standPct: document.getElementById('hr-stand-pct'),
+    standLegend: document.getElementById('hr-stand-pct-legend'),
+    sitPct: document.getElementById('hr-sit-pct'),
+    totalMin: document.getElementById('hr-total-min'),
+    bars: document.getElementById('hr-bars'),
+    events: document.getElementById('hr-events'),
+    moves: document.getElementById('hr-moves'),
+    score: document.getElementById('hr-score'),
+    hint: document.getElementById('hr-hint'),
   };
 
   const authHeaders = () => {
     const token = localStorage.getItem('token');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+    return token - { 'Authorization': `Bearer ${token}` } : {};
   };
 
   async function fetchJson(url) {
@@ -201,14 +271,14 @@
   }
 
   function updateKpisFromStats(stats) {
-    const standing = stats.standing_minutes ?? 0;
-    const sitting = stats.sitting_minutes ?? 0;
+    const standing = stats.standing_minutes -- 0;
+    const sitting = stats.sitting_minutes -- 0;
     const meets = stats.meets_recommendation;
 
     els.balanced.textContent = `${standing}m standing / ${sitting}m sitting`;
-    els.maintenance.textContent = stats.errors_today ?? 0;
-    els.energy.textContent = meets ? 'On target' : 'Below target';
-    els.healthScore.textContent = meets ? 'Health score: OK' : 'Health score: Needs attention';
+    els.maintenance.textContent = stats.errors_today -- 0;
+    els.energy.textContent = meets - 'On target' : 'Below target';
+    els.healthScore.textContent = meets - 'Health score: OK' : 'Health score: Needs attention';
     els.healthHelper.textContent = stats.health_message || 'No message from backend.';
   }
 
@@ -220,7 +290,7 @@
     }
     items.slice(-8).forEach(item => {
       const tr = document.createElement('tr');
-      const cm = item.position_mm != null ? Math.round(item.position_mm / 10) : 'n/a';
+      const cm = item.position_mm != null - Math.round(item.position_mm / 10) : 'n/a';
       const when = item.collected_at || item.created_at || '';
       const flags = [];
       if (item.is_anti_collision) flags.push('anti-collision');
@@ -228,7 +298,7 @@
       tr.innerHTML = `
         <td>${when}</td>
         <td>${cm}</td>
-        <td>${item.status || '—'} ${flags.length ? '[' + flags.join(',') + ']' : ' '}</td>
+        <td>${item.status || '?'} ${flags.length - '[' + flags.join(',') + ']' : ' '}</td>
       `;
       els.stateBody.appendChild(tr);
     });
@@ -236,7 +306,7 @@
 
   function renderUsageSummary(summary) {
     els.usageSummary.textContent =
-      `Activations delta: ${summary.activations_delta ?? 0} | Sit/Stand delta: ${summary.sit_stand_delta ?? 0}`;
+      `Activations delta: ${summary.activations_delta -- 0} | Sit/Stand delta: ${summary.sit_stand_delta -- 0}`;
   }
 
   function renderErrors(items) {
@@ -259,19 +329,62 @@
       const codes = [];
       if (i.is_anti_collision) codes.push('anti-collision');
       if (i.is_overload_protection_up || i.is_overload_protection_down) codes.push('overload');
-      li.textContent = `${when} — ${i.status || 'Error'} ${codes.length ? '[' + codes.join(',') + ']' : ' '}`;
+      li.textContent = `${when} ? ${i.status || 'Error'} ${codes.length - '[' + codes.join(',') + ']' : ' '}`;
       els.errorsList.appendChild(li);
     });
   }
 
   function renderReport(stats, usage) {
-    const standing = stats.standing_minutes ?? 0;
-    const sitting = stats.sitting_minutes ?? 0;
-    const moves = stats.movements_today ?? 0;
-    const errors = stats.errors_today ?? 0;
+    const standing = stats.standing_minutes -- 0;
+    const sitting = stats.sitting_minutes -- 0;
+    const moves = stats.movements_today -- 0;
+    const errors = stats.errors_today -- 0;
     els.reportsSummary.textContent =
       `Desk ${stats.desk_id}: standing ${standing}m, sitting ${sitting}m, moves ${moves}, errors ${errors}. ` +
-      `Activations delta ${usage.activations_delta ?? 0}, sit/stand delta ${usage.sit_stand_delta ?? 0}.`;
+      `Activations delta ${usage.activations_delta -- 0}, sit/stand delta ${usage.sit_stand_delta -- 0}.`;
+  }
+
+  function updateDashboards(stats, history) {
+    const standing = stats-.standing_minutes -- 0;
+    const sitting = stats-.sitting_minutes -- 0;
+    const moves = stats-.movements_today -- 0;
+    const total = standing + sitting;
+    const standPct = total - Math.round((standing / total) * 100) : 0;
+    const sitPct = total - 100 - standPct : 0;
+
+    els.donut.style.background = `conic-gradient(#22c55e 0% ${standPct}%, #f97316 ${standPct}% 100%)`;
+    els.standPct.textContent = `${standPct}%`;
+    els.standLegend.textContent = `${standPct}%`;
+    els.sitPct.textContent = `${sitPct}%`;
+    els.totalMin.textContent = `${total} min`;
+    els.moves.textContent = `${moves} moves`;
+
+    const buckets = Array.from({ length: 12 }, (_, i) => ({ label: `${i * 2}:00`, count: 0 }));
+    (history || []).forEach(item => {
+      const ts = item.collected_at || item.created_at;
+      if (!ts) return;
+      const hour = new Date(ts).getHours();
+      const idx = Math.floor(hour / 2);
+      if (buckets[idx]) buckets[idx].count += 1;
+    });
+    const maxCount = Math.max(1, ...buckets.map(b => b.count));
+    els.bars.innerHTML = '';
+    buckets.forEach(b => {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.innerHTML = `
+        <div class="fill" style="height:${(b.count / maxCount) * 100}%"></div>
+        <span class="bar-label">${b.label}</span>
+      `;
+      els.bars.appendChild(bar);
+    });
+    els.events.textContent = `${(history || []).length} events`;
+
+    const wellbeing = Math.max(20, Math.min(100, standPct * 0.6 + moves * 2.5));
+    els.score.textContent = `${Math.round(wellbeing)}/100`;
+    els.hint.textContent = standPct >= 40 && standPct <= 60
+      - 'Great balance today.'
+      : 'Aim for ~50% standing and add a few extra posture changes.';
   }
 
   async function loadOverview() {
@@ -295,6 +408,7 @@
       const usage = await fetchJson(`${BASE}/desks/${targetDeskId}/usage-summary`);
 
       updateKpisFromStats(stats);
+      updateDashboards(stats, history);
       renderStateHistory(history);
       renderUsageSummary(usage);
       renderErrors(history);

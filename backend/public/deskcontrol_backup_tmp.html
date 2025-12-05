@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Desk Supervisor - My Desk</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
+
+  <style>
+    .pico-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #1f2933;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+      font-family: system-ui, sans-serif;
+    }
+
+    .pico-led {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #4b5563;
+      transition: .15s;
+    }
+
+    .pico-led.moving {
+      background: #ef4444;
+      animation: pulse 0.6s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.15); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>Smart Desk Supervisor</div>
+      </div>
+
+      <nav class="nav">
+        <a href="deskcontrol.html" class="active"><span>My Desk</span></a>
+        <a href="healthreport.html"><span>Health & Reports</span></a>
+        <a href="settings.html"><span>Admin - Settings</span></a>
+        <a href="manager.html"><span>Manager</span></a>
+      </nav>
+
+      <section class="sidebar-foot">
+        <p class="foot-title">Current user</p>
+        <p class="foot-meta">Logged in</p>
+      </section>
+    </aside>
+
+    <div class="main">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>My motorized desk</h1>
+          <p class="subtitle">Live control + sit/stand balance today</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+          <button class="btn secondary" type="button" data-logout>Logout</button>
+        </div>
+      </header>
+
+      <section class="section card">
+        <div class="title"><h3>Select desk</h3></div>
+        <div class="body">
+          <div class="grid three">
+            <label class="field">
+              <span>Desk to control</span>
+              <select class="input" id="desk-select"></select>
+              <p class="helper" id="desk-select-hint">Loading desks...</p>
+            </label>
+            <div class="field">
+              <span>Actions</span>
+              <div class="flex" style="gap: 8px; flex-wrap: wrap;">
+                <button class="btn secondary" type="button" id="btn-reload-desks">Reload desks</button>
+                <button class="btn secondary" type="button" id="btn-refresh-desk">Refresh selected</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Connection status -->
+      <section class="section card">
+        <div class="title"><h3>Connection status</h3></div>
+        <div class="body">
+
+          <div class="alert alert-info">
+            <strong>Desk API reachable.</strong> Using simulator at <code>127.0.0.1:8000</code>.
+          </div>
+
+          <div class="pico-status">
+            <div class="pico-led stopped" id="picoLed"></div>
+            <div class="pico-text">
+              <span class="pico-label">PicoBricks</span>
+              <span id="picoStateText">Desk stopped</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPIs -->
+      <section class="kpis">
+        <article class="card kpi">
+          <h2>Current height</h2>
+          <p class="kpi-main" id="kpi-height">0 cm</p>
+          <p class="kpi-sub">Live reading from the desk</p>
+        </article>
+
+        <article class="card kpi">
+          <h2>Sit / Stand (today)</h2>
+          <p class="kpi-main" id="kpi-sitstand">0h 00m / 0h 00m</p>
+          <p class="kpi-sub">Based on collected desk state</p>
+        </article>
+
+        <article class="card kpi">
+          <h2>Movements today</h2>
+          <p class="kpi-main" id="kpi-moves">0</p>
+          <p class="kpi-sub">Up/Down adjustments</p>
+        </article>
+
+        <article class="card kpi">
+          <h2>Errors today</h2>
+          <p class="kpi-main" id="kpi-errors">0</p>
+          <p class="kpi-sub">Collision or motor faults</p>
+        </article>
+      </section>
+
+      <section class="section card">
+        <div class="title">
+          <h3>Usage dashboard</h3>
+          <p class="subtitle">Visualize posture mix, occupancy rhythm, and well-being for the selected desk.</p>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Posture mix</strong>
+                <p class="helper">Today&apos;s sitting vs standing</p>
+              </div>
+              <span class="pill" id="total-minutes">0 min</span>
+            </div>
+            <div id="donut-posture" class="donut" style="background: conic-gradient(#22c55e 0% 50%, #f97316 50% 100%);">
+              <div class="donut-center">
+                <strong id="standing-pct">0%</strong>
+                <span class="helper">standing share</span>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="legend-item"><span class="dot sitting"></span> <span>Sitting <span id="sitting-pct">0%</span></span></div>
+              <div class="legend-item"><span class="dot standing"></span> <span>Standing <span id="standing-pct-legend">0%</span></span></div>
+            </div>
+          </div>
+
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Hourly occupancy</strong>
+                <p class="helper">Activity by 2h buckets</p>
+              </div>
+              <span class="pill" id="hourly-pulses">0 events</span>
+            </div>
+            <div class="spark-bars" id="hourly-bars"></div>
+            <p class="helper">Taller bars mean more activity in that window.</p>
+          </div>
+
+          <div class="chart-tile">
+            <div class="flex between" style="margin-bottom: 0.35rem;">
+              <div>
+                <strong>Well-being pulse</strong>
+                <p class="helper">Balance + movements</p>
+              </div>
+              <span class="pill" id="moves-today">0 moves</span>
+            </div>
+            <div class="insight" style="margin-bottom: 0.5rem;">
+              <span class="label">Score</span>
+              <div class="value" id="wellbeing-score">--</div>
+              <p class="helper">Blends standing share and posture changes.</p>
+            </div>
+            <div class="insight">
+              <span class="label">Total desk time</span>
+              <div class="value" id="insight-total-time">--</div>
+              <p class="helper">Sum of sitting + standing minutes today.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section card">
+        <div class="title">
+          <h3>Desk controls</h3>
+        </div>
+
+        <div class="desk-controls">
+
+          <div class="height-display">
+            <span class="label">Live height</span>
+            <span class="value">0 cm</span>
+          </div>
+
+          <div class="field inline-field">
+            <label>Go to height (cm)</label>
+            <div class="inline-input">
+              <input id="go-height" type="number" value="105" min="60" max="130">
+              <button class="btn secondary" id="btn-go">Move to height</button>
+            </div>
+          </div>
+
+          <div class="control-buttons">
+            <button class="btn secondary" id="btn-down">Move down</button>
+            <button class="btn secondary" id="btn-up">Move up</button>
+            <button class="btn" id="preset-sit">Set preset: Sit</button>
+            <button class="btn" id="preset-stand">Set preset: Stand</button>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Full working API + KPI logic -->
+  <script>
+    initThemeToggle();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "index.html";
+    }
+
+    const BASE = "/api/desks";
+    let currentDeskId = null;
+    let lastLoggedHeight = null;
+    let currentHeight = 0;
+    let desksCache = [];
+    let lastStats = null;
+    let usageHistory = [];
+
+    const btnUp = document.getElementById("btn-up");
+    const btnDown = document.getElementById("btn-down");
+    const btnGo = document.getElementById("btn-go");
+    const presetSit = document.getElementById("preset-sit");
+    const presetStand = document.getElementById("preset-stand");
+    const deskSelect = document.getElementById("desk-select");
+    const deskSelectHint = document.getElementById("desk-select-hint");
+    const btnReloadDesks = document.getElementById("btn-reload-desks");
+    const btnRefreshDesk = document.getElementById("btn-refresh-desk");
+
+    const heightDisplay = document.querySelector(".height-display .value");
+    const picoLed = document.getElementById("picoLed");
+    const picoStateText = document.getElementById("picoStateText");
+
+    const kpiHeight = document.getElementById("kpi-height");
+    const kpiSitStand = document.getElementById("kpi-sitstand");
+    const kpiMoves = document.getElementById("kpi-moves");
+    const kpiErrors = document.getElementById("kpi-errors");
+    const donutPosture = document.getElementById("donut-posture");
+    const standingPctEl = document.getElementById("standing-pct");
+    const sittingPctEl = document.getElementById("sitting-pct");
+    const standingLegendEl = document.getElementById("standing-pct-legend");
+    const totalMinutesEl = document.getElementById("total-minutes");
+    const hourlyBars = document.getElementById("hourly-bars");
+    const hourlyPulses = document.getElementById("hourly-pulses");
+    const wellbeingScoreEl = document.getElementById("wellbeing-score");
+    const movesTodayEl = document.getElementById("moves-today");
+    const insightTotalTimeEl = document.getElementById("insight-total-time");
+
+    const authHeaders = () => {
+      const token = localStorage.getItem("token");
+      return token ? { "Authorization": `Bearer ${token}` } : {};
+    };
+
+    async function logout() {
+      const token = localStorage.getItem("token");
+      try {
+        if (token) {
+          await fetch("/api/logout", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+        }
+      } catch (err) {
+        console.warn("Logout failed", err);
+      }
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
+    }
+
+    document.querySelectorAll("[data-logout]").forEach(btn => {
+      btn.addEventListener("click", logout);
+    });
+
+    function setStatus(text, isError = false) {
+      picoStateText.textContent = text;
+      picoLed.classList.toggle("moving", false);
+      if (isError) {
+        picoLed.style.background = "#ef4444";
+      } else {
+        picoLed.style.background = "";
+      }
+    }
+
+    function logState(heightCm, status = "stopped") {
+      if (!currentDeskId) return;
+      const positionMm = Math.round(heightCm * 10);
+      lastLoggedHeight = heightCm;
+      return fetch(`${BASE}/${currentDeskId}/log-state`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ position_mm: positionMm, status })
+      }).then(() => loadTodayStats()).catch(() => {});
+    }
+
+    function setHeight(targetHeight) {
+      if (!currentDeskId) return;
+      const target = clamp(targetHeight, 60, 130);
+      return fetch(`${BASE}/${currentDeskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ height: target, state: "stopped" })
+      })
+        .then(r => {
+          if (!r.ok) throw new Error(`Set height failed: ${r.status}`);
+          return r.json();
+        })
+        .then(data => {
+          updateUI(data);
+          logState(target, data.state || "stopped");
+        })
+        .catch(err => {
+          console.error(err);
+          setStatus("Move failed", true);
+        });
+    }
+
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
+    function adjustHeight(deltaCm) {
+      const target = clamp((currentHeight || 0) + deltaCm, 60, 130);
+      setHeight(target);
+    }
+
+    btnUp.onclick = () => currentDeskId && adjustHeight(2);
+    btnDown.onclick = () => currentDeskId && adjustHeight(-2);
+    btnGo.onclick = () => {
+      if (!currentDeskId) return;
+      const h = Number(document.getElementById("go-height").value);
+      setHeight(h);
+    };
+
+    presetSit.onclick = () => {
+      document.getElementById("go-height").value = 75;
+      btnGo.click();
+    };
+
+    presetStand.onclick = () => {
+      document.getElementById("go-height").value = 107;
+      btnGo.click();
+    };
+
+    function updateUI(data) {
+      const height = data.height;
+      const state = (data.state || "").toUpperCase();
+
+      if (typeof height === "number") {
+        currentHeight = height;
+        heightDisplay.textContent = height + " cm";
+        kpiHeight.textContent = height + " cm";
+      }
+
+      if (["MOVING", "UP", "DOWN"].includes(state)) {
+        picoLed.classList.add("moving");
+        picoStateText.textContent = "Desk moving";
+      } else {
+        picoLed.classList.remove("moving");
+        picoStateText.textContent = "Desk stopped";
+      }
+    }
+
+    function renderDeskOptions() {
+      deskSelect.innerHTML = "";
+      if (!desksCache.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No desks found";
+        deskSelect.appendChild(opt);
+        deskSelectHint.textContent = "No desks available";
+        return;
+      }
+      desksCache.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        const loc = [d.location_building, d.location_floor, d.location_zone].filter(Boolean).join("/");
+        opt.textContent = `#${d.id} - ${d.name || 'Desk'}${loc ? ` (${loc})` : ''}`;
+        deskSelect.appendChild(opt);
+      });
+      if (currentDeskId) {
+        deskSelect.value = currentDeskId;
+      }
+      deskSelectHint.textContent = `${desksCache.length} desks`;
+    }
+
+    async function loadUsageHistory() {
+      if (!currentDeskId) return;
+      try {
+        const res = await fetch(`${BASE}/${currentDeskId}/state-history`, { headers: authHeaders() });
+        if (!res.ok) throw new Error(`History failed ${res.status}`);
+        usageHistory = await res.json();
+        if (lastStats) updateUsageVisuals(lastStats, usageHistory);
+      } catch (err) {
+        console.error("Failed to load history", err);
+      }
+    }
+
+    function updateUsageVisuals(stats, history) {
+      const standing = stats?.standing_minutes ?? 0;
+      const sitting = stats?.sitting_minutes ?? 0;
+      const moves = stats?.movements_today ?? 0;
+      const total = standing + sitting;
+      const standPct = total ? Math.round((standing / total) * 100) : 0;
+      const sitPct = total ? 100 - standPct : 0;
+
+      donutPosture.style.background = `conic-gradient(#22c55e 0% ${standPct}%, #f97316 ${standPct}% 100%)`;
+      standingPctEl.textContent = `${standPct}%`;
+      standingLegendEl.textContent = `${standPct}%`;
+      sittingPctEl.textContent = `${sitPct}%`;
+      totalMinutesEl.textContent = `${total} min`;
+      movesTodayEl.textContent = `${moves} moves`;
+
+      const buckets = Array.from({ length: 12 }, (_, i) => ({ label: `${i * 2}:00`, count: 0 }));
+      (history || []).forEach(item => {
+        const ts = item.collected_at || item.created_at;
+        if (!ts) return;
+        const hour = new Date(ts).getHours();
+        const idx = Math.floor(hour / 2);
+        if (buckets[idx]) buckets[idx].count += 1;
+      });
+      const maxCount = Math.max(1, ...buckets.map(b => b.count));
+      hourlyBars.innerHTML = "";
+      buckets.forEach(b => {
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        bar.innerHTML = `
+          <div class="fill" style="height:${(b.count / maxCount) * 100}%"></div>
+          <span class="bar-label">${b.label}</span>
+        `;
+        hourlyBars.appendChild(bar);
+      });
+      hourlyPulses.textContent = `${(history || []).length} events`;
+
+      const wellbeing = Math.max(20, Math.min(100, standPct * 0.7 + moves * 3));
+      wellbeingScoreEl.textContent = `${Math.round(wellbeing)}/100`;
+      insightTotalTimeEl.textContent = `${total} min`;
+    }
+
+    async function loadDeskList() {
+      deskSelectHint.textContent = "Loading desks...";
+      try {
+        const res = await fetch(BASE, { headers: authHeaders() });
+        if (!res.ok) throw new Error(`Desk list failed: ${res.status}`);
+        desksCache = await res.json();
+        renderDeskOptions();
+        if (!currentDeskId && desksCache.length) {
+          currentDeskId = desksCache[0].id;
+          deskSelect.value = currentDeskId;
+          poll();
+          loadTodayStats();
+          loadUsageHistory();
+        }
+        if (!desksCache.length) {
+          setStatus("No desks registered", true);
+        }
+      } catch (err) {
+        console.error(err);
+        deskSelectHint.textContent = "Failed to load desks";
+      }
+    }
+
+    function changeDesk(id) {
+      if (!id) return;
+      currentDeskId = Number(id);
+      lastLoggedHeight = null;
+      setStatus("Loading desk...");
+      poll();
+      loadTodayStats();
+      loadUsageHistory();
+    }
+
+    deskSelect.addEventListener("change", (e) => changeDesk(e.target.value));
+    btnReloadDesks.addEventListener("click", loadDeskList);
+    btnRefreshDesk.addEventListener("click", () => currentDeskId && changeDesk(currentDeskId));
+
+    function poll() {
+      if (!currentDeskId) return;
+      fetch(`${BASE}/${currentDeskId}`, { headers: authHeaders() })
+        .then(r => {
+          if (!r.ok) throw new Error(`Status ${r.status}`);
+          return r.json();
+        })
+        .then(data => {
+          updateUI(data);
+          if (data.height !== undefined && data.height !== lastLoggedHeight) {
+            logState(data.height, data.state || "stopped");
+          }
+        })
+        .catch(() => {
+          setStatus("Desk offline", true);
+        });
+    }
+
+    function loadTodayStats() {
+      if (!currentDeskId) return;
+      fetch(`${BASE}/${currentDeskId}/today-stats`, { headers: authHeaders() })
+        .then(r => {
+          if (!r.ok) throw new Error(`Stats failed ${r.status}`);
+          return r.json();
+        })
+        .then(data => {
+          const standing = data.standing_minutes ?? 0;
+          const sitting = data.sitting_minutes ?? 0;
+          const moves = data.movements_today ?? 0;
+          const errors = data.errors_today ?? 0;
+
+          const standingH = Math.floor(standing / 60);
+          const standingM = standing % 60;
+          const sittingH = Math.floor(sitting / 60);
+          const sittingM = sitting % 60;
+
+          kpiSitStand.textContent = `${sittingH}h ${sittingM}m / ${standingH}h ${standingM}m`;
+          kpiMoves.textContent = moves;
+          kpiErrors.textContent = errors;
+          lastStats = { standing_minutes: standing, sitting_minutes: sitting, movements_today: moves };
+          updateUsageVisuals(lastStats, usageHistory);
+        })
+        .catch(err => {
+          console.error("Failed to load today stats", err);
+        });
+    }
+
+    async function initDesk() {
+      await loadDeskList();
+      setInterval(poll, 2000);
+      setInterval(loadTodayStats, 60000);
+      setInterval(loadUsageHistory, 60000);
+    }
+
+    initDesk();
+  </script>
+
+</body>
+</html>

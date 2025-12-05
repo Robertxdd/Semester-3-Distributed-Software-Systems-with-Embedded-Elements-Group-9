@@ -60,6 +60,23 @@ const ReportsPage = () => {
   const topFive = Object.entries(topErrorDesks)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
+  const totalSit = usage.reduce((sum, row) => sum + row.sitting_minutes, 0);
+  const totalStand = usage.reduce((sum, row) => sum + row.standing_minutes, 0);
+  const totalUsage = totalSit + totalStand;
+  const standingShare = Math.round((totalStand / (totalUsage || 1)) * 100);
+  const avgPostureChange = usage.length
+    ? Math.round(usage.reduce((sum, row) => sum + row.posture_changes, 0) / usage.length)
+    : 0;
+  const usageLeaders = [...usage]
+    .sort(
+      (a, b) =>
+        b.sitting_minutes + b.standing_minutes - (a.sitting_minutes + a.standing_minutes)
+    )
+    .slice(0, 5);
+  const maxLeaderMinutes = Math.max(
+    1,
+    ...usageLeaders.map((row) => row.sitting_minutes + row.standing_minutes)
+  );
 
   return (
     <div className="grid">
@@ -67,7 +84,7 @@ const ReportsPage = () => {
         <div className="card-header">
           <div>
             <h2 className="card-title">Reports</h2>
-            <p className="card-subtitle">Errors & maintenance · Usage & habits</p>
+            <p className="card-subtitle">Errors & maintenance | Usage & habits</p>
           </div>
         </div>
         <div className="tabs">
@@ -185,7 +202,100 @@ const ReportsPage = () => {
       )}
 
       {active === 'usage' && (
-        <section className="card">
+        <>
+          <section className="card">
+            <div className="card-header">
+              <h3 className="card-title">Usage dashboards</h3>
+              <p className="card-subtitle">Charts for posture mix, busiest desks, and movement.</p>
+            </div>
+            <div className="grid three chart-grid">
+              <div className="chart-tile">
+                <div className="flex between" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>Fleet posture mix</strong>
+                    <p className="muted" style={{ margin: '2px 0 0' }}>All desks in range</p>
+                  </div>
+                  <span className="pill">{totalUsage || 0} min total</span>
+                </div>
+                <div
+                  className="donut"
+                  style={{
+                    background: `conic-gradient(#22c55e 0% ${standingShare}%, #f97316 ${standingShare}% 100%)`
+                  }}
+                >
+                  <div className="donut-center">
+                    <strong>{standingShare}%</strong>
+                    <span className="muted">standing share</span>
+                  </div>
+                </div>
+                <div className="legend">
+                  <div className="legend-item">
+                    <span className="dot sitting" />
+                    <div>
+                      <div>Sitting</div>
+                      <div className="muted">{100 - standingShare}%</div>
+                    </div>
+                  </div>
+                  <div className="legend-item">
+                    <span className="dot standing" />
+                    <div>
+                      <div>Standing</div>
+                      <div className="muted">{standingShare}%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="chart-tile">
+                <div className="flex between" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>Busiest desks</strong>
+                    <p className="muted" style={{ margin: '2px 0 0' }}>Top usage by minutes</p>
+                  </div>
+                  <span className="pill">Top {usageLeaders.length}</span>
+                </div>
+                <div className="spark-bars compact">
+                  {usageLeaders.map((row) => {
+                    const total = row.sitting_minutes + row.standing_minutes;
+                    const height = (total / maxLeaderMinutes) * 100;
+                    return (
+                      <div key={row.desk_id} className="bar">
+                        <div
+                          className="fill"
+                          style={{ height: `${height}%` }}
+                          title={`${row.desk_name || `Desk ${row.desk_id}`} - ${total} min`}
+                        />
+                        <span className="bar-label">{row.desk_name || `Desk ${row.desk_id}`}</span>
+                      </div>
+                    );
+                  })}
+                  {usageLeaders.length === 0 && <p className="muted">No usage in range.</p>}
+                </div>
+              </div>
+
+              <div className="chart-tile">
+                <div className="flex between" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>Movement quality</strong>
+                    <p className="muted" style={{ margin: '2px 0 0' }}>Average posture changes</p>
+                  </div>
+                  <span className="pill">{avgPostureChange} avg</span>
+                </div>
+                <div className="insight" style={{ boxShadow: 'none', background: 'transparent' }}>
+                  <span className="label">Posture balance</span>
+                  <div className="value">{standingShare}% standing</div>
+                  <p className="muted">Aim for 40-60% to keep users balanced.</p>
+                </div>
+                <div className="insight" style={{ boxShadow: 'none', background: 'transparent' }}>
+                  <span className="label">Total desk time</span>
+                  <div className="value">{totalUsage} min</div>
+                  <p className="muted">Aggregated for the selected range.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="card">
           <div className="card-header">
             <h3 className="card-title">Usage summary by desk</h3>
           </div>
@@ -257,10 +367,12 @@ const ReportsPage = () => {
               })()}
             </div>
           </div>
-        </section>
+          </section>
+        </>
       )}
     </div>
   );
 };
 
 export default ReportsPage;
+

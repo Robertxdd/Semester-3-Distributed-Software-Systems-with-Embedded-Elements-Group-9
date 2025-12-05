@@ -1,6 +1,14 @@
-import { useEffect, useState } from 'react';
-import { fetchActiveDesk, fetchDesk, fetchDesks, fetchTodayUsage, sendHeight, sendPreset } from '../api/desks';
-import type { DeskState, UsageSummary } from '../types';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  fetchActiveDesk,
+  fetchDesk,
+  fetchDeskUsage,
+  fetchDesks,
+  fetchTodayUsage,
+  sendHeight,
+  sendPreset
+} from '../api/desks';
+import type { DeskState, DeskUsageEntry, UsageSummary } from '../types';
 import { todayRange, formatDateTime } from '../utils/date';
 
 const MyDeskPage = () => {
@@ -8,6 +16,7 @@ const MyDeskPage = () => {
   const [selectedDeskId, setSelectedDeskId] = useState<number | null>(null);
   const [desk, setDesk] = useState<DeskState | null>(null);
   const [usage, setUsage] = useState<UsageSummary | null>(null);
+  const [usageHistory, setUsageHistory] = useState<DeskUsageEntry[]>([]);
   const [heightInput, setHeightInput] = useState<number>(0);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingDesk, setLoadingDesk] = useState(false);
@@ -41,6 +50,9 @@ const MyDeskPage = () => {
       const { from, to } = todayRange();
       const todayUsage = await fetchTodayUsage(from, to, deskId);
       setUsage(todayUsage);
+
+      const history = await fetchDeskUsage(deskId);
+      setUsageHistory(history);
     } catch (err) {
       console.error(err);
       setActionHint('Failed to load desk data.');
@@ -78,6 +90,7 @@ const MyDeskPage = () => {
     } else {
       setDesk(null);
       setUsage(null);
+      setUsageHistory([]);
     }
   }, [selectedDeskId]);
 
@@ -104,6 +117,23 @@ const MyDeskPage = () => {
     }
   };
 
+  const totalToday = (usage?.sitting_minutes || 0) + (usage?.standing_minutes || 0);
+  const sittingPct = totalToday ? Math.round(((usage?.sitting_minutes || 0) / totalToday) * 100) : 0;
+  const standingPct = totalToday ? 100 - sittingPct : 0;
+  const hourlyBuckets = useMemo(() => {
+    const buckets = Array.from({ length: 12 }, (_, idx) => ({ label: `${idx * 2}:00`, minutes: 0 }));
+    usageHistory.forEach((entry) => {
+      const hour = new Date(entry.started_at).getHours();
+      const bucketIndex = Math.floor(hour / 2);
+      if (buckets[bucketIndex]) {
+        buckets[bucketIndex].minutes += entry.duration_minutes;
+      }
+    });
+    return buckets;
+  }, [usageHistory]);
+  const maxBucket = Math.max(15, ...hourlyBuckets.map((b) => b.minutes));
+  const wellBeingScore = Math.max(20, Math.min(100, standingPct * 0.8 + (usage?.posture_changes || 0) * 2));
+
   if (loadingList && !desks.length) return <div>Loading desks...</div>;
 
   return (
@@ -114,7 +144,13 @@ const MyDeskPage = () => {
             <h2 className="card-title">Pick a desk</h2>
             <p className="card-subtitle">Choose which desk to control or create a new one.</p>
           </div>
-          <button className="btn secondary" onClick={() => { loadDeskList(); if (selectedDeskId) loadDeskData(selectedDeskId); }}>
+          <button
+            className="btn secondary"
+            onClick={() => {
+              loadDeskList();
+              if (selectedDeskId) loadDeskData(selectedDeskId);
+            }}
+          >
             Refresh list
           </button>
         </div>
@@ -134,12 +170,18 @@ const MyDeskPage = () => {
                 </option>
               ))}
             </select>
-            <p className="helper">{loadingDesk ? 'Loading desk data...' : selectedDeskId ? '' : 'No desk selected.'}</p>
+            <p className="helper">
+              {loadingDesk ? 'Loading desk data...' : selectedDeskId ? '' : 'No desk selected.'}
+            </p>
           </label>
           <label className="field">
             <span>Quick actions</span>
             <div className="flex" style={{ gap: 8 }}>
-              <button className="btn secondary" onClick={() => selectedDeskId && loadDeskData(selectedDeskId)} disabled={!selectedDeskId || loadingDesk}>
+              <button
+                className="btn secondary"
+                onClick={() => selectedDeskId && loadDeskData(selectedDeskId)}
+                disabled={!selectedDeskId || loadingDesk}
+              >
                 Refresh desk
               </button>
               <button className="btn secondary" onClick={() => loadDeskList()} disabled={loadingList}>
@@ -148,7 +190,9 @@ const MyDeskPage = () => {
             </div>
           </label>
         </div>
-        <p className="muted" style={{ marginTop: 10 }}>{listHint || (desks.length ? `${desks.length} desks available` : 'No desks yet')}</p>
+        <p className="muted" style={{ marginTop: 10 }}>
+          {listHint || (desks.length ? `${desks.length} desks available` : 'No desks yet')}
+        </p>
       </section>
 
       {desk ? (
@@ -158,7 +202,7 @@ const MyDeskPage = () => {
               <div>
                 <h2 className="card-title">{desk.name}</h2>
                 <p className="card-subtitle">
-                  {desk.building || 'Unknown building'} Aú {desk.floor || 'Floor ?'} Aú {desk.zone || 'Zone ?'}
+                  {desk.building || 'Unknown building'} / {desk.floor || 'Floor ?'} / {desk.zone || 'Zone ?'}
                 </p>
               </div>
               <div className="status ok">Live</div>
@@ -166,7 +210,9 @@ const MyDeskPage = () => {
             <div className="grid three">
               <div className="metric">
                 <span className="label">Current height</span>
-                <span className="value">{desk.current_height ? `${desk.current_height} mm` : 'ƒ?"'}</span>
+                <span className="value">
+                  {desk.current_height ?? desk.target_height ? `${desk.current_height ?? desk.target_height} mm` : '-'}
+                </span>
               </div>
               <div className="metric">
                 <span className="label">Posture</span>
@@ -243,6 +289,103 @@ const MyDeskPage = () => {
             ) : (
               <p className="muted">No usage data for today.</p>
             )}
+          </section>
+
+          <section className="card">
+            <div className="card-header">
+              <div>
+                <h3 className="card-title">Usage dashboard</h3>
+                <p className="card-subtitle">Visualise occupancy and posture balance for this desk.</p>
+              </div>
+              <button
+                className="btn secondary"
+                onClick={() => selectedDeskId && loadDeskData(selectedDeskId)}
+                disabled={loadingDesk}
+              >
+                Refresh charts
+              </button>
+            </div>
+            <div className="grid two chart-grid">
+              <div className="chart-tile">
+                <div className="flex between" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>Posture mix</strong>
+                    <p className="muted" style={{ margin: '2px 0 0' }}>Today</p>
+                  </div>
+                  <span className="pill">{totalToday ? `${totalToday} min` : 'No data'}</span>
+                </div>
+                <div
+                  className="donut"
+                  style={{
+                    background: `conic-gradient(#22c55e 0% ${standingPct}%, #f97316 ${standingPct}% 100%)`
+                  }}
+                >
+                  <div className="donut-center">
+                    <strong>{standingPct}%</strong>
+                    <span className="muted">standing share</span>
+                  </div>
+                </div>
+                <div className="legend">
+                  <div className="legend-item">
+                    <span className="dot sitting" />
+                    <div>
+                      <div>Sitting</div>
+                      <div className="muted">{sittingPct}%</div>
+                    </div>
+                  </div>
+                  <div className="legend-item">
+                    <span className="dot standing" />
+                    <div>
+                      <div>Standing</div>
+                      <div className="muted">{standingPct}%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="chart-tile">
+                <div className="flex between" style={{ marginBottom: 8 }}>
+                  <div>
+                    <strong>Hourly occupancy</strong>
+                    <p className="muted" style={{ margin: '2px 0 0' }}>Where you used this desk today</p>
+                  </div>
+                  <span className="pill">{usage?.posture_changes || 0} posture shifts</span>
+                </div>
+                <div className="spark-bars">
+                  {hourlyBuckets.map((bucket) => (
+                    <div key={bucket.label} className="bar">
+                      <div
+                        className="fill"
+                        style={{ height: `${(bucket.minutes / maxBucket) * 100}%` }}
+                        title={`${bucket.label} - ${bucket.minutes} min`}
+                      />
+                      <span className="bar-label">{bucket.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="muted" style={{ marginTop: 8 }}>
+                  Taller bars indicate heavier occupancy in that two-hour window.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid three" style={{ marginTop: 12 }}>
+              <div className="insight">
+                <span className="label">Well-being pulse</span>
+                <div className="value">{Math.round(wellBeingScore)}/100</div>
+                <p className="muted">Balance between standing and movement for today.</p>
+              </div>
+              <div className="insight">
+                <span className="label">Most recent posture</span>
+                <div className="value">{desk.posture || 'Unknown'}</div>
+                <p className="muted">Use quick actions to switch if needed.</p>
+              </div>
+              <div className="insight">
+                <span className="label">Total desk time</span>
+                <div className="value">{totalToday} min</div>
+                <p className="muted">Across sitting and standing sessions for this desk.</p>
+              </div>
+            </div>
           </section>
         </>
       ) : (
