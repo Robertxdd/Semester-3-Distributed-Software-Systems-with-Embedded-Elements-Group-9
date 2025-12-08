@@ -3,7 +3,7 @@ MicroPython script for Raspberry Pi Pico that listens to USB serial commands
 and controls a Pico Bricks LED module on GPIO 15.
 
 Command protocol (sent from PC over USB serial):
-  - "UP" or "DOWN": turn LED ON and print "DESKO IS MOVING"
+  - "UP", "DOWN" or "MOVING": turn LED ON and print "DESKO IS MOVING"
   - "STOP": turn LED OFF and print "DESKO STOPPED"
 
 The loop is non-blocking: serial input is polled so the board can react
@@ -29,7 +29,7 @@ poller.register(sys.stdin, uselect.POLLIN)
 
 def handle_command(command):
     """Process a single uppercase command string and act on the LED."""
-    if command in ("UP", "DOWN"):
+    if command in ("UP", "DOWN", "MOVING"):
         led.on()
         print("DESKO IS MOVING")
     elif command == "STOP":
