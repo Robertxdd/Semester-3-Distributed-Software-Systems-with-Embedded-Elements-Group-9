@@ -3,6 +3,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeskController;
 use App\Http\Controllers\DeskDataCollectionController;
 use App\Http\Controllers\DeskDataQueryController;
+use App\Http\Controllers\DeskReportingController;
 use App\Http\Controllers\DeskStatsController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,4 +38,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/desks/{desk}/usage-summary', [DeskDataQueryController::class, 'usageSummary']);
     Route::get('/desks/{desk}/today-stats', [DeskStatsController::class, 'todayStats']);
     Route::post('/desks/{desk}/log-state', [DeskStatsController::class, 'logState']);
+    
+    Route::get('/desks/{desk}/manager-report', [DeskReportingController::class, 'report']);
 });
