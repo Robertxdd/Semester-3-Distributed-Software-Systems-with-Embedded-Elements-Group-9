@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 /* ------------------------------
    Base reset & variables
 ------------------------------ */
@@ -10,38 +12,37 @@
 }
 
 :root {
-  --bg-body: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
-  --bg-main: #050816;
-  --bg-elevated: #0b1020;
-  --bg-elevated-soft: #11182a;
-  --bg-sidebar: #050813;
-  --border-subtle: rgba(255, 255, 255, 0.06);
+  --bg-body: radial-gradient(circle at 20% 20%, #0b1224 0, #030712 42%, #01030a 100%);
+  --bg-main: #030712;
+  --bg-elevated: #0a1020;
+  --bg-elevated-soft: #0f172a;
+  --bg-sidebar: #050814;
+  --border-subtle: rgba(255, 255, 255, 0.08);
 
-  --accent: #4f46e5;
-  --accent-soft: rgba(79, 70, 229, 0.14);
-  --accent-strong: #6366f1;
+  --accent: #0ea5e9;
+  --accent-soft: rgba(14, 165, 233, 0.16);
+  --accent-strong: #22d3ee;
 
-  --text-main: #f9fafb;
-  --text-muted: #9ca3af;
-  --text-soft: #6b7280;
-  --text-strong: #e5e7eb;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-soft: #94a3b8;
+  --text-strong: #e2e8f0;
 
   --danger: #ef4444;
-  --danger-soft: rgba(239, 68, 68, 0.15);
+  --danger-soft: rgba(239, 68, 68, 0.18);
   --warn: #f59e0b;
-  --warn-soft: rgba(245, 158, 11, 0.14);
+  --warn-soft: rgba(245, 158, 11, 0.18);
   --success: #22c55e;
-  --success-soft: rgba(34, 197, 94, 0.16);
+  --success-soft: rgba(34, 197, 94, 0.18);
   --neutral-badge: rgba(148, 163, 184, 0.18);
 
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-pill: 999px;
 
-  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 20px 55px rgba(0, 0, 0, 0.55);
 
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Segoe UI", sans-serif;
+  --font-sans: 'Space Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 .theme-light {
@@ -52,9 +53,9 @@
   --bg-sidebar: #eef2ff;
   --border-subtle: rgba(15, 23, 42, 0.08);
 
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.14);
-  --accent-strong: #1d4ed8;
+  --accent: #0ea5e9;
+  --accent-soft: rgba(14, 165, 233, 0.14);
+  --accent-strong: #0284c7;
 
   --text-main: #0b1120;
   --text-muted: #475569;
@@ -66,7 +67,7 @@
   --success-soft: rgba(34, 197, 94, 0.12);
   --neutral-badge: rgba(100, 116, 139, 0.1);
 
-  --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+  --shadow-soft: 0 14px 34px rgba(15, 23, 42, 0.12);
 }
 
 html,
@@ -120,7 +121,7 @@ body {
     background 0.15s ease,
     border-color 0.15s ease,
     opacity 0.15s ease;
-  box-shadow: 0 12px 26px rgba(79, 70, 229, 0.32);
+  box-shadow: 0 12px 26px rgba(14, 165, 233, 0.32);
   text-decoration: none;
 }
 
@@ -133,7 +134,7 @@ body {
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 16px 40px rgba(14, 165, 233, 0.4);
 }
 
 .btn.secondary:hover {
@@ -143,7 +144,7 @@ body {
 
 .btn:active {
   transform: translateY(0);
-  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 10px 24px rgba(14, 165, 233, 0.2);
 }
 
 .top-actions {
@@ -517,11 +518,12 @@ select:focus {
    Cards, KPIs & sections
 ------------------------------ */
 .card {
-  background: var(--bg-elevated);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)) , var(--bg-elevated);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   padding: 1.2rem 1.25rem;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(6px);
 }
 
 .kpis {
@@ -1019,7 +1021,7 @@ td.actions .btn {
   transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Cuando el desk está moviéndose */
+/* Cuando el desk esta moviendose */
 .pico-led.moving {
   background: #ef4444;          /* rojo */
   box-shadow: 0 0 12px rgba(239,68,68,0.9);
@@ -1028,7 +1030,7 @@ td.actions .btn {
 
 /* Parado (apagado) */
 .pico-led.stopped {
-  background: #374151;          /* gris más oscuro */
+  background: #374151;          /* gris mas oscuro */
   box-shadow: none;
   animation: none;
 }
@@ -1081,7 +1083,7 @@ td.actions .btn {
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
   padding: 1rem;
-  background: linear-gradient(180deg, rgba(79, 70, 229, 0.08), rgba(15, 23, 42, 0.15));
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), rgba(15, 23, 42, 0.15));
 }
 
 .donut {
@@ -1157,7 +1159,7 @@ td.actions .btn {
 
 .spark-bars .fill {
   width: 100%;
-  background: linear-gradient(180deg, rgba(79, 70, 229, 0.5), rgba(79, 70, 229, 0.1));
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.5), rgba(14, 165, 233, 0.1));
   border-radius: 10px 10px 6px 6px;
   min-height: 6px;
 }
@@ -1174,3 +1176,4 @@ td.actions .btn {
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
 }
+

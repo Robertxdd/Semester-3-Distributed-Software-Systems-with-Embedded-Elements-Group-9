@@ -119,11 +119,22 @@
           <div class="title">
             <h3>User roles & access control</h3>
             <p class="subtitle">
-              Overview will load from the backend; no static users are shown.
+              Snapshot fed from real desks to validate API connectivity.
             </p>
           </div>
           <div class="body table-wrap">
             <div class="helper" id="roles-helper">User list will be populated from the API (no fake rows).</div>
+            <table class="table" id="roles-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>External ID</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody id="roles-body"></tbody>
+            </table>
           </div>
         </section>
       </section>
@@ -293,22 +304,44 @@
 
   const updateRolesCard = async () => {
     const helper = document.getElementById('roles-helper');
+    const body = document.getElementById('roles-body');
+    if (body) body.innerHTML = '';
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         helper.textContent = 'No token stored; login to load data.';
+        if (body) body.innerHTML = '<tr><td colspan="4">Not authenticated.</td></tr>';
         return;
       }
       const res = await fetch('/api/desks', { headers: { 'Authorization': `Bearer ${token}` } });
       if (!res.ok) {
         helper.textContent = `API reachable, but returned ${res.status}.`;
+        if (body) body.innerHTML = `<tr><td colspan="4">Error ${res.status}</td></tr>`;
         return;
       }
       const desks = await res.json();
       helper.textContent = `API reachable. Desks available: ${desks.length}.`;
+      if (body) {
+        if (!desks.length) {
+          body.innerHTML = '<tr><td colspan="4">No desks available.</td></tr>';
+        } else {
+          desks.forEach(d => {
+            const tr = document.createElement('tr');
+            const loc = [d.location_building, d.location_floor, d.location_zone].filter(Boolean).join(' / ') || 'n/a';
+            tr.innerHTML = `
+              <td>${d.id}</td>
+              <td>${d.name || 'Desk'}</td>
+              <td>${d.external_id || 'n/a'}</td>
+              <td>${loc}</td>
+            `;
+            body.appendChild(tr);
+          });
+        }
+      }
     } catch (err) {
       console.error(err);
       helper.textContent = 'Failed to reach API.';
+      if (body) body.innerHTML = '<tr><td colspan="4">Failed to load desks.</td></tr>';
     }
   };
 
