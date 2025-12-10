@@ -6,6 +6,7 @@ use App\Http\Controllers\DeskDataQueryController;
 use App\Http\Controllers\DeskReportingController;
 use App\Http\Controllers\DeskStatsController;
 use App\Http\Controllers\AdminSettingsController;
+use App\Http\Controllers\UserHealthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -51,4 +52,9 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/admin/settings', [AdminSettingsController::class, 'index']);
     Route::put('/admin/settings', [AdminSettingsController::class, 'update']);
     Route::get('/users', [UserController::class, 'index']);
+
+    // User well-being features
+    Route::get('/users/me/health-summary', [UserHealthController::class, 'healthSummary']);
+    Route::get('/users/me/reminders', [UserHealthController::class, 'reminders']);
+    Route::put('/users/me/reminders', [UserHealthController::class, 'updateReminders']);
 });

@@ -137,6 +137,11 @@ class DeskDataHandler
         $start = now()->startOfDay();
         $end = now();
 
+        return $this->getPostureStatsForRange($desk, $start, $end);
+    }
+
+    public function getPostureStatsForRange(Desk $desk, Carbon $start, Carbon $end): array
+    {
         $readings = $desk->stateReadings()
             ->whereBetween('collected_at', [$start, $end])
             ->orderBy('collected_at')
@@ -170,6 +175,11 @@ class DeskDataHandler
         $start = now()->startOfDay();
         $end = now();
 
+        return $this->getMovementsForRange($desk, $start, $end);
+    }
+
+    public function getMovementsForRange(Desk $desk, Carbon $start, Carbon $end): int
+    {
         $readings = $desk->stateReadings()
             ->whereBetween('collected_at', [$start, $end])
             ->orderBy('collected_at')

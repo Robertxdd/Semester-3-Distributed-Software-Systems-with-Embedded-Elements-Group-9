@@ -8,8 +8,10 @@ import {
   sendHeight,
   sendPreset
 } from '../api/desks';
-import type { DeskState, DeskUsageEntry, UsageSummary } from '../types';
+import { fetchReminders } from '../api/user';
+import type { DeskState, DeskUsageEntry, ReminderSettings, UsageSummary } from '../types';
 import { todayRange, formatDateTime } from '../utils/date';
+import { useHealthReminders } from '../hooks/useHealthReminders';
 
 const MyDeskPage = () => {
   const [desks, setDesks] = useState<DeskState[]>([]);
@@ -22,6 +24,12 @@ const MyDeskPage = () => {
   const [loadingDesk, setLoadingDesk] = useState(false);
   const [listHint, setListHint] = useState('');
   const [actionHint, setActionHint] = useState('');
+  const [reminders, setReminders] = useState<ReminderSettings>({
+    enabled: true,
+    type: 'TIME',
+    every_minutes: 45,
+    max_sitting_minutes: 90,
+  });
 
   const loadDeskList = async () => {
     setLoadingList(true);
@@ -61,6 +69,15 @@ const MyDeskPage = () => {
     }
   };
 
+  const loadReminderSettings = async () => {
+    try {
+      const settings = await fetchReminders();
+      setReminders(settings);
+    } catch (err) {
+      console.error('Failed to load reminder settings', err);
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       const list = await loadDeskList();
@@ -80,6 +97,7 @@ const MyDeskPage = () => {
       } else {
         setDesk(null);
       }
+      loadReminderSettings();
     };
     init();
   }, []);
@@ -133,6 +151,7 @@ const MyDeskPage = () => {
   }, [usageHistory]);
   const maxBucket = Math.max(15, ...hourlyBuckets.map((b) => b.minutes));
   const wellBeingScore = Math.max(20, Math.min(100, standingPct * 0.8 + (usage?.posture_changes || 0) * 2));
+  const recommendation = useHealthReminders({ usage, reminders, deskName: desk?.name });
 
   if (loadingList && !desks.length) return <div>Loading desks...</div>;
 
@@ -288,6 +307,15 @@ const MyDeskPage = () => {
               </div>
             ) : (
               <p className="muted">No usage data for today.</p>
+            )}
+            {recommendation && (
+              <div
+                className={`banner ${recommendation.severity === 'warn' ? 'warn' : ''}`}
+                style={{ marginTop: 10 }}
+              >
+                <strong>{recommendation.title}</strong>
+                <p className="muted" style={{ margin: '6px 0 0' }}>{recommendation.body}</p>
+              </div>
             )}
           </section>
 

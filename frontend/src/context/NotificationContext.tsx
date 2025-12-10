@@ -16,6 +16,7 @@ interface NotificationContextValue {
   refresh: () => Promise<void>;
   markRead: (id: number) => Promise<void>;
   toasts: Toast[];
+  addToast: (title: string, body: string) => void;
   removeToast: (id: number) => void;
 }
 
@@ -56,14 +57,26 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const removeToast = useCallback((id: number) => setToasts((prev) => prev.filter((t) => t.id !== id)), []);
+  const addToast = useCallback(
+    (title: string, body: string) =>
+      setToasts((prev) => [
+        ...prev,
+        {
+          id: Date.now() + Math.floor(Math.random() * 1000),
+          title,
+          body,
+        },
+      ]),
+    []
+  );
 
   usePolling(refresh, 45000, !!token);
 
   const unread = notifications.filter((n) => !n.read_at).length;
 
   const value = useMemo(
-    () => ({ notifications, unread, refresh, markRead, toasts, removeToast }),
-    [notifications, unread, toasts]
+    () => ({ notifications, unread, refresh, markRead, toasts, addToast, removeToast }),
+    [notifications, unread, refresh, markRead, toasts, addToast, removeToast]
   );
 
   return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
