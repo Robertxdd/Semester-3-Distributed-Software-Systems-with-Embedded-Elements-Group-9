@@ -45,6 +45,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/desks/{desk}/state-history', [DeskDataQueryController::class, 'stateHistory']);
     Route::get('/desks/{desk}/usage-summary', [DeskDataQueryController::class, 'usageSummary']);
     Route::get('/desks/{desk}/today-stats', [DeskStatsController::class, 'todayStats']);
+    Route::get('/desks/today-summary', [DeskStatsController::class, 'todayStatsAll']);
     Route::post('/desks/{desk}/log-state', [DeskStatsController::class, 'logState']);
     
     Route::get('/desks/{desk}/manager-report', [DeskReportingController::class, 'report']);

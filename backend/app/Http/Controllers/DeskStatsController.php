@@ -46,4 +46,42 @@ class DeskStatsController extends Controller
 
         return response()->json(['message' => 'State logged']);
     }
+
+    public function todayStatsAll(Request $request, DeskDataHandler $handler): JsonResponse
+    {
+        $ids = $request->query('ids');
+        $deskIds = null;
+        if ($ids) {
+            $deskIds = collect(explode(',', $ids))
+                ->map(fn ($id) => (int) trim($id))
+                ->filter(fn ($id) => $id > 0)
+                ->values();
+        }
+
+        $desksQuery = Desk::query();
+        if ($deskIds && $deskIds->isNotEmpty()) {
+            $desksQuery->whereIn('id', $deskIds);
+        }
+
+        $desks = $desksQuery->get();
+        $stats = $desks->map(function (Desk $desk) use ($handler) {
+            $posture = $handler->getTodayPostureStats($desk);
+            $movements = $handler->getTodayMovements($desk);
+            $errors = $handler->getTodayErrorCount($desk);
+
+            return [
+                'desk_id' => $desk->id,
+                'name' => $desk->name,
+                'standing_minutes' => $posture['standing_minutes'] ?? 0,
+                'sitting_minutes' => $posture['sitting_minutes'] ?? 0,
+                'movements_today' => $movements,
+                'errors_today' => $errors,
+            ];
+        });
+
+        return response()->json([
+            'count' => $stats->count(),
+            'items' => $stats,
+        ]);
+    }
 }
