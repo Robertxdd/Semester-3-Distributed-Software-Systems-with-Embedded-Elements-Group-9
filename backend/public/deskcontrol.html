@@ -9,6 +9,56 @@
   <script src="theme.js"></script>
 
   <style>
+    /* Desk page polish */
+    .desk-page .section.card {
+      border-color: rgba(148, 163, 184, 0.16);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(15, 23, 42, 0.4));
+    }
+
+    .desk-page .title h3 {
+      letter-spacing: 0.01em;
+    }
+
+    .desk-page .kpis {
+      gap: 1.1rem;
+    }
+
+    .desk-page .kpi .kpi-main {
+      font-size: 1.6rem;
+    }
+
+    .desk-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .desk-controls .height-display {
+      padding: 0.9rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(34, 197, 94, 0.08), rgba(14, 165, 233, 0.08));
+    }
+
+    .desk-controls .inline-field .inline-input {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .desk-controls .control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-start;
+    }
+
+    .desk-controls .control-buttons .btn {
+      min-width: 120px;
+    }
+
+    /* Existing Pico badge tweak */
     .pico-status {
       display: inline-flex;
       align-items: center;
@@ -42,7 +92,7 @@
   </style>
 </head>
 
-<body>
+<body class="desk-page">
   <div class="app">
 
     <aside class="sidebar">
@@ -189,6 +239,7 @@
     let lastLoggedHeight = null;
     let currentHeight = 0;
     let desksCache = [];
+    let manualMoving = false;
 
     const btnUp = document.getElementById("btn-up");
     const btnDown = document.getElementById("btn-down");
@@ -244,6 +295,15 @@
       }
     }
 
+    function setMoving(isMoving) {
+      manualMoving = isMoving;
+      picoLed.classList.toggle("moving", isMoving);
+      picoStateText.textContent = isMoving ? "Desk moving" : "Desk stopped";
+      if (!isMoving) {
+        picoLed.style.background = "";
+      }
+    }
+
     function logState(heightCm, status = "stopped") {
       if (!currentDeskId) return;
       const positionMm = Math.round(heightCm * 10);
@@ -258,6 +318,7 @@
     function setHeight(targetHeight) {
       if (!currentDeskId) return;
       const target = clamp(targetHeight, 60, 130);
+      setMoving(true);
       return fetch(`${BASE}/${currentDeskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -274,6 +335,9 @@
         .catch(err => {
           console.error(err);
           setStatus("Move failed", true);
+        })
+        .finally(() => {
+          setMoving(false);
         });
     }
 
@@ -312,7 +376,7 @@
         kpiHeight.textContent = height + " cm";
       }
 
-      if (["MOVING", "UP", "DOWN"].includes(state)) {
+      if (manualMoving || ["MOVING", "UP", "DOWN"].includes(state)) {
         picoLed.classList.add("moving");
         picoStateText.textContent = "Desk moving";
       } else {
