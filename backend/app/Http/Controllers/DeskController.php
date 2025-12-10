@@ -99,6 +99,46 @@ class DeskController extends Controller
         return response()->json($desk);
     }
 
+    public function syncAll(Request $request): JsonResponse
+    {
+        // Admin-only: set all desks to the same height (clamped per desk limits).
+        $this->requireRole($request->user(), ['ADMIN']);
+
+        $data = $request->validate([
+            'height' => ['required', 'integer', 'min:40', 'max:200'],
+        ]);
+
+        $target = $data['height'];
+        $desks = Desk::all();
+        $results = [];
+
+        foreach ($desks as $desk) {
+            $min = $desk->min_height ?? 60;
+            $max = $desk->max_height ?? 130;
+            $applied = max($min, min($target, $max));
+
+            $desk->update([
+                'height' => $applied,
+                'state' => 'stopped',
+            ]);
+
+            $results[] = [
+                'desk_id' => $desk->id,
+                'applied_height' => $applied,
+                'min_height' => $min,
+                'max_height' => $max,
+            ];
+        }
+
+        \Log::info('All desks synchronized', ['user_id' => $request->user()->id, 'target' => $target]);
+
+        return response()->json([
+            'requested_height' => $target,
+            'desks_updated' => count($results),
+            'results' => $results,
+        ]);
+    }
+
     protected function validatedData(Request $request, bool $requireName = false): array
     {
         $rules = [

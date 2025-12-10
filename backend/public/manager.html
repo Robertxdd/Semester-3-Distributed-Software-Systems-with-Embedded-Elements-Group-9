@@ -130,6 +130,24 @@
           <p class="helper" id="manager-hint">Creates via POST /api/desks.</p>
         </div>
       </section>
+
+      <section class="section card">
+        <div class="title"><h3>Desk synchronization</h3></div>
+        <div class="body">
+          <div class="grid two">
+            <label class="field">
+              <span>Target height (cm)</span>
+              <input id="sync-height" class="input" type="number" min="40" max="200" value="105">
+              <p class="helper">Admin-only: syncs all desks to this height (clamped to each desk's min/max).</p>
+            </label>
+            <div class="field">
+              <span>Actions</span>
+              <button class="btn" type="button" id="btn-sync-desks">Sync all desks</button>
+              <p class="helper" id="sync-status"></p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -348,7 +366,38 @@
 
     document.getElementById('btn-create-desk').onclick = createDesk;
     document.getElementById('btn-refresh').onclick = loadDesks;
+    document.getElementById('btn-sync-desks').onclick = syncAllDesks;
     loadDesks();
+
+    async function syncAllDesks() {
+      const height = Number(document.getElementById('sync-height').value);
+      const statusEl = document.getElementById('sync-status');
+      if (!height || Number.isNaN(height)) {
+        statusEl.textContent = 'Enter a valid height.';
+        statusEl.style.color = '#fca5a5';
+        return;
+      }
+      statusEl.textContent = 'Syncing...';
+      statusEl.style.color = '#cbd5e1';
+      try {
+        const res = await fetch('/api/desks/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ height })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || `Failed (${res.status})`);
+        }
+        statusEl.textContent = `Synced ${data.desks_updated || 0} desks to ~${data.requested_height} cm.`;
+        statusEl.style.color = '#a7f3d0';
+        loadDesks();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Error syncing: ${err.message}`;
+        statusEl.style.color = '#fca5a5';
+      }
+    }
   </script>
 </body>
 </html>

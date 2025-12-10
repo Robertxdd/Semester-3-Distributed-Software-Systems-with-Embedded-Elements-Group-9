@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/desks/{desk}', [DeskController::class, 'show']);
     Route::put('/desks/{desk}', [DeskController::class, 'update']);
     Route::delete('/desks/{desk}', [DeskController::class, 'destroy']);
+    Route::post('/desks/sync', [DeskController::class, 'syncAll']);
     
     // Desk control routes
     Route::post('/desks/{desk}/up', [DeskController::class, 'moveUp']);
