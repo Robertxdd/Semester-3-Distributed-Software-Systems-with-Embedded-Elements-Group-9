@@ -5,6 +5,8 @@ use App\Http\Controllers\DeskDataCollectionController;
 use App\Http\Controllers\DeskDataQueryController;
 use App\Http\Controllers\DeskReportingController;
 use App\Http\Controllers\DeskStatsController;
+use App\Http\Controllers\AdminSettingsController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,4 +46,9 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/desks/{desk}/log-state', [DeskStatsController::class, 'logState']);
     
     Route::get('/desks/{desk}/manager-report', [DeskReportingController::class, 'report']);
+
+    // Admin settings + users
+    Route::get('/admin/settings', [AdminSettingsController::class, 'index']);
+    Route::put('/admin/settings', [AdminSettingsController::class, 'update']);
+    Route::get('/users', [UserController::class, 'index']);
 });

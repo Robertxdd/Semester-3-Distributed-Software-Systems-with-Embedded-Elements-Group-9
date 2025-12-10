@@ -35,8 +35,8 @@ class DeskController extends Controller
 
     public function update(Request $request, Desk $desk): JsonResponse
     {
-        // Only admins can update desk configuration
-        $this->requireRole($request->user(), ['ADMIN']);
+        // Allow occupants to update live height/state; admins keep full config control.
+        $this->requireRole($request->user(), ['ADMIN', 'OCCUPANT']);
         
         $desk->update($this->validatedData($request, requireName: false));
         
