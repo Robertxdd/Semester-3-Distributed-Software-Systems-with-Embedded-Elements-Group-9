@@ -1,35 +1,32 @@
+"""
+Simple MicroPython program for Pico/PicoBricks.
+Listens for "LED_ON" / "LED_OFF" over stdin (USB serial) and toggles the LED.
+"""
+from machine import Pin  # type: ignore
 import sys
-import time
-import uselect
-from machine import Pin
 
-led = Pin(7, Pin.OUT)
 
-poll = uselect.poll()
-poll.register(sys.stdin, uselect.POLLIN)
+def get_led_pin():
+    # Pico W supports "LED"; classic Pico uses GPIO 25. Try both.
+    try:
+        return Pin("LED", Pin.OUT)
+    except Exception:
+        return Pin(25, Pin.OUT)
 
-state = "STOP"
 
-print("PicoBricks LED control (USB serial)")
-print("LED en GPIO 7 (lado derecho)")
-print("Comandos: MOVING / STOP")
+led = get_led_pin()
 
-def read_command():
-    events = poll.poll(0)
-    if events:
-        line = sys.stdin.readline().strip().upper()
-        return line
-    return None
+
+def handle_command(cmd: str) -> None:
+    cmd = cmd.strip().upper()
+    if cmd == "LED_ON":
+        led.value(1)
+    elif cmd == "LED_OFF":
+        led.value(0)
+
 
 while True:
-    cmd = read_command()
-    if cmd in ("MOVING", "STOP"):
-        state = cmd
-        print("Estado cambiado a:", state)
-
-    if state == "MOVING":
-        led.toggle()
-        time.sleep(0.2)
-    else:
-        led.off()
-        time.sleep(0.2)
+    line = sys.stdin.readline()
+    if not line:
+        continue
+    handle_command(line)
