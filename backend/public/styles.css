@@ -276,6 +276,12 @@ select:focus {
   gap: 0;
 }
 
+.login-wrap.slim {
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 2.5rem 1.5rem;
+}
+
 .login-hero {
   padding: 2.75rem 3rem;
   background: radial-gradient(circle at top left, #1d2438 0, #050816 40%, #020617 100%);
@@ -386,7 +392,7 @@ select:focus {
 /* Login card */
 .login-card {
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
 }
 
 .card.login-card {
@@ -402,6 +408,10 @@ select:focus {
   font-size: 0.9rem;
   color: var(--text-soft);
   margin-bottom: 1.4rem;
+}
+
+.login-wrap.slim .login-card {
+  margin-top: 1rem;
 }
 
 .alt-actions {
