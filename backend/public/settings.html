@@ -34,7 +34,7 @@
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
         <p class="foot-meta">Administrator</p>
-        <p class="foot-meta small">Configuration placeholders (not wired).</p>
+        <p class="foot-meta small">Configuration saved via API.</p>
       </section>
     </aside>
 
@@ -45,7 +45,7 @@
         <div class="topbar-left">
           <h1>System & admin settings</h1>
           <p class="subtitle">
-            These controls are placeholders; backend wiring pending.
+            Admin-only settings stored via API.
           </p>
         </div>
         <div class="topbar-actions">
@@ -246,22 +246,42 @@
     el.style.color = ok ? '#a7f3d0' : '#fca5a5';
   };
 
-  const loadSaved = () => {
+  const fetchSettings = async () => {
     try {
-      const conn = JSON.parse(localStorage.getItem('connection_settings') || '{}');
+      const res = await fetch('/api/admin/settings', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error(`Load settings failed: ${res.status}`);
+      const data = await res.json();
+      const conn = data.connection_settings || {};
       if (conn.mode) document.getElementById('mode').value = conn.mode;
       if (conn.base_url) document.getElementById('base-url').value = conn.base_url;
       if (conn.api_key) document.getElementById('api-key').value = conn.api_key;
       if (conn.poll_interval) document.getElementById('poll-interval').value = conn.poll_interval;
 
-      const energy = JSON.parse(localStorage.getItem('energy_settings') || '{}');
+      const energy = data.energy_settings || {};
       if (energy.idle_timeout) document.getElementById('idle-timeout').value = energy.idle_timeout;
       if (energy.wake_mode) document.getElementById('wake-mode').value = energy.wake_mode;
 
-      const data = JSON.parse(localStorage.getItem('data_settings') || '{}');
-      if (data.retention) document.getElementById('retention').value = data.retention;
+      const privacy = data.data_settings || {};
+      if (privacy.retention) document.getElementById('retention').value = privacy.retention;
+      setStatus('connection-status', 'Loaded from API.');
     } catch (err) {
-      console.error('Failed to load saved settings', err);
+      console.error(err);
+      setStatus('connection-status', 'Failed to load from API, using defaults.', false);
+    }
+  };
+
+  const saveSettings = async (payload, key, statusId) => {
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ [key]: payload }),
+      });
+      if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+      setStatus(statusId, 'Saved via API.');
+    } catch (err) {
+      console.error(err);
+      setStatus(statusId, 'Failed to save via API.', false);
     }
   };
 
@@ -274,13 +294,7 @@
       health_collection: true,
       anonymize: true,
     };
-    try {
-      localStorage.setItem('connection_settings', JSON.stringify(payload));
-      setStatus('connection-status', 'Saved locally.');
-    } catch (err) {
-      console.error(err);
-      setStatus('connection-status', 'Failed to save.', false);
-    }
+    await saveSettings(payload, 'connection_settings', 'connection-status');
   };
 
   document.getElementById('save-energy').onclick = () => {
@@ -288,8 +302,7 @@
       idle_timeout: document.getElementById('idle-timeout').value,
       wake_mode: document.getElementById('wake-mode').value,
     };
-    localStorage.setItem('energy_settings', JSON.stringify(payload));
-    setStatus('energy-status', 'Energy policy saved locally.');
+    saveSettings(payload, 'energy_settings', 'energy-status');
   };
 
   document.getElementById('save-data').onclick = () => {
@@ -298,8 +311,7 @@
       aggregated_only: true,
       mask_ids: true,
     };
-    localStorage.setItem('data_settings', JSON.stringify(payload));
-    setStatus('data-status', 'Data settings saved locally.');
+    saveSettings(payload, 'data_settings', 'data-status');
   };
 
   const updateRolesCard = async () => {
@@ -313,26 +325,25 @@
         if (body) body.innerHTML = '<tr><td colspan="4">Not authenticated.</td></tr>';
         return;
       }
-      const res = await fetch('/api/desks', { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
       if (!res.ok) {
         helper.textContent = `API reachable, but returned ${res.status}.`;
         if (body) body.innerHTML = `<tr><td colspan="4">Error ${res.status}</td></tr>`;
         return;
       }
-      const desks = await res.json();
-      helper.textContent = `API reachable. Desks available: ${desks.length}.`;
+      const users = await res.json();
+      helper.textContent = `API reachable. Users available: ${users.length}.`;
       if (body) {
-        if (!desks.length) {
-          body.innerHTML = '<tr><td colspan="4">No desks available.</td></tr>';
+        if (!users.length) {
+          body.innerHTML = '<tr><td colspan="4">No users available.</td></tr>';
         } else {
-          desks.forEach(d => {
+          users.forEach(u => {
             const tr = document.createElement('tr');
-            const loc = [d.location_building, d.location_floor, d.location_zone].filter(Boolean).join(' / ') || 'n/a';
             tr.innerHTML = `
-              <td>${d.id}</td>
-              <td>${d.name || 'Desk'}</td>
-              <td>${d.external_id || 'n/a'}</td>
-              <td>${loc}</td>
+              <td>${u.id}</td>
+              <td>${u.name || 'User'} (${u.email || 'n/a'})</td>
+              <td>${u.role || (u.is_admin ? 'ADMIN' : 'OCCUPANT')}</td>
+              <td>${u.is_admin ? 'Admin' : 'User'}</td>
             `;
             body.appendChild(tr);
           });
@@ -345,7 +356,7 @@
     }
   };
 
-  loadSaved();
+  fetchSettings();
   updateRolesCard();
 </script>
 </html>
