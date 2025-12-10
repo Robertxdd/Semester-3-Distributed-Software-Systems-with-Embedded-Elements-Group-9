@@ -10,13 +10,14 @@ const LoginPage = () => {
   const { theme, setTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'admin' | 'user'>('admin');
   const [localError, setLocalError] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLocalError('');
     try {
-      const profile = await login(email, password);
+      const profile = await login(email, password, role);
       const redirect = profile.role === 'OCCUPANT' ? '/desk' : '/desks';
       const from = (location.state as { from?: string })?.from;
       navigate(from || redirect, { replace: true });
@@ -52,6 +53,18 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
             />
+          </label>
+          <label className="field">
+            <span>Role</span>
+            <select
+              className="select"
+              value={role}
+              onChange={(e) => setRole(e.target.value === 'admin' ? 'admin' : 'user')}
+            >
+              <option value="admin">Administrator / System configuration</option>
+              <option value="user">User</option>
+            </select>
+            <p className="helper">Must match the backend record (admin or user).</p>
           </label>
           {(error || localError) && <div className="banner danger">{error || localError}</div>}
           <div className="flex between">

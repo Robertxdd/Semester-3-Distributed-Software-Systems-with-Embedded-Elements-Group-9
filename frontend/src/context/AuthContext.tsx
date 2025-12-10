@@ -8,7 +8,7 @@ interface AuthContextValue {
   token: string | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string, role?: Role | 'admin' | 'user') => Promise<User>;
   logout: () => void;
   refresh: () => Promise<void>;
   hasRole: (roles: Role[]) => boolean;
@@ -51,13 +51,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, role: Role | 'admin' | 'user' = 'user') => {
     setLoading(true);
     try {
-      const { token: t, user: profile } = await apiLogin(email, password);
+      const targetRole: Role = role === 'admin' || role === 'ADMIN' ? 'ADMIN' : 'OCCUPANT';
+      const { token: t, user: profile } = await apiLogin(email, password, targetRole);
       setStoredToken(t);
       setToken(t);
-      setUser(profile);
+      const normalizedRole: Role = profile.role || (profile as any).is_admin ? 'ADMIN' : 'OCCUPANT';
+      setUser({ ...profile, role: normalizedRole });
       setError(null);
       return profile;
     } catch (err) {

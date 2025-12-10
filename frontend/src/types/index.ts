@@ -5,6 +5,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  is_admin?: boolean;
 }
 
 export interface DeskLocation {
@@ -97,4 +98,21 @@ export interface FilterParams {
   zone?: string;
   only_errors?: boolean;
   only_low_power?: boolean;
+}
+
+export interface DeskDailyStats {
+  desk_id: number;
+  standing_minutes: number;
+  sitting_minutes: number;
+  movements_today: number;
+  errors_today: number;
+  meets_recommendation?: boolean;
+  health_message?: string;
+}
+
+export interface DeskUsageDelta {
+  activations_delta: number;
+  sit_stand_delta: number;
+  from?: string;
+  to?: string;
 }

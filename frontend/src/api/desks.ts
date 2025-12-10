@@ -3,6 +3,8 @@ import type {
   DeskErrorItem,
   DeskState,
   DeskUsageEntry,
+  DeskDailyStats,
+  DeskUsageDelta,
   FilterParams,
   UsageSummary
 } from '../types';
@@ -21,6 +23,17 @@ export const fetchTodayUsage = (from: string, to: string, deskId?: number) => {
   params.set('to', to);
   if (deskId) params.set('deskId', String(deskId));
   return apiFetch<UsageSummary>(`/users/me/usage?${params.toString()}`);
+};
+
+export const fetchDeskTodayStats = (deskId: number) =>
+  apiFetch<DeskDailyStats>(`/desks/${deskId}/today-stats`);
+
+export const fetchDeskUsageDeltas = (deskId: number, params: { from?: string; to?: string } = {}) => {
+  const search = new URLSearchParams();
+  if (params.from) search.set('from', params.from);
+  if (params.to) search.set('to', params.to);
+  const query = search.toString();
+  return apiFetch<DeskUsageDelta>(`/desks/${deskId}/usage-summary${query ? `?${query}` : ''}`);
 };
 
 export const sendPreset = (deskId: number, preset: string) =>

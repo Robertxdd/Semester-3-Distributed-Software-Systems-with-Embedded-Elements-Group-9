@@ -5,6 +5,7 @@ use App\Http\Controllers\DeskDataCollectionController;
 use App\Http\Controllers\DeskDataQueryController;
 use App\Http\Controllers\DeskReportingController;
 use App\Http\Controllers\DeskStatsController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting to prevent brute force
@@ -17,6 +18,9 @@ Route::middleware('throttle:5,1')->group(function () {
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+    Route::get('/auth/me', function (Request $request) {
+        return $request->user();
+    });
     
     // Desk management routes
     Route::get('/desks', [DeskController::class, 'index']);

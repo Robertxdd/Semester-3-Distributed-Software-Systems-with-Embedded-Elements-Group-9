@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { fetchDeskTodayStats, fetchDeskUsageDeltas } from '../api/desks';
 import { fetchErrorReport, fetchUsageSummary, resolveError } from '../api/reports';
-import type { DeskErrorItem, DeskReportRow } from '../types';
+import type { DeskDailyStats, DeskErrorItem, DeskReportRow, DeskUsageDelta } from '../types';
 import { formatDateTime } from '../utils/date';
 
 type Tab = 'errors' | 'usage';
@@ -10,6 +11,11 @@ const ReportsPage = () => {
   const [errors, setErrors] = useState<DeskErrorItem[]>([]);
   const [usage, setUsage] = useState<DeskReportRow[]>([]);
   const [filters, setFilters] = useState({ from: '', to: '', severity: '', deskId: '' });
+  const [generatedReport, setGeneratedReport] = useState<{
+    stats: DeskDailyStats;
+    deltas: DeskUsageDelta;
+  } | null>(null);
+  const [reportHint, setReportHint] = useState('');
 
   const loadErrors = async () => {
     try {
@@ -29,8 +35,31 @@ const ReportsPage = () => {
     try {
       const data = await fetchUsageSummary({ groupBy: 'desk', from: filters.from, to: filters.to });
       setUsage(data);
+      const targetDeskId = filters.deskId ? Number(filters.deskId) : data[0]?.desk_id;
+      loadGeneratedReport(targetDeskId);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const loadGeneratedReport = async (deskId?: number) => {
+    if (!deskId) {
+      setGeneratedReport(null);
+      setReportHint('Pick a desk to see the generated summary.');
+      return;
+    }
+
+    try {
+      setReportHint('');
+      const [stats, deltas] = await Promise.all([
+        fetchDeskTodayStats(deskId),
+        fetchDeskUsageDeltas(deskId, { from: filters.from, to: filters.to })
+      ]);
+      setGeneratedReport({ stats, deltas });
+    } catch (err) {
+      console.error(err);
+      setGeneratedReport(null);
+      setReportHint('Unable to load the generated report for this desk.');
     }
   };
 
@@ -367,6 +396,25 @@ const ReportsPage = () => {
               })()}
             </div>
           </div>
+          </section>
+
+          <section className="card">
+            <div className="card-header">
+              <h3 className="card-title">Generated reports</h3>
+              {generatedReport?.stats?.desk_id && (
+                <span className="pill">Desk {generatedReport.stats.desk_id}</span>
+              )}
+            </div>
+            {generatedReport ? (
+              <p className="muted">
+                Desk {generatedReport.stats.desk_id}: standing {generatedReport.stats.standing_minutes}m, sitting{' '}
+                {generatedReport.stats.sitting_minutes}m, moves {generatedReport.stats.movements_today}, errors{' '}
+                {generatedReport.stats.errors_today}. Activations delta {generatedReport.deltas.activations_delta},{' '}
+                sit/stand delta {generatedReport.deltas.sit_stand_delta}.
+              </p>
+            ) : (
+              <p className="muted">{reportHint || 'Apply filters to load a desk summary.'}</p>
+            )}
           </section>
         </>
       )}
