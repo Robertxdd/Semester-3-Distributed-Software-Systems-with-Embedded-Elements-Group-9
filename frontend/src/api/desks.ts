@@ -1,7 +1,9 @@
 import { apiFetch } from './client';
 import type {
   DeskErrorItem,
+  DeskManagerReport,
   DeskState,
+  DeskStateReading,
   DeskUsageEntry,
   DeskDailyStats,
   DeskUsageDelta,
@@ -34,6 +36,22 @@ export const fetchDeskUsageDeltas = (deskId: number, params: { from?: string; to
   if (params.to) search.set('to', params.to);
   const query = search.toString();
   return apiFetch<DeskUsageDelta>(`/desks/${deskId}/usage-summary${query ? `?${query}` : ''}`);
+};
+
+export const fetchDeskStateHistory = (deskId: number, params: { from?: string; to?: string } = {}) => {
+  const search = new URLSearchParams();
+  if (params.from) search.set('from', params.from);
+  if (params.to) search.set('to', params.to);
+  const query = search.toString();
+  return apiFetch<DeskStateReading[]>(`/desks/${deskId}/state-history${query ? `?${query}` : ''}`);
+};
+
+export const fetchDeskManagerReport = (deskId: number, params: { from?: string; to?: string } = {}) => {
+  const search = new URLSearchParams();
+  if (params.from) search.set('from', params.from);
+  if (params.to) search.set('to', params.to);
+  const query = search.toString();
+  return apiFetch<DeskManagerReport>(`/desks/${deskId}/manager-report${query ? `?${query}` : ''}`);
 };
 
 export const sendPreset = (deskId: number, preset: string) =>

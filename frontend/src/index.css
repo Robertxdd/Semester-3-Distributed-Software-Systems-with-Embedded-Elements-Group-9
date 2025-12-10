@@ -561,14 +561,15 @@ a {
 }
 
 .spark-bars {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: end;
   gap: 8px;
   height: 160px;
   padding: 6px 4px;
-  overflow-x: auto;
+  width: 100%;
   max-width: 100%;
-  scrollbar-gutter: stable;
+  overflow: hidden;
 }
 
 .spark-bars.compact {
@@ -581,7 +582,7 @@ a {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  min-width: 38px;
+  min-width: 0;
 }
 
 .spark-bars .fill {
@@ -595,6 +596,11 @@ a {
   font-size: 11px;
   color: var(--muted);
   text-align: center;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .insight {

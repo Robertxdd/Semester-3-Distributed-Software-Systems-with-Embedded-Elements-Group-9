@@ -17,7 +17,13 @@ export interface DeskLocation {
 export interface DeskState extends DeskLocation {
   id: number;
   name: string;
+  location_building?: string | null;
+  location_floor?: string | null;
+  location_zone?: string | null;
   current_height?: number;
+  height?: number | null;
+  min_height?: number | null;
+  max_height?: number | null;
   target_height?: number;
   posture?: 'SITTING' | 'STANDING' | 'MOVING' | 'UNKNOWN';
   motor_state?: string;
@@ -115,4 +121,40 @@ export interface DeskUsageDelta {
   sit_stand_delta: number;
   from?: string;
   to?: string;
+}
+
+export interface DeskStateReading {
+  id?: number;
+  desk_id?: number;
+  position_mm?: number | null;
+  speed_mms?: number | null;
+  status?: string | null;
+  is_position_lost?: boolean;
+  is_overload_protection_up?: boolean;
+  is_overload_protection_down?: boolean;
+  is_anti_collision?: boolean;
+  collected_at?: string;
+  created_at?: string;
+}
+
+export interface DeskErrorLog {
+  id?: number;
+  desk_id?: number;
+  error_code?: string | null;
+  time_s?: number | null;
+  collected_at?: string;
+  created_at?: string;
+}
+
+export interface DeskUsageCounters {
+  start_activations?: number | null;
+  end_activations?: number | null;
+  start_sitstand?: number | null;
+  end_sitstand?: number | null;
+}
+
+export interface DeskManagerReport {
+  breakdowns: DeskErrorLog[];
+  improper_use: DeskStateReading[];
+  usage: DeskUsageCounters | null;
 }
