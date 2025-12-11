@@ -76,11 +76,21 @@
       try {
         const response = await fetch("/api/register", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
           body: JSON.stringify({ name, email, password, password_confirmation })
         });
 
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch (_) {
+          // If backend returned HTML (e.g., validation redirect), surface a readable message.
+          const text = await response.text();
+          throw new Error(text || "Server did not return JSON.");
+        }
         if (!response.ok) {
           alert(data.message || "Registration failed");
           return;
