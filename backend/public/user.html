@@ -9,201 +9,240 @@
 </head>
 
 <body>
-  <div class="app">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">S</div>
-        <div>Smart Desk Supervisor</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>Smart Desk Supervisor</div>
+    </div>
+
+    <nav class="nav">
+      <a href="user.html" class="active"><span>User Dashboard</span></a>
+      <a href="deskcontrol.html"><span>My Desk</span></a>
+      <a href="healthreport.html"><span>Health & Reports</span></a>
+      <a href="index.html"><span>Logout</span></a>
+    </nav>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>User Overview</h1>
+        <p class="subtitle">Daily posture balance and desk control</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn secondary" data-theme-toggle>Toggle theme</button>
+        <button class="btn secondary" data-logout>Logout</button>
+      </div>
+    </header>
+
+    <!-- KPIs -->
+    <section class="kpis">
+      <article class="card kpi">
+        <h2>Standing today</h2>
+        <p class="kpi-main" id="standing">0 min</p>
+      </article>
+      <article class="card kpi">
+        <h2>Sitting today</h2>
+        <p class="kpi-main" id="sitting">0 min</p>
+      </article>
+      <article class="card kpi">
+        <h2>Movements</h2>
+        <p class="kpi-main" id="moves">0</p>
+      </article>
+      <article class="card kpi">
+        <h2>Health score</h2>
+        <p class="kpi-main" id="score">0 / 100</p>
+      </article>
+    </section>
+
+    <!-- Analytics -->
+    <section class="section card">
+      <div class="title"><h3>Sit / Stand balance</h3></div>
+
+      <div class="chart-tile">
+        <div id="donut" class="donut"
+             style="background: conic-gradient(#22c55e 0% 0%, #f97316 0% 100%);">
+          <div class="donut-center">
+            <strong id="standPct">0%</strong>
+            <span class="helper">standing</span>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <span class="dot sitting"></span>
+            Sitting <span id="sitPct">0%</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot standing"></span>
+            Standing <span id="standLegend">0%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Controls -->
+    <section class="section card">
+      <div class="title">
+        <h3>Quick desk controls</h3>
+        <p class="subtitle">Basic height adjustment</p>
       </div>
 
-      <nav class="nav">
-        <a href="user.html" class="active"><span>User Dashboard</span></a>
-        <a href="deskcontrol.html"><span>My Desk</span></a>
-        <a href="healthreport.html"><span>Health & Reports</span></a>
-        <a href="index.html"><span>Logout</span></a>
-      </nav>
-    </aside>
-
-    <!-- Main -->
-    <div class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1>User Overview</h1>
-          <p class="subtitle">Your daily posture balance, activity, and recommendations.</p>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
-          <button class="btn secondary" type="button" data-logout>Logout</button>
-        </div>
-      </header>
-
-      <!-- KPIs -->
-      <section class="kpis">
-        <article class="card kpi">
-          <h2>Standing today</h2>
-          <p class="kpi-main" id="user-standing">-- min</p>
-        </article>
-
-        <article class="card kpi">
-          <h2>Sitting today</h2>
-          <p class="kpi-main" id="user-sitting">-- min</p>
-        </article>
-
-        <article class="card kpi">
-          <h2>Movements</h2>
-          <p class="kpi-main" id="user-movements">--</p>
-        </article>
-
-        <article class="card kpi">
-          <h2>Health score</h2>
-          <p class="kpi-main" id="user-score">-- / 100</p>
-        </article>
-      </section>
-
-      <!-- Donut chart -->
-      <section class="section card">
-        <div class="title">
-          <h3>Sit / Stand balance</h3>
-          <p class="subtitle">Your daily posture distribution.</p>
+      <div class="desk-controls">
+        <div class="height-display">
+          <span class="label">Current height</span>
+          <span class="value" id="height">-- cm</span>
         </div>
 
-        <div class="chart-tile">
-          <div id="user-donut" class="donut"
-               style="background: conic-gradient(#22c55e 0% 50%, #f97316 50% 100%);">
-            <div class="donut-center">
-              <strong id="user-stand-pct">0%</strong>
-              <span class="helper">standing</span>
-            </div>
-          </div>
-
-          <div class="legend">
-            <div class="legend-item"><span class="dot sitting"></span>
-              <span>Sitting <span id="user-sit-pct">0%</span></span>
-            </div>
-            <div class="legend-item"><span class="dot standing"></span>
-              <span>Standing <span id="user-stand-legend">0%</span></span>
-            </div>
-          </div>
+        <div class="control-buttons">
+          <button class="btn secondary" id="btn-down">Move down</button>
+          <button class="btn secondary" id="btn-up">Move up</button>
+          <button class="btn" id="btn-sit">Sit</button>
+          <button class="btn" id="btn-stand">Stand</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- History -->
-      <section class="section card">
-        <div class="title">
-          <h3>Recent desk states</h3>
-          <p class="subtitle">Fetched from /api/desks/:id/state-history</p>
-        </div>
+    <!-- History -->
+    <section class="section card">
+      <div class="title"><h3>Recent desk states</h3></div>
 
-        <table class="table compact">
-          <thead>
-            <tr>
-              <th>When</th>
-              <th>Height (cm)</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="user-history"></tbody>
-        </table>
-      </section>
+      <table class="table compact">
+        <thead>
+        <tr>
+          <th>When</th>
+          <th>Height (cm)</th>
+          <th>Status</th>
+        </tr>
+        </thead>
+        <tbody id="history"></tbody>
+      </table>
+    </section>
 
-    </div>
   </div>
+</div>
 
-  <script>
-    initThemeToggle();
+<script>
+  initThemeToggle();
 
- //   const token = localStorage.getItem('token');
-   // if (!token) window.location.href = 'index.html';
+  const token = localStorage.getItem("token");
+  if (!token) window.location.href = "index.html";
 
-    const BASE = '/api';
-    const DEFAULT_DESK_ID = 1;
+  const API = "/api";
+  let deskId = null;
+  let currentHeight = 0;
 
-    const els = {
-      standing: document.getElementById('user-standing'),
-      sitting: document.getElementById('user-sitting'),
-      moves: document.getElementById('user-movements'),
-      score: document.getElementById('user-score'),
-      donut: document.getElementById('user-donut'),
-      standPct: document.getElementById('user-stand-pct'),
-      standLegend: document.getElementById('user-stand-legend'),
-      sitPct: document.getElementById('user-sit-pct'),
-      history: document.getElementById('user-history'),
-    };
+  const el = {
+    standing: document.getElementById("standing"),
+    sitting: document.getElementById("sitting"),
+    moves: document.getElementById("moves"),
+    score: document.getElementById("score"),
+    donut: document.getElementById("donut"),
+    standPct: document.getElementById("standPct"),
+    standLegend: document.getElementById("standLegend"),
+    sitPct: document.getElementById("sitPct"),
+    history: document.getElementById("history"),
+    height: document.getElementById("height")
+  };
 
-    function authHeaders() {
-      return { Authorization: `Bearer ${token}` };
+  const headers = () => ({
+    Authorization: `Bearer ${token}`
+  });
+
+  async function fetchJson(url) {
+    const r = await fetch(url, { headers: headers() });
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
+  function renderStats(s) {
+    const stand = s.standing_minutes ?? 0;
+    const sit = s.sitting_minutes ?? 0;
+    const moves = s.movements_today ?? 0;
+
+    el.standing.textContent = `${stand} min`;
+    el.sitting.textContent = `${sit} min`;
+    el.moves.textContent = moves;
+
+    const total = stand + sit || 1;
+    const pct = Math.round((stand / total) * 100);
+
+    el.score.textContent = `${Math.round(pct * 0.8 + moves * 2)} / 100`;
+    el.donut.style.background =
+      `conic-gradient(#22c55e 0% ${pct}%, #f97316 ${pct}% 100%)`;
+
+    el.standPct.textContent = `${pct}%`;
+    el.standLegend.textContent = `${pct}%`;
+    el.sitPct.textContent = `${100 - pct}%`;
+  }
+
+  function renderHistory(list) {
+    el.history.innerHTML = "";
+    if (!list.length) {
+      el.history.innerHTML = "<tr><td colspan='3'>No history</td></tr>";
+      return;
     }
 
-    function safe(v) { return typeof v === 'number' ? v : 0; }
-
-    async function fetchJson(url) {
-      const res = await fetch(url, { headers: authHeaders() });
-      if (!res.ok) throw new Error(res.status);
-      return res.json();
-    }
-
-    function renderStats(stats) {
-      const stand = safe(stats.standing_minutes);
-      const sit = safe(stats.sitting_minutes);
-      const moves = safe(stats.movements_today);
-
-      els.standing.textContent = `${stand} min`;
-      els.sitting.textContent = `${sit} min`;
-      els.moves.textContent = `${moves}`;
-
-      const total = stand + sit || 1;
-      const pct = Math.round((stand / total) * 100);
-      const sitPct = 100 - pct;
-
-      els.score.textContent = `${Math.round(pct * 0.8 + moves * 2)} / 100`;
-
-      els.donut.style.background =
-        `conic-gradient(#22c55e 0% ${pct}%, #f97316 ${pct}% 100%)`;
-
-      els.standPct.textContent = `${pct}%`;
-      els.standLegend.textContent = `${pct}%`;
-      els.sitPct.textContent = `${sitPct}%`;
-    }
-
-    function renderHistory(list) {
-      els.history.innerHTML = '';
-      if (!list.length) {
-        els.history.innerHTML = '<tr><td colspan="3">No history.</td></tr>';
-        return;
-      }
-
-      list.slice(-8).forEach(i => {
-        const tr = document.createElement('tr');
-        const cm = i.position_mm ? Math.round(i.position_mm / 10) : 'n/a';
-        tr.innerHTML = `
+    list.slice(-8).forEach(i => {
+      const cm = i.position_mm ? Math.round(i.position_mm / 10) : "n/a";
+      el.history.innerHTML += `
+        <tr>
           <td>${i.collected_at || i.created_at}</td>
           <td>${cm}</td>
-          <td>${i.status || ''}</td>
-        `;
-        els.history.appendChild(tr);
-      });
+          <td>${i.status || ""}</td>
+        </tr>`;
+    });
+  }
+
+  async function fetchDeskState() {
+    const d = await fetchJson(`${API}/desks/${deskId}`);
+    currentHeight = d.height;
+    el.height.textContent = `${currentHeight} cm`;
+  }
+
+  function clamp(v, min, max) {
+    return Math.min(Math.max(v, min), max);
+  }
+
+  async function setHeight(h) {
+    h = clamp(h, 60, 130);
+    await fetch(`${API}/desks/${deskId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...headers() },
+      body: JSON.stringify({ height: h })
+    });
+    fetchDeskState();
+  }
+
+  document.getElementById("btn-up").onclick = () => setHeight(currentHeight + 2);
+  document.getElementById("btn-down").onclick = () => setHeight(currentHeight - 2);
+  document.getElementById("btn-sit").onclick = () => setHeight(75);
+  document.getElementById("btn-stand").onclick = () => setHeight(107);
+
+  document.querySelectorAll("[data-logout]").forEach(b =>
+    b.onclick = () => {
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
     }
+  );
 
-    async function loadUserPage() {
-      try {
-        const stats = await fetchJson(`${BASE}/desks/${DEFAULT_DESK_ID}/today-stats`);
-        const history = await fetchJson(`${BASE}/desks/${DEFAULT_DESK_ID}/state-history`);
-        renderStats(stats);
-        renderHistory(history);
-      } catch (err) {
-        console.error(err);
-      }
-    }
+  async function init() {
+    const desks = await fetchJson(`${API}/desks`);
+    if (!desks.length) return;
+    deskId = desks[0].id;
 
-    loadUserPage();
+    renderStats(await fetchJson(`${API}/desks/${deskId}/today-stats`));
+    renderHistory(await fetchJson(`${API}/desks/${deskId}/state-history`));
+    await fetchDeskState();
 
-    document.querySelectorAll('[data-logout]').forEach(btn =>
-      btn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        window.location.href = 'index.html';
-      })
-    );
-  </script>
+    setInterval(fetchDeskState, 5000);
+  }
+
+  init();
+</script>
+
 </body>
 </html>
