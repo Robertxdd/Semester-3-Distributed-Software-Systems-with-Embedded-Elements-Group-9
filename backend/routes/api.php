@@ -18,7 +18,7 @@ Route::middleware('throttle:5,1')->group(function () {
 });
 
 // Protected routes - require authentication
-Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:600,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/auth/me', function (Request $request) {

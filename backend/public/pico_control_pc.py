@@ -1,7 +1,7 @@
 import serial
 
 
-PORT = "COM4"   
+PORT = "COM3"   
 BAUDRATE = 115200
 
 ser = serial.Serial(PORT, BAUDRATE, timeout=1)

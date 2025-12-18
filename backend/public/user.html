@@ -216,8 +216,21 @@
     fetchDeskState();
   }
 
-  document.getElementById("btn-up").onclick = () => setHeight(currentHeight + 2);
-  document.getElementById("btn-down").onclick = () => setHeight(currentHeight - 2);
+  async function pingLed(direction) {
+    try {
+      await fetch("http://127.0.0.1:5055/led/on", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ direction })
+      });
+    } catch (e) {
+      console.warn("LED bridge not reachable", e);
+    }
+  }
+
+  document.getElementById("btn-up").onclick = () => { pingLed("up"); return setHeight(currentHeight + 2); };
+  document.getElementById("btn-down").onclick = () => { pingLed("down"); return setHeight(currentHeight - 2); };
+
   document.getElementById("btn-sit").onclick = () => setHeight(75);
   document.getElementById("btn-stand").onclick = () => setHeight(107);
 

@@ -350,8 +350,21 @@
       setHeight(target);
     }
 
-    btnUp.onclick = () => currentDeskId && adjustHeight(2);
-    btnDown.onclick = () => currentDeskId && adjustHeight(-2);
+    async function pingLed(direction) {
+      try {
+        await fetch("http://127.0.0.1:5055/led/on", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ direction })
+        });
+      } catch (e) {
+        console.warn("LED bridge not reachable", e);
+      }
+    }
+
+    btnUp.onclick = () => { pingLed("up"); return currentDeskId && adjustHeight(2); };
+    btnDown.onclick = () => { pingLed("down"); return currentDeskId && adjustHeight(-2); };
+
     btnGo.onclick = () => {
       if (!currentDeskId) return;
       const h = Number(document.getElementById("go-height").value);
@@ -454,9 +467,6 @@
         })
         .then(data => {
           updateUI(data);
-          if (data.height !== undefined && data.height !== lastLoggedHeight) {
-            logState(data.height, data.state || "stopped");
-          }
         })
         .catch(() => {
           setStatus("Desk offline", true);
