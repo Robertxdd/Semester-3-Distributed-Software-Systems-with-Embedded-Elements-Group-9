@@ -10,6 +10,7 @@ use App\Http\Controllers\UserHealthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StandReminderController;
 
 // Public routes with rate limiting to prevent brute force
 Route::middleware('throttle:5,1')->group(function () {
@@ -59,4 +60,11 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/users/me/health-summary', [UserHealthController::class, 'healthSummary']);
     Route::get('/users/me/reminders', [UserHealthController::class, 'reminders']);
     Route::put('/users/me/reminders', [UserHealthController::class, 'updateReminders']);
+
+    // Stand Reminders
+    Route::post('/stand-reminders', [StandReminderController::class, 'store']);
+    Route::get('/stand-reminders', [StandReminderController::class, 'show']);
+    Route::put('/stand-reminders', [StandReminderController::class, 'update']);
+    Route::delete('/stand-reminders', [StandReminderController::class, 'destroy']);
+    Route::get('/stand-reminders/check', [StandReminderController::class, 'checkReminder']);
 });
