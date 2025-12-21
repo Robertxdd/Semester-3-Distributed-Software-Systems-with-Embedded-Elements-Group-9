@@ -685,3 +685,29 @@ a {
     display: block;
   }
 }
+
+@keyframes pulse-strong {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-strong {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.animate-pulse-strong {
+  animation: pulse-strong 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
