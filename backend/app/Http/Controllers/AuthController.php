@@ -19,7 +19,6 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            // El modelo aplica cast hashed, pero añadimos Hash::make para evitar avisos.
             'password' => Hash::make($data['password']),
             'is_admin' => false,
         ]);
@@ -44,21 +43,21 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+            return response()->json(['message' => 'Incorrect credentials'], 401);
         }
 
         if ($request->role === "admin" && !$user->is_admin) {
-            return response()->json(['message' => 'No tienes permisos de administrador'], 403);
+            return response()->json(['message' => 'You do not have administrator privileges'], 403);
         }
 
         if ($request->role === "user" && $user->is_admin) {
-            return response()->json(['message' => 'Un administrador no puede iniciar sesión como usuario'], 403);
+            return response()->json(['message' => 'An administrator cannot log in as a user'], 403);
         }
 
         $token = $user->createToken('authToken')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login exitoso',
+            'message' => 'Successfull login',
             'token' => $token,
             'user' => $user,
         ]);
@@ -78,6 +77,6 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
 
-        return response()->json(['message' => 'Todas las sesiones han sido cerradas']);
+        return response()->json(['message' => 'All sessions have been closed']);
     }
 }
