@@ -10,18 +10,15 @@ class DeskController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        // Any authenticated user can view desks
         return response()->json(Desk::all());
     }
 
     public function store(Request $request): JsonResponse
     {
-        // Only admins can create desks
         $this->requireRole($request->user(), ['ADMIN']);
         
         $desk = Desk::create($this->validatedData($request, requireName: true));
         
-        // Log the action
         \Log::info('Desk created', ['user_id' => $request->user()->id, 'desk_id' => $desk->id]);
 
         return response()->json($desk, 201);
@@ -29,13 +26,11 @@ class DeskController extends Controller
 
     public function show(Request $request, Desk $desk): JsonResponse
     {
-        // Any authenticated user can view a desk
         return response()->json($desk);
     }
 
     public function update(Request $request, Desk $desk): JsonResponse
     {
-        // Allow occupants to update live height/state; admins keep full config control.
         $this->requireRole($request->user(), ['ADMIN', 'OCCUPANT']);
         
         $desk->update($this->validatedData($request, requireName: false));
@@ -47,7 +42,6 @@ class DeskController extends Controller
 
     public function destroy(Request $request, Desk $desk): JsonResponse
     {
-        // Only admins can delete desks
         $this->requireRole($request->user(), ['ADMIN']);
         
         \Log::warning('Desk deleted', ['user_id' => $request->user()->id, 'desk_id' => $desk->id]);
@@ -59,7 +53,6 @@ class DeskController extends Controller
 
     public function moveUp(Request $request, Desk $desk): JsonResponse
     {
-        // Both admin and regular users (occupants) can control their desks
         $this->requireRole($request->user(), ['ADMIN', 'OCCUPANT']);
         
         $desk->update([
@@ -74,7 +67,6 @@ class DeskController extends Controller
 
     public function moveDown(Request $request, Desk $desk): JsonResponse
     {
-        // Both admin and regular users (occupants) can control their desks
         $this->requireRole($request->user(), ['ADMIN', 'OCCUPANT']);
         
         $desk->update([
@@ -89,7 +81,6 @@ class DeskController extends Controller
 
     public function stop(Request $request, Desk $desk): JsonResponse
     {
-        // Both admin and regular users can stop desks
         $this->requireRole($request->user(), ['ADMIN', 'OCCUPANT']);
         
         $desk->update(['state' => 'stopped']);
@@ -101,7 +92,6 @@ class DeskController extends Controller
 
     public function syncAll(Request $request): JsonResponse
     {
-        // Admin-only: set all desks to the same height (clamped per desk limits).
         $this->requireRole($request->user(), ['ADMIN']);
 
         $data = $request->validate([

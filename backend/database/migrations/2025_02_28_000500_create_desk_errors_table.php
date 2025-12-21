@@ -13,14 +13,9 @@ return new class extends Migration
             $table->foreignId('desk_id')->constrained('desks')->cascadeOnDelete();
 
             $table->integer('error_code')->nullable();
-            $table->integer('time_s')->nullable(); // campo que viene del simulador
-
-            // Momento de recogida en vuestro sistema
-            $table->timestamp('collected_at');
-
+            $table->integer('time_s')->nullable();
             $table->timestamps();
 
-            // Para evitar duplicar exactamente el mismo error varias veces
             $table->unique(['desk_id', 'error_code', 'time_s']);
         });
     }

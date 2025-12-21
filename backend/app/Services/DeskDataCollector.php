@@ -14,12 +14,7 @@ class DeskDataCollector
     ) {
     }
 
-    /**
-     * Lanza una recogida completa:
-     * - Descubre escritorios
-     * - Lee config/state/usage/errors
-     * - Guarda en la base de datos
-     */
+    
     public function collect(): array
     {
         $deskIds = $this->client->getDesks();
@@ -42,7 +37,7 @@ class DeskDataCollector
                 $usage      = $deskData['usage']      ?? [];
                 $lastErrors = $deskData['lastErrors'] ?? [];
 
-                // 1) Upsert de la mesa en nuestra tabla "desks"
+                
                 $desk = Desk::updateOrCreate(
                     ['external_id' => $deskId],
                     [
@@ -51,19 +46,19 @@ class DeskDataCollector
                     ]
                 );
 
-                // 2) Guardar el estado (state)
+                
                 if (!empty($state)) {
                     $this->handler->saveStateReading($desk, $state, $now);
                     $summary['state_rows_inserted']++;
                 }
 
-                // 3) Guardar uso (usage)
+               
                 if (!empty($usage)) {
                     $this->handler->saveUsageSnapshot($desk, $usage, $now);
                     $summary['usage_rows_inserted']++;
                 }
 
-                // 4) Guardar errores (lastErrors)
+               
                 $summary['error_rows_inserted'] += $this->handler->saveErrors($desk, $lastErrors, $now);
 
             } catch (\Throwable $e) {

@@ -22,7 +22,6 @@ class DeskSimulatorClient
 
     protected function buildUrl(string $path): string
     {
-        // Resultado: http://localhost:8000/api/v2/<API_KEY>/desks...
         return "{$this->baseUrl}/{$this->apiKey}/" . ltrim($path, '/');
     }
 

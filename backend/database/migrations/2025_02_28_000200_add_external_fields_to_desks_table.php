@@ -9,10 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('desks', function (Blueprint $table) {
-            // ID del simulador (MAC / identificador externo)
             $table->string('external_id')->nullable()->unique()->after('id');
 
-            // Fabricante tomado de config del simulador
             $table->string('manufacturer')->nullable()->after('name');
         });
     }

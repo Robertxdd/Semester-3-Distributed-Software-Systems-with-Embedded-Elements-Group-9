@@ -21,7 +21,6 @@ return new class extends Migration
             $table->boolean('is_overload_protection_down')->default(false);
             $table->boolean('is_anti_collision')->default(false);
 
-            // Momento en el que vuestro sistema hizo la lectura
             $table->timestamp('collected_at');
 
             $table->timestamps();
