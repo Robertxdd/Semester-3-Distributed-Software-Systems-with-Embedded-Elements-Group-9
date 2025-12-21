@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './components/AppLayout';
+import { StandReminderCircle } from './components/StandReminderCircle';
 import LoginPage from './pages/LoginPage';
 import MyDeskPage from './pages/MyDeskPage';
 import MyHealthPage from './pages/MyHealthPage';
@@ -51,6 +52,7 @@ export default function App() {
       <AuthProvider>
         <NotificationProvider>
           <BrowserRouter>
+            <StandReminderCircle />
             <AppRoutes />
           </BrowserRouter>
         </NotificationProvider>

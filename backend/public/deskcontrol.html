@@ -85,10 +85,61 @@
       animation: pulse 0.6s infinite alternate;
     }
 
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.15); }
-    }
+    /* Stand Reminder Circle - Smaller size to match buttons */
+.stand-reminder-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.stand-reminder-circle:hover {
+  transform: scale(1.1);
+}
+
+.stand-reminder-circle.green {
+  background-color: #10b981;
+}
+
+.stand-reminder-circle.yellow {
+  background-color: #fbbf24;
+}
+
+.stand-reminder-circle.red {
+  background-color: #ef4444;
+}
+
+.stand-reminder-circle.pulse-strong {
+  animation: pulse-strong 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@keyframes pulse-strong {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
   </style>
 </head>
 
@@ -122,9 +173,12 @@
           <p class="subtitle">Live control + sit/stand balance today</p>
         </div>
         <div class="topbar-actions">
-          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
-          <button class="btn secondary" type="button" data-logout>Logout</button>
+        <div class="stand-reminder-circle green" id="standReminderCircle" title="30 minutes until stand reminder. Click to reset">
+          <span id="standReminderText">30m</span>
         </div>
+        <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
+        <button class="btn secondary" type="button" data-logout>Logout</button>
+      </div>
       </header>
 
       <section class="section card">
@@ -495,6 +549,66 @@
     }
 
     initDesk();
+
+    // Stand Reminder Logic
+(function() {
+  const INTERVAL_MINUTES = 30;
+  let minutesRemaining = INTERVAL_MINUTES;
+  let lastStandTime = new Date();
+  let timerPaused = false;
+  
+  const circle = document.getElementById('standReminderCircle');
+  const text = document.getElementById('standReminderText');
+  
+  function updateStandReminder() {
+    if (timerPaused) return; // Don't update when paused at "Stand up!"
+    
+    const now = new Date();
+    const elapsedMinutes = Math.floor((now.getTime() - lastStandTime.getTime()) / (1000 * 60));
+    minutesRemaining = INTERVAL_MINUTES - elapsedMinutes;
+    
+    // Remove all color classes
+    circle.classList.remove('green', 'yellow', 'red', 'pulse-strong');
+    
+    if (minutesRemaining <= 0) {
+      // Time to stand - PAUSE HERE
+      circle.classList.add('red', 'pulse-strong');
+      text.textContent = 'Stand up!';
+      circle.title = 'Time to stand up! Click to reset';
+      timerPaused = true; // Stop auto-updating
+    } else if (minutesRemaining <= 5) {
+      // 0-5 minutes - Red
+      circle.classList.add('red');
+      text.textContent = minutesRemaining + 'm';
+      circle.title = minutesRemaining + ' minutes until stand reminder. Click to reset';
+    } else if (minutesRemaining <= 10) {
+      // 5-10 minutes - Yellow
+      circle.classList.add('yellow');
+      text.textContent = minutesRemaining + 'm';
+      circle.title = minutesRemaining + ' minutes until stand reminder. Click to reset';
+    } else {
+      // >10 minutes - Green
+      circle.classList.add('green');
+      text.textContent = minutesRemaining + 'm';
+      circle.title = minutesRemaining + ' minutes until stand reminder. Click to reset';
+    }
+  }
+  
+  function resetStandTimer() {
+    lastStandTime = new Date();
+    minutesRemaining = INTERVAL_MINUTES;
+    timerPaused = false; // Resume updating
+    updateStandReminder();
+  }
+  
+  // Click to reset
+  circle.addEventListener('click', resetStandTimer);
+  
+  // Update every minute
+  updateStandReminder();
+  setInterval(updateStandReminder, 60000);
+})();
+
   </script>
 
 </body>
