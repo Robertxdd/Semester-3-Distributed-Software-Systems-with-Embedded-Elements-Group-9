@@ -231,6 +231,12 @@ const init = async () => {
   if (!me) return;
   if (!me.is_admin) {
     document.querySelectorAll('[data-admin-only]').forEach(el => el.remove());
+  } else {
+    document.querySelectorAll('[data-user-only]').forEach(el => el.remove());
+  }
+  const roleEl = document.getElementById('current-user-role');
+  if (roleEl) {
+    roleEl.textContent = me.is_admin ? 'Admin' : 'User';
   }
   loadOverview();
   setInterval(loadOverview, 60000);

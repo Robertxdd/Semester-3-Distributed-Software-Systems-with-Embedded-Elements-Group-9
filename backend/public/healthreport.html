@@ -20,16 +20,16 @@
       </div>
 
       <nav class="nav" aria-label="Primary navigation">
-        <a href="deskcontrol.html"><span>My Desk</span></a>
+        <a href="deskcontrol.html" data-admin-only><span>My Desk</span></a>
         <a href="healthreport.html" class="active"><span>Health & Reports</span></a>
         <a href="settings.html" data-admin-only><span>Admin - Settings</span></a>
-        <a href="manager.html" data-admin-only><span>Manager</span></a>
-        <a href="user.html"><span>User</span></a>
+        <a href="manager.html" data-admin-only><span>Admin - Desks</span></a>
+        <a href="user.html" data-user-only><span>User</span></a>
       </nav>
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
-        <p class="foot-meta">Manager</p>
+        <p class="foot-meta" id="current-user-role">User</p>
         <p class="foot-meta small">Aggregated reports from live data</p>
       </section>
     </aside>

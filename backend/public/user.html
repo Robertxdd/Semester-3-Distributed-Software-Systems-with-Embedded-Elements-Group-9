@@ -198,7 +198,12 @@
     const me = await requireUser();
     if (!me) return;
     const desks=await json(`${API}/desks`);
-    if(!desks.length) return;
+    if(!desks.length) {
+      el.height.textContent = "-- cm";
+      el.history.innerHTML = "<tr><td colspan='3'>No desks available</td></tr>";
+      document.querySelectorAll(".control-buttons .btn").forEach(b => b.disabled = true);
+      return;
+    }
     deskId=desks[0].id;
 
     renderStats(await json(`${API}/desks/${deskId}/today-stats`));

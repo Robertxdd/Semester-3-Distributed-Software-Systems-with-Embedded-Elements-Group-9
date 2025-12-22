@@ -156,14 +156,12 @@
         <a href="deskcontrol.html" class="active"><span>Desks Control</span></a>
         <a href="healthreport.html"><span>Health & Reports</span></a>
         <a href="settings.html"><span>Admin - Settings</span></a>
-        <a href="user.html"><span>User</span></a>
-        <a href="manager.html"><span>Manager</span></a>
-    
+        <a href="manager.html"><span>Admin - Desks</span></a>
       </nav>
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
-        <p class="foot-meta">Logged in</p>
+        <p class="foot-meta" id="current-user-role">Admin</p>
       </section>
     </aside>
 
@@ -333,6 +331,8 @@
         window.location.href = "user.html";
         return false;
       }
+      const roleEl = document.getElementById("current-user-role");
+      if (roleEl) roleEl.textContent = "Admin";
       return true;
     };
 

@@ -20,9 +20,6 @@
         <a href="deskcontrol.html">
           <span>My Desk</span>
         </a>
-        <a href="user.html">
-          <span>User desk page</span>
-        </a>
         <a href="healthreport.html">
           <span>Health & Reports</span>
         </a>
@@ -30,13 +27,13 @@
           <span>Admin - Settings</span>
         </a>
         <a href="manager.html">
-          <span>Manager</span>
+          <span>Admin - Desks</span>
         </a>
       </nav>
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
-        <p class="foot-meta">Administrator</p>
+        <p class="foot-meta" id="current-user-role">Admin</p>
         <p class="foot-meta small">Configuration saved via API.</p>
       </section>
     </aside>
@@ -226,20 +223,22 @@
 
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-  const requireAdmin = async () => {
-    const res = await fetch('/api/auth/me', { headers });
-    if (!res.ok) {
-      localStorage.removeItem('token');
-      location.href = 'index.html';
-      return false;
-    }
-    const me = await res.json();
-    if (!me.is_admin) {
-      location.href = 'user.html';
-      return false;
-    }
-    return true;
-  };
+    const requireAdmin = async () => {
+      const res = await fetch('/api/auth/me', { headers });
+      if (!res.ok) {
+        localStorage.removeItem('token');
+        location.href = 'index.html';
+        return false;
+      }
+      const me = await res.json();
+      if (!me.is_admin) {
+        location.href = 'user.html';
+        return false;
+      }
+      const roleEl = document.getElementById('current-user-role');
+      if (roleEl) roleEl.textContent = 'Admin';
+      return true;
+    };
 
   document.querySelectorAll('[data-logout]').forEach(b =>
     b.onclick = async () => {
