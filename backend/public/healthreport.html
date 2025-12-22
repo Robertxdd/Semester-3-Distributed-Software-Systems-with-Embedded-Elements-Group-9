@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart Desk Supervisor - Health & Reports</title>
+  <title>Smart Desk Supervisor – Health & Reports</title>
+
   <link rel="stylesheet" href="styles.css">
-  <script src="theme.js"></script>
+  <script src="theme.js" defer></script>
 </head>
 
 <body>
   <div class="app">
+
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
@@ -19,43 +20,34 @@
       </div>
 
       <nav class="nav" aria-label="Primary navigation">
-        <a href="deskcontrol.html">
-          <span>My Desk</span>
-        </a>
-        <a href="healthreport.html" class="active">
-          <span>Health & Reports</span>
-        </a>
-        <a href="settings.html">
-          <span>Admin - Settings</span>
-        </a>
-        <a href="manager.html">
-          <span>Manager</span>
-        </a>
-        <a href="user.html">
-          <span>User</span>
-        </a>
+        <a href="deskcontrol.html"><span>My Desk</span></a>
+        <a href="healthreport.html" class="active"><span>Health & Reports</span></a>
+        <a href="settings.html"><span>Admin - Settings</span></a>
+        <a href="manager.html"><span>Manager</span></a>
+        <a href="user.html"><span>User</span></a>
       </nav>
-
 
       <section class="sidebar-foot">
         <p class="foot-title">Current user</p>
         <p class="foot-meta">Manager</p>
-        <p class="foot-meta small">Aggregated reports will load from real data.</p>
+        <p class="foot-meta small">Aggregated reports from live data</p>
       </section>
     </aside>
 
     <!-- Main -->
-    <div class="main">
+    <main class="main">
+
       <header class="topbar">
         <div class="topbar-left">
           <h1>Health & usage overview</h1>
           <p class="subtitle">
-            Sit/stand statistics, health scores, breakdowns and space utilization will be pulled from the API.
+            Sit/stand balance, well-being scores, and desk usage insights.
           </p>
         </div>
+
         <div class="topbar-actions">
-          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
-          <button class="btn secondary" type="button" data-logout>Logout</button>
+          <button class="btn secondary" data-theme-toggle>Toggle theme</button>
+          <button class="btn secondary" data-logout>Logout</button>
         </div>
       </header>
 
@@ -64,378 +56,142 @@
         <article class="card kpi">
           <h2>Active desks</h2>
           <p class="kpi-main" id="kpi-active-desks">--</p>
-          <p class="kpi-sub">Total desks from backend</p>
+          <p class="kpi-sub">Total desks</p>
         </article>
+
         <article class="card kpi">
-          <h2>Balanced sit/stand users</h2>
+          <h2>Balanced users</h2>
           <p class="kpi-main" id="kpi-balanced">--</p>
-          <p class="kpi-sub">Standing >= 60 minutes today</p>
+          <p class="kpi-sub">Sit / stand mix</p>
         </article>
+
         <article class="card kpi">
           <h2>Maintenance alerts</h2>
           <p class="kpi-main" id="kpi-maintenance">--</p>
-          <p class="kpi-sub badge-inline warn">Errors logged today</p>
+          <p class="kpi-sub badge-inline warn">Errors today</p>
         </article>
+
         <article class="card kpi">
           <h2>Energy saving</h2>
           <p class="kpi-main" id="kpi-energy">--</p>
-          <p class="kpi-sub">Health recommendation status</p>
+          <p class="kpi-sub">Recommendation status</p>
         </article>
       </section>
 
+      <!-- Dashboards -->
       <section class="section card">
-        <div class="title">
+        <header class="title">
           <h3>Well-being dashboards</h3>
-          <p class="subtitle">Balance, rhythm, and posture quality from your desk data.</p>
-        </div>
+          <p class="subtitle">Posture, movement, and rhythm</p>
+        </header>
+
         <div class="chart-grid">
+
+          <!-- Donut -->
           <div class="chart-tile">
-            <div class="flex between" style="margin-bottom: 0.35rem;">
-              <div>
-                <strong>Posture mix (today)</strong>
-                <p class="helper">Standing vs sitting minutes</p>
-              </div>
+            <div class="flex between">
+              <strong>Posture mix</strong>
               <span class="pill" id="hr-total-min">--</span>
             </div>
-            <div id="hr-donut" class="donut" style="background: conic-gradient(#22c55e 0% 50%, #f97316 50% 100%);">
+
+            <div id="hr-donut" class="donut">
               <div class="donut-center">
                 <strong id="hr-stand-pct">0%</strong>
-                <span class="helper">standing share</span>
+                <span class="helper">standing</span>
               </div>
             </div>
+
             <div class="legend">
-              <div class="legend-item"><span class="dot sitting"></span> <span>Sitting <span id="hr-sit-pct">0%</span></span></div>
-              <div class="legend-item"><span class="dot standing"></span> <span>Standing <span id="hr-stand-pct-legend">0%</span></span></div>
+              <div class="legend-item">
+                <span class="dot sitting"></span>
+                Sitting <span id="hr-sit-pct">0%</span>
+              </div>
+              <div class="legend-item">
+                <span class="dot standing"></span>
+                Standing <span id="hr-stand-pct-legend">0%</span>
+              </div>
             </div>
           </div>
 
+          <!-- Bars -->
           <div class="chart-tile">
-            <div class="flex between" style="margin-bottom: 0.35rem;">
-              <div>
-                <strong>Hourly occupancy</strong>
-                <p class="helper">State history grouped in 2h windows</p>
-              </div>
-              <span class="pill" id="hr-events">-- events</span>
+            <div class="flex between">
+              <strong>Hourly activity</strong>
+              <span class="pill" id="hr-events">--</span>
             </div>
+
             <div class="spark-bars" id="hr-bars"></div>
-            <p class="helper">Shows where the desk was active today.</p>
+            <p class="helper">Activity distribution today</p>
           </div>
 
+          <!-- Score -->
           <div class="chart-tile">
-            <div class="flex between" style="margin-bottom: 0.35rem;">
-              <div>
-                <strong>Well-being score</strong>
-                <p class="helper">Movement + balance</p>
-              </div>
-              <span class="pill" id="hr-moves">-- moves</span>
+            <div class="flex between">
+              <strong>Well-being score</strong>
+              <span class="pill" id="hr-moves">--</span>
             </div>
-            <div class="insight" style="margin-bottom: 0.5rem;">
+
+            <div class="insight">
               <span class="label">Score</span>
               <div class="value" id="hr-score">--</div>
-              <p class="helper">Targets ~50/50 sit/stand with regular changes.</p>
+              <p class="helper">Movement + balance</p>
             </div>
+
             <div class="insight">
-              <span class="label">Target hints</span>
+              <span class="label">Hints</span>
               <div class="value" id="hr-hint">--</div>
-              <p class="helper">Auto-updates from your latest readings.</p>
             </div>
           </div>
+
         </div>
       </section>
 
-      <!-- Health & usage distribution -->
+      <!-- History & usage -->
       <section class="grid">
         <section class="section card">
-          <div class="title">
-            <h3>Sit/Stand distribution & health score</h3>
-            <p class="subtitle">
-              This will render charts and recommendations once wired to the API.
-            </p>
-          </div>
+          <header class="title">
+            <h3>Recent desk activity</h3>
+          </header>
 
-          <div class="body">
-            <div class="chart-placeholder">
-              <p class="chart-title">Recent state readings</p>
-              <p class="chart-text">Last 8 samples from /api/desks/:id/state-history</p>
-              <table class="table compact" id="state-history-table">
-                <thead>
-                  <tr>
-                    <th>When</th>
-                    <th>Height (cm)</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="state-history-body"></tbody>
-              </table>
-            </div>
+          <table class="table compact">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Height</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="state-history-body"></tbody>
+          </table>
 
-            <div class="health-summary">
-              <p><strong id="health-score">Health score: --</strong></p>
-              <p class="helper" id="health-helper">Health recommendation will appear here from the API.</p>
-            </div>
-          </div>
+          <p class="helper" id="health-helper"></p>
+          <p><strong id="health-score">Health score: --</strong></p>
         </section>
 
         <section class="section card">
-          <div class="title">
+          <header class="title">
             <h3>Space utilization</h3>
-            <p class="subtitle">
-              Will show usage-based hints when connected to real data.
-            </p>
-          </div>
-
-          <div class="helper" id="usage-summary">
-            No static rows; data will load from the API.
-          </div>
+          </header>
+          <p class="helper" id="usage-summary">--</p>
         </section>
       </section>
 
-      <!-- Maintenance & error reports -->
+      <!-- Errors & reports -->
       <section class="grid">
         <section class="section card">
-          <div class="title">
-            <h3>Breakdowns and improper use</h3>
-          </div>
-
-          <div class="helper">
-            <ul id="errors-list"></ul>
-          </div>
+          <header class="title"><h3>Errors</h3></header>
+          <ul class="helper" id="errors-list"></ul>
         </section>
 
         <section class="section card">
-          <div class="title">
-            <h3>Generated reports</h3>
-          </div>
-
-          <div class="helper" id="reports-summary">
-            Will summarize today stats + usage summary.
-          </div>
+          <header class="title"><h3>Generated report</h3></header>
+          <p class="helper" id="reports-summary"></p>
         </section>
       </section>
-    </div>
+
+    </main>
   </div>
+
+  <script src="healthreport.js"></script>
 </body>
-<script>
-  initThemeToggle();
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = 'index.html';
-  }
-
-  async function logout() {
-    try {
-      if (token) {
-        await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
-      }
-    } catch (err) {
-      console.warn('Logout failed', err);
-    }
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
-  }
-  document.querySelectorAll('[data-logout]').forEach(btn => btn.addEventListener('click', logout));
-
-  const BASE = '/api';
-  const DEFAULT_DESK_ID = 1;
-  let targetDeskId = null;
-
-  const els = {
-    active: document.getElementById('kpi-active-desks'),
-    balanced: document.getElementById('kpi-balanced'),
-    maintenance: document.getElementById('kpi-maintenance'),
-    energy: document.getElementById('kpi-energy'),
-    healthScore: document.getElementById('health-score'),
-    healthHelper: document.getElementById('health-helper'),
-    stateBody: document.getElementById('state-history-body'),
-    usageSummary: document.getElementById('usage-summary'),
-    errorsList: document.getElementById('errors-list'),
-    reportsSummary: document.getElementById('reports-summary'),
-    donut: document.getElementById('hr-donut'),
-    standPct: document.getElementById('hr-stand-pct'),
-    standLegend: document.getElementById('hr-stand-pct-legend'),
-    sitPct: document.getElementById('hr-sit-pct'),
-    totalMin: document.getElementById('hr-total-min'),
-    bars: document.getElementById('hr-bars'),
-    events: document.getElementById('hr-events'),
-    moves: document.getElementById('hr-moves'),
-    score: document.getElementById('hr-score'),
-    hint: document.getElementById('hr-hint'),
-  };
-
-  const authHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  const safeNumber = (value) => (typeof value === 'number' ? value : 0);
-
-  async function fetchJson(url) {
-    const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...authHeaders() } });
-    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-    return res.json();
-  }
-
-  function updateKpisFromStats(stats) {
-    const standing = safeNumber(stats?.standing_minutes);
-    const sitting = safeNumber(stats?.sitting_minutes);
-    const meets = !!stats?.meets_recommendation;
-
-    els.balanced.textContent = `${standing}m standing / ${sitting}m sitting`;
-    els.maintenance.textContent = safeNumber(stats?.errors_today);
-    els.energy.textContent = meets ? 'On target' : 'Below target';
-    els.healthScore.textContent = meets ? 'Health score: OK' : 'Health score: Needs attention';
-    els.healthHelper.textContent = stats?.health_message || 'No message from backend.';
-  }
-
-  function renderStateHistory(items) {
-    els.stateBody.innerHTML = '';
-    if (!items.length) {
-      els.stateBody.innerHTML = '<tr><td colspan="3">No history available.</td></tr>';
-      return;
-    }
-    items.slice(-8).forEach(item => {
-      const tr = document.createElement('tr');
-      const cm = item.position_mm != null ? Math.round(item.position_mm / 10) : 'n/a';
-      const when = item.collected_at || item.created_at || '';
-      const flags = [];
-      if (item.is_anti_collision) flags.push('anti-collision');
-      if (item.is_overload_protection_up || item.is_overload_protection_down) flags.push('overload');
-      const status = item.status || '?';
-      const extra = flags.length ? ` [${flags.join(',')}]` : '';
-      tr.innerHTML = `
-        <td>${when}</td>
-        <td>${cm}</td>
-        <td>${status}${extra}</td>
-      `;
-      els.stateBody.appendChild(tr);
-    });
-  }
-
-  function renderUsageSummary(summary) {
-    els.usageSummary.textContent =
-      `Activations delta: ${safeNumber(summary?.activations_delta)} | Sit/Stand delta: ${safeNumber(summary?.sit_stand_delta)}`;
-  }
-
-  function renderErrors(items) {
-    els.errorsList.innerHTML = '';
-    const errorItems = (items || []).filter(i =>
-      i.is_anti_collision ||
-      i.is_overload_protection_up ||
-      i.is_overload_protection_down ||
-      (i.status && i.status.toLowerCase().includes('error'))
-    ).slice(-5);
-
-    if (!errorItems.length) {
-      els.errorsList.innerHTML = '<li>No recent errors reported.</li>';
-      return;
-    }
-
-    errorItems.forEach(i => {
-      const li = document.createElement('li');
-      const when = i.collected_at || i.created_at || '';
-      const codes = [];
-      if (i.is_anti_collision) codes.push('anti-collision');
-      if (i.is_overload_protection_up || i.is_overload_protection_down) codes.push('overload');
-      const extra = codes.length ? ` [${codes.join(',')}]` : '';
-      li.textContent = `${when} - ${i.status || 'Error'}${extra}`;
-      els.errorsList.appendChild(li);
-    });
-  }
-
-  function renderReport(stats, usage) {
-    const standing = safeNumber(stats?.standing_minutes);
-    const sitting = safeNumber(stats?.sitting_minutes);
-    const moves = safeNumber(stats?.movements_today);
-    const errors = safeNumber(stats?.errors_today);
-    els.reportsSummary.textContent =
-      `Desk ${stats.desk_id}: standing ${standing}m, sitting ${sitting}m, moves ${moves}, errors ${errors}. ` +
-      `Activations delta ${safeNumber(usage?.activations_delta)}, sit/stand delta ${safeNumber(usage?.sit_stand_delta)}.`;
-  }
-
-  function updateDashboards(stats, history) {
-    const standing = safeNumber(stats?.standing_minutes);
-    const sitting = safeNumber(stats?.sitting_minutes);
-    const moves = safeNumber(stats?.movements_today);
-    const total = standing + sitting;
-    const standPct = total ? Math.round((standing / total) * 100) : 0;
-    const sitPct = 100 - standPct;
-
-    els.donut.style.background = `conic-gradient(#22c55e 0% ${standPct}%, #f97316 ${standPct}% 100%)`;
-    els.standPct.textContent = `${standPct}%`;
-    els.standLegend.textContent = `${standPct}%`;
-    els.sitPct.textContent = `${sitPct}%`;
-    els.totalMin.textContent = `${total} min`;
-    els.moves.textContent = `${moves} moves`;
-
-    const buckets = Array.from({ length: 12 }, (_, i) => ({
-      label: `${String(i * 2).padStart(2, '0')}:00`,
-      count: 0
-    }));
-    (history || []).forEach(item => {
-      const ts = item.collected_at || item.created_at;
-      if (!ts) return;
-      const hour = new Date(ts).getHours();
-      const idx = Math.floor(hour / 2);
-      if (buckets[idx]) buckets[idx].count += 1;
-    });
-    const maxCount = Math.max(1, ...buckets.map(b => b.count));
-    els.bars.innerHTML = '';
-    buckets.forEach(b => {
-      const bar = document.createElement('div');
-      bar.className = 'bar';
-      bar.innerHTML = `
-        <div class="fill" style="height:${(b.count / maxCount) * 100}%"></div>
-        <span class="bar-label">${b.label}</span>
-      `;
-      els.bars.appendChild(bar);
-    });
-    els.events.textContent = `${(history || []).length} events`;
-
-    const wellbeing = Math.max(20, Math.min(100, standPct * 0.6 + moves * 2.5));
-    els.score.textContent = `${Math.round(wellbeing)}/100`;
-    els.hint.textContent = standPct >= 40 && standPct <= 60
-      ? 'Great balance today.'
-      : 'Aim for ~50% standing and add a few extra posture changes.';
-  }
-
-  async function loadOverview() {
-    try {
-      const desks = await fetchJson(`${BASE}/desks`);
-      els.active.textContent = desks.length;
-
-      if (!desks.length) {
-        els.balanced.textContent = '--';
-        els.maintenance.textContent = '--';
-        els.energy.textContent = '--';
-        els.healthScore.textContent = 'Health score: --';
-        els.healthHelper.textContent = 'No desks registered.';
-        return;
-      }
-
-      const targetDesk = desks.find(d => d.id === DEFAULT_DESK_ID) || desks[0];
-      targetDeskId = targetDesk.id;
-      const stats = await fetchJson(`${BASE}/desks/${targetDeskId}/today-stats`);
-      const history = await fetchJson(`${BASE}/desks/${targetDeskId}/state-history`);
-      const usage = await fetchJson(`${BASE}/desks/${targetDeskId}/usage-summary`);
-
-      updateKpisFromStats(stats);
-      updateDashboards(stats, history);
-      renderStateHistory(history);
-      renderUsageSummary(usage);
-      renderErrors(history);
-      renderReport(stats, usage);
-    } catch (err) {
-      console.error('Failed to load health data', err);
-      els.active.textContent = 'Error';
-      els.balanced.textContent = 'Error';
-      els.maintenance.textContent = 'Error';
-      els.energy.textContent = 'Error';
-      els.healthHelper.textContent = 'Could not load data from backend.';
-    }
-  }
-
-  loadOverview();
-  setInterval(loadOverview, 60000);
-</script>
 </html>
-
