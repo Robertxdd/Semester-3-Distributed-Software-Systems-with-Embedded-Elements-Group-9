@@ -11,6 +11,7 @@
 <body>
 <div class="app">
 
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="brand">
       <div class="logo">S</div>
@@ -18,16 +19,18 @@
     </div>
 
     <nav class="nav">
-      <a href="user.html" class="active"><span>User Dashboard</span></a>
-      <a href="healthreport.html"><span>Health & Reports</span></a>
-      <a href="index.html"><span>Logout</span></a>
+      <a href="user.html" class="active">User Dashboard</a>
+      <a href="healthreport.html">Health & Reports</a>
+      <a href="index.html">Logout</a>
     </nav>
   </aside>
 
-  <div class="main">
+  <!-- Main -->
+  <main class="main">
 
+    <!-- Topbar -->
     <header class="topbar">
-      <div class="topbar-left">
+      <div>
         <h1>User Overview</h1>
         <p class="subtitle">Daily posture balance and desk control</p>
       </div>
@@ -39,31 +42,18 @@
 
     <!-- KPIs -->
     <section class="kpis">
-      <article class="card kpi">
-        <h2>Standing today</h2>
-        <p class="kpi-main" id="standing">0 min</p>
-      </article>
-      <article class="card kpi">
-        <h2>Sitting today</h2>
-        <p class="kpi-main" id="sitting">0 min</p>
-      </article>
-      <article class="card kpi">
-        <h2>Movements</h2>
-        <p class="kpi-main" id="moves">0</p>
-      </article>
-      <article class="card kpi">
-        <h2>Health score</h2>
-        <p class="kpi-main" id="score">0 / 100</p>
-      </article>
+      <article class="card kpi"><h2>Standing</h2><p id="standing">0 min</p></article>
+      <article class="card kpi"><h2>Sitting</h2><p id="sitting">0 min</p></article>
+      <article class="card kpi"><h2>Movements</h2><p id="moves">0</p></article>
+      <article class="card kpi"><h2>Health</h2><p id="score">0 / 100</p></article>
     </section>
 
-    <!-- Analytics -->
+    <!-- Balance -->
     <section class="section card">
-      <div class="title"><h3>Sit / Stand balance</h3></div>
+      <h3>Sit / Stand balance</h3>
 
       <div class="chart-tile">
-        <div id="donut" class="donut"
-             style="background: conic-gradient(#22c55e 0% 0%, #f97316 0% 100%);">
+        <div id="donut" class="donut">
           <div class="donut-center">
             <strong id="standPct">0%</strong>
             <span class="helper">standing</span>
@@ -71,190 +61,127 @@
         </div>
 
         <div class="legend">
-          <div class="legend-item">
-            <span class="dot sitting"></span>
-            Sitting <span id="sitPct">0%</span>
-          </div>
-          <div class="legend-item">
-            <span class="dot standing"></span>
-            Standing <span id="standLegend">0%</span>
-          </div>
+          <div><span class="dot sitting"></span> Sitting <span id="sitPct">0%</span></div>
+          <div><span class="dot standing"></span> Standing <span id="standLegend">0%</span></div>
         </div>
       </div>
     </section>
 
-    <!-- Quick Controls -->
+    <!-- Controls -->
     <section class="section card">
-      <div class="title">
-        <h3>Quick desk controls</h3>
-        <p class="subtitle">Basic height adjustment</p>
-      </div>
+      <h3>Quick desk controls</h3>
 
       <div class="desk-controls">
         <div class="height-display">
-          <span class="label">Current height</span>
-          <span class="value" id="height">-- cm</span>
+          <span>Current height</span>
+          <strong id="height">-- cm</strong>
         </div>
 
         <div class="control-buttons">
-          <button class="btn secondary" id="btn-down">Move down</button>
-          <button class="btn secondary" id="btn-up">Move up</button>
-          <button class="btn" id="btn-sit">Sit</button>
-          <button class="btn" id="btn-stand">Stand</button>
+          <button class="btn secondary" id="down">Down</button>
+          <button class="btn secondary" id="up">Up</button>
+          <button class="btn" id="sit">Sit</button>
+          <button class="btn" id="stand">Stand</button>
         </div>
       </div>
     </section>
 
     <!-- History -->
     <section class="section card">
-      <div class="title"><h3>Recent desk states</h3></div>
+      <h3>Recent desk states</h3>
 
       <table class="table compact">
         <thead>
-        <tr>
-          <th>When</th>
-          <th>Height (cm)</th>
-          <th>Status</th>
-        </tr>
+          <tr><th>When</th><th>Height</th><th>Status</th></tr>
         </thead>
         <tbody id="history"></tbody>
       </table>
     </section>
 
-  </div>
+  </main>
 </div>
 
 <script>
   initThemeToggle();
 
+  const $ = id => document.getElementById(id);
   const token = localStorage.getItem("token");
-  if (!token) window.location.href = "index.html";
+  if (!token) location.href = "index.html";
 
   const API = "/api";
-  let deskId = null;
-  let currentHeight = 0;
+  let deskId, height = 0;
 
-  const el = {
-    standing: document.getElementById("standing"),
-    sitting: document.getElementById("sitting"),
-    moves: document.getElementById("moves"),
-    score: document.getElementById("score"),
-    donut: document.getElementById("donut"),
-    standPct: document.getElementById("standPct"),
-    standLegend: document.getElementById("standLegend"),
-    sitPct: document.getElementById("sitPct"),
-    history: document.getElementById("history"),
-    height: document.getElementById("height")
+  const el = ["standing","sitting","moves","score","donut","standPct","standLegend","sitPct","history","height"]
+    .reduce((o,k)=>(o[k]=$(k),o),{});
+
+  const headers = { Authorization: `Bearer ${token}` };
+  const json = u => fetch(u,{headers}).then(r=>r.ok?r.json():Promise.reject());
+
+  const renderStats = s => {
+    const stand=s.standing_minutes||0, sit=s.sitting_minutes||0, mv=s.movements_today||0;
+    const pct=Math.round((stand/(stand+sit||1))*100);
+
+    el.standing.textContent=`${stand} min`;
+    el.sitting.textContent=`${sit} min`;
+    el.moves.textContent=mv;
+    el.score.textContent=`${Math.round(pct*0.8+mv*2)} / 100`;
+
+    el.donut.style.background=`conic-gradient(#22c55e 0 ${pct}%, #f97316 ${pct}% 100%)`;
+    el.standPct.textContent=el.standLegend.textContent=`${pct}%`;
+    el.sitPct.textContent=`${100-pct}%`;
   };
 
-  const headers = () => ({
-    Authorization: `Bearer ${token}`
-  });
-
-  async function fetchJson(url) {
-    const r = await fetch(url, { headers: headers() });
-    if (!r.ok) throw new Error(r.status);
-    return r.json();
-  }
-
-  function renderStats(s) {
-    const stand = s.standing_minutes ?? 0;
-    const sit = s.sitting_minutes ?? 0;
-    const moves = s.movements_today ?? 0;
-
-    el.standing.textContent = `${stand} min`;
-    el.sitting.textContent = `${sit} min`;
-    el.moves.textContent = moves;
-
-    const total = stand + sit || 1;
-    const pct = Math.round((stand / total) * 100);
-
-    el.score.textContent = `${Math.round(pct * 0.8 + moves * 2)} / 100`;
-    el.donut.style.background =
-      `conic-gradient(#22c55e 0% ${pct}%, #f97316 ${pct}% 100%)`;
-
-    el.standPct.textContent = `${pct}%`;
-    el.standLegend.textContent = `${pct}%`;
-    el.sitPct.textContent = `${100 - pct}%`;
-  }
-
-  function renderHistory(list) {
-    el.history.innerHTML = "";
-    if (!list.length) {
-      el.history.innerHTML = "<tr><td colspan='3'>No history</td></tr>";
-      return;
-    }
-
-    list.slice(-8).forEach(i => {
-      const cm = i.position_mm ? Math.round(i.position_mm / 10) : "n/a";
-      el.history.innerHTML += `
+  const renderHistory = h =>
+    el.history.innerHTML = h.length
+      ? h.slice(-8).map(i=>`
         <tr>
-          <td>${i.collected_at || i.created_at}</td>
-          <td>${cm}</td>
-          <td>${i.status || ""}</td>
-        </tr>`;
+          <td>${i.collected_at||i.created_at}</td>
+          <td>${i.position_mm?Math.round(i.position_mm/10):"n/a"}</td>
+          <td>${i.status||""}</td>
+        </tr>`).join("")
+      : "<tr><td colspan='3'>No history</td></tr>";
+
+  const setHeight = async h => {
+    h=Math.min(Math.max(h,60),130);
+    await fetch(`${API}/desks/${deskId}`,{
+      method:"PUT",
+      headers:{...headers,"Content-Type":"application/json"},
+      body:JSON.stringify({height:h})
     });
-  }
+    loadHeight();
+  };
 
-  async function fetchDeskState() {
-    const d = await fetchJson(`${API}/desks/${deskId}`);
-    currentHeight = d.height;
-    el.height.textContent = `${currentHeight} cm`;
-  }
+  const loadHeight = async () => {
+    const d=await json(`${API}/desks/${deskId}`);
+    height=d.height;
+    el.height.textContent=`${height} cm`;
+  };
 
-  function clamp(v, min, max) {
-    return Math.min(Math.max(v, min), max);
-  }
+  const led = d => fetch("http://127.0.0.1:5055/led/on",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({direction:d})
+  }).catch(()=>{});
 
-  async function setHeight(h) {
-    h = clamp(h, 60, 130);
-    await fetch(`${API}/desks/${deskId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", ...headers() },
-      body: JSON.stringify({ height: h })
-    });
-    fetchDeskState();
-  }
-
-  async function pingLed(direction) {
-    try {
-      await fetch("http://127.0.0.1:5055/led/on", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ direction })
-      });
-    } catch (e) {
-      console.warn("LED bridge not reachable", e);
-    }
-  }
-
-  document.getElementById("btn-up").onclick = () => { pingLed("up"); return setHeight(currentHeight + 2); };
-  document.getElementById("btn-down").onclick = () => { pingLed("down"); return setHeight(currentHeight - 2); };
-
-  document.getElementById("btn-sit").onclick = () => setHeight(75);
-  document.getElementById("btn-stand").onclick = () => setHeight(107);
+  $("up").onclick=()=>{led("up");setHeight(height+2)};
+  $("down").onclick=()=>{led("down");setHeight(height-2)};
+  $("sit").onclick=()=>setHeight(75);
+  $("stand").onclick=()=>setHeight(107);
 
   document.querySelectorAll("[data-logout]").forEach(b =>
-    b.onclick = () => {
-      localStorage.removeItem("token");
-      window.location.href = "index.html";
-    }
+    b.onclick=()=>{localStorage.removeItem("token");location.href="index.html";}
   );
 
-  async function init() {
-    const desks = await fetchJson(`${API}/desks`);
-    if (!desks.length) return;
-    deskId = desks[0].id;
+  (async()=>{
+    const desks=await json(`${API}/desks`);
+    if(!desks.length) return;
+    deskId=desks[0].id;
 
-    renderStats(await fetchJson(`${API}/desks/${deskId}/today-stats`));
-    renderHistory(await fetchJson(`${API}/desks/${deskId}/state-history`));
-    await fetchDeskState();
-
-    setInterval(fetchDeskState, 5000);
-  }
-
-  init();
+    renderStats(await json(`${API}/desks/${deskId}/today-stats`));
+    renderHistory(await json(`${API}/desks/${deskId}/state-history`));
+    await loadHeight();
+    setInterval(loadHeight,5000);
+  })();
 </script>
-
 </body>
 </html>
