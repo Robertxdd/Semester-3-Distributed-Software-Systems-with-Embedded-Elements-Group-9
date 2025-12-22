@@ -229,11 +229,8 @@ async function loadOverview() {
 const init = async () => {
   const me = await requireAuth();
   if (!me) return;
-  if (!me.is_admin) {
-    document.querySelectorAll('[data-admin-only]').forEach(el => el.remove());
-  } else {
-    document.querySelectorAll('[data-user-only]').forEach(el => el.remove());
-  }
+  const body = document.body;
+  body.classList.add(me.is_admin ? 'role-admin' : 'role-user', 'role-ready');
   const roleEl = document.getElementById('current-user-role');
   if (roleEl) {
     roleEl.textContent = me.is_admin ? 'Admin' : 'User';

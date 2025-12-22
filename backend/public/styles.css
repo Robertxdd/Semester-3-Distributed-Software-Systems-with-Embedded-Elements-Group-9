@@ -506,6 +506,20 @@ select:focus {
   background: transparent;
 }
 
+/* Role-gated nav items: hide until role is known to avoid flicker. */
+body:not(.role-ready) [data-admin-only],
+body:not(.role-ready) [data-user-only] {
+  display: none;
+}
+
+body.role-admin [data-user-only] {
+  display: none;
+}
+
+body.role-user [data-admin-only] {
+  display: none;
+}
+
 .theme-light .nav a:hover {
   background: rgba(37, 99, 235, 0.08);
   border-color: rgba(59, 130, 246, 0.2);
@@ -1302,4 +1316,3 @@ td.actions .btn {
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
 }
-

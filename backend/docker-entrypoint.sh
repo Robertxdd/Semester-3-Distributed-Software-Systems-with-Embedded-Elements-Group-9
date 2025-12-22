@@ -10,7 +10,7 @@ wait_for_mysql() {
 
   echo "Waiting for MySQL at ${host}:${port}..."
   i=0
-  while [ "$i" -lt 30 ]; do
+  while true; do
     if php -r "
       try {
         new PDO(
@@ -28,14 +28,14 @@ wait_for_mysql() {
       return 0
     fi
     i=$((i+1))
+    if [ $((i % 10)) -eq 0 ]; then
+      echo "Still waiting for MySQL..."
+    fi
     sleep 1
   done
-
-  echo "MySQL not reachable after 30s. Continuing anyway."
-  return 1
 }
 
-wait_for_mysql || true
+wait_for_mysql
 
 echo "Running migrations..."
 php artisan migrate --force || true
