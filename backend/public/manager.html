@@ -3,402 +3,285 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Manager</title>
+  <title>Smart Desk Supervisor – Manager</title>
+
   <link rel="stylesheet" href="styles.css">
-  <script src="theme.js"></script>
+  <script src="theme.js" defer></script>
 </head>
+
 <body>
   <div class="app">
+
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
         <div class="logo">S</div>
         <div>Smart Desk Supervisor</div>
       </div>
+
       <nav class="nav">
-        <a href="deskcontrol.html"><span>My Desk</span></a>
-        <a href="healthreport.html"><span>Health & Reports</span></a>
-        <a href="settings.html"><span>Admin - Settings</span></a>
-        <a href="manager.html" class="active"><span>Manager</span></a>
-        <a href="user.html"><span>User</span></a>
+        <a href="deskcontrol.html">My Desk</a>
+        <a href="healthreport.html">Health & Reports</a>
+        <a href="settings.html">Admin - Settings</a>
+        <a href="manager.html" class="active">Manager</a>
+        <a href="user.html">User</a>
       </nav>
     </aside>
 
-    <div class="main">
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Topbar -->
       <header class="topbar">
-        <div class="topbar-left">
+        <div>
           <h1>Manager view</h1>
-          <p class="subtitle">Admin-only area with desk registry and quick actions.</p>
+          <p class="subtitle">Admin-only area with desk registry and fleet actions.</p>
         </div>
+
         <div class="topbar-actions">
-          <button class="btn secondary" type="button" data-theme-toggle>Toggle theme</button>
-          <button class="btn secondary" type="button" data-logout>Logout</button>
+          <button class="btn secondary" data-theme-toggle>Toggle theme</button>
+          <button class="btn secondary" data-logout>Logout</button>
         </div>
       </header>
 
+      <!-- Desk registry -->
       <section class="section card">
-        <div class="title"><h3>Registered desks</h3></div>
-        <div class="body">
-          <div class="toolbar">
-            <p id="manager-status">Loading desks...</p>
-            <button class="btn secondary" id="btn-refresh" type="button">Refresh</button>
-          </div>
-          <ul id="manager-desks"></ul>
-          <p class="helper" id="id-hint"></p>
+        <header class="title"><h3>Registered desks</h3></header>
+
+        <div class="toolbar">
+          <p id="manager-status">Loading desks…</p>
+          <button class="btn secondary" id="btn-refresh">Refresh</button>
         </div>
+
+        <ul id="manager-desks"></ul>
+        <p class="helper" id="id-hint"></p>
       </section>
 
+      <!-- Fleet dashboards -->
       <section class="section card">
-        <div class="title"><h3>Fleet usage dashboards</h3></div>
+        <header class="title"><h3>Fleet usage dashboards</h3></header>
+
         <div class="chart-grid">
+
           <div class="chart-tile">
-            <div class="flex between" style="margin-bottom: 0.35rem;">
-              <div>
-                <strong>Posture mix (all desks)</strong>
-                <p class="helper">Standing vs sitting minutes</p>
-              </div>
+            <div class="flex between">
+              <strong>Posture mix</strong>
               <span class="pill" id="mgr-total-min">--</span>
             </div>
-            <div id="mgr-donut" class="donut" style="background: conic-gradient(#22c55e 0% 50%, #f97316 50% 100%);">
+
+            <div id="mgr-donut" class="donut">
               <div class="donut-center">
                 <strong id="mgr-stand-pct">0%</strong>
-                <span class="helper">standing share</span>
+                <span class="helper">standing</span>
               </div>
             </div>
+
             <div class="legend">
-              <div class="legend-item"><span class="dot sitting"></span> <span>Sitting <span id="mgr-sit-pct">0%</span></span></div>
-              <div class="legend-item"><span class="dot standing"></span> <span>Standing <span id="mgr-stand-legend">0%</span></span></div>
+              <span><span class="dot sitting"></span> Sitting <span id="mgr-sit-pct">0%</span></span>
+              <span><span class="dot standing"></span> Standing <span id="mgr-stand-legend">0%</span></span>
             </div>
           </div>
 
           <div class="chart-tile">
-            <div class="flex between" style="margin-bottom: 0.35rem;">
-              <div>
-                <strong>Top active desks</strong>
-                <p class="helper">By total minutes</p>
-              </div>
+            <div class="flex between">
+              <strong>Top active desks</strong>
               <span class="pill" id="mgr-top-count">--</span>
             </div>
+
             <div class="spark-bars compact" id="mgr-bars"></div>
-            <p class="helper">Highlights the busiest desks in the selected range.</p>
+            <p class="helper">Highest total usage today.</p>
           </div>
 
           <div class="chart-tile">
-            <div class="flex between" style="margin-bottom: 0.35rem;">
-              <div>
-                <strong>Movement quality</strong>
-                <p class="helper">Average posture changes</p>
-              </div>
+            <div class="flex between">
+              <strong>Movement quality</strong>
               <span class="pill" id="mgr-moves">--</span>
             </div>
-            <div class="insight" style="margin-bottom: 0.5rem;">
+
+            <div class="insight">
               <span class="label">Standing share</span>
               <div class="value" id="mgr-stand-share">--</div>
-              <p class="helper">Aim for 40-60% across the fleet.</p>
             </div>
+
             <div class="insight">
               <span class="label">Total desk time</span>
               <div class="value" id="mgr-total-time">--</div>
-              <p class="helper">Aggregated sitting + standing minutes.</p>
             </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Create desk -->
+      <section class="section card">
+        <header class="title"><h3>Add a desk</h3></header>
+
+        <div class="grid two">
+          <label class="field">
+            <span>Name</span>
+            <input id="desk-name" class="input" placeholder="DESK 1234">
+          </label>
+
+          <label class="field">
+            <span>External ID</span>
+            <input id="desk-external" class="input">
+          </label>
+        </div>
+
+        <div class="grid two">
+          <label class="field">
+            <span>Manufacturer</span>
+            <input id="desk-mfr" class="input">
+          </label>
+
+          <label class="field">
+            <span>Height (cm)</span>
+            <input id="desk-height" type="number" class="input">
+          </label>
+        </div>
+
+        <button class="btn" id="btn-create-desk">Create desk</button>
+        <p class="helper" id="manager-hint"></p>
+      </section>
+
+      <!-- Sync -->
+      <section class="section card">
+        <header class="title"><h3>Desk synchronization</h3></header>
+
+        <div class="grid two">
+          <label class="field">
+            <span>Target height (cm)</span>
+            <input id="sync-height" type="number" class="input" value="105">
+          </label>
+
+          <div class="field">
+            <span>Actions</span>
+            <button class="btn" id="btn-sync-desks">Sync all desks</button>
+            <p class="helper" id="sync-status"></p>
           </div>
         </div>
       </section>
 
-      <section class="section card">
-        <div class="title"><h3>Add a desk</h3></div>
-        <div class="body">
-          <div class="grid two">
-            <label class="field">
-              <span>Name</span>
-              <input id="desk-name" class="input" type="text" placeholder="DESK 9999">
-            </label>
-            <label class="field">
-              <span>External ID</span>
-              <input id="desk-external" class="input" type="text" placeholder="aa:bb:cc:dd:ee:ff">
-            </label>
-          </div>
-          <div class="grid two">
-            <label class="field">
-              <span>Manufacturer</span>
-              <input id="desk-mfr" class="input" type="text" placeholder="Desk-O-Matic Co.">
-            </label>
-            <label class="field">
-              <span>Height (cm)</span>
-              <input id="desk-height" class="input" type="number" placeholder="0">
-            </label>
-          </div>
-          <button class="btn" id="btn-create-desk" type="button">Create desk</button>
-          <p class="helper" id="manager-hint">Creates via POST /api/desks.</p>
-        </div>
-      </section>
-
-      <section class="section card">
-        <div class="title"><h3>Desk synchronization</h3></div>
-        <div class="body">
-          <div class="grid two">
-            <label class="field">
-              <span>Target height (cm)</span>
-              <input id="sync-height" class="input" type="number" min="40" max="200" value="105">
-              <p class="helper">Admin-only: syncs all desks to this height (clamped to each desk's min/max).</p>
-            </label>
-            <div class="field">
-              <span>Actions</span>
-              <button class="btn" type="button" id="btn-sync-desks">Sync all desks</button>
-              <p class="helper" id="sync-status"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    </main>
   </div>
 
   <script>
+    /* ---------- bootstrap ---------- */
     initThemeToggle();
+
     const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = 'index.html';
-    }
+    if (!token) location.href = 'index.html';
 
-    async function logout() {
-      try {
-        if (token) {
-          await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
-        }
-      } catch (err) {
-        console.warn('Logout failed', err);
-      }
-      localStorage.removeItem('token');
-      window.location.href = 'index.html';
-    }
-    document.querySelectorAll('[data-logout]').forEach(btn => btn.addEventListener('click', logout));
+    const authHeaders = () => ({ Authorization: `Bearer ${token}` });
 
-    const authHeaders = () => {
-      const token = localStorage.getItem('token');
-      return token ? { 'Authorization': `Bearer ${token}` } : {};
-    };
+    document.querySelectorAll('[data-logout]').forEach(btn =>
+      btn.addEventListener('click', logout)
+    );
 
-    const usageEls = {
+    /* ---------- dom ---------- */
+    const els = {
+      list: document.getElementById('manager-desks'),
+      status: document.getElementById('manager-status'),
+      hint: document.getElementById('id-hint'),
       donut: document.getElementById('mgr-donut'),
       standPct: document.getElementById('mgr-stand-pct'),
-      standLegend: document.getElementById('mgr-stand-legend'),
       sitPct: document.getElementById('mgr-sit-pct'),
+      standLegend: document.getElementById('mgr-stand-legend'),
       totalMin: document.getElementById('mgr-total-min'),
       bars: document.getElementById('mgr-bars'),
       topCount: document.getElementById('mgr-top-count'),
       moves: document.getElementById('mgr-moves'),
-      standShareText: document.getElementById('mgr-stand-share'),
-      totalTimeText: document.getElementById('mgr-total-time'),
+      standShare: document.getElementById('mgr-stand-share'),
+      totalTime: document.getElementById('mgr-total-time'),
     };
 
-    let newDeskHighlightId = null;
+    let highlightId = null;
 
+    /* ---------- api ---------- */
+    const api = {
+      async getDesks() {
+        const res = await fetch('/api/desks', { headers: authHeaders() });
+        if (!res.ok) throw new Error();
+        return res.json();
+      },
+
+      async deleteDesk(id) {
+        return fetch(`/api/desks/${id}`, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+      }
+    };
+
+    /* ---------- render ---------- */
     function renderDesks(desks) {
-      const status = document.getElementById('manager-status');
-      const list = document.getElementById('manager-desks');
-      status.textContent = `Found ${desks.length} desks.`;
-      list.innerHTML = '';
-      const hint = document.getElementById('id-hint');
-      const hasDesk1 = desks.some(d => d.id === 1);
-      hint.textContent = hasDesk1
-        ? 'Desk #1 is present.'
-        : 'Desk #1 no longer exists (was deleted). IDs are auto-increment; new desks keep growing.';
+      els.status.textContent = `Found ${desks.length} desks.`;
+      els.list.innerHTML = '';
 
       desks.forEach(d => {
         const li = document.createElement('li');
-        li.textContent = `Desk #${d.id} (${d.name || 'No name'})` + (d.external_id ? ` - External: ${d.external_id}` : '');
+        li.textContent = `Desk #${d.id} – ${d.name || 'Unnamed'}`;
 
-        if (newDeskHighlightId && d.id === newDeskHighlightId) {
+        if (highlightId === d.id) {
           li.classList.add('desk-flash');
-          setTimeout(() => li.classList.remove('desk-flash'), 1600);
+          setTimeout(() => li.classList.remove('desk-flash'), 1500);
         }
 
-        const remove = document.createElement('button');
-        remove.textContent = 'Delete';
-        remove.className = 'btn secondary';
-        remove.onclick = async () => {
-          try {
-            const res = await fetch(`/api/desks/${d.id}`, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json', ...authHeaders() }
-            });
-            if (res.ok) {
-              loadDesks();
-            } else {
-              alert(`Failed to delete desk (#${d.id})`);
-            }
-          } catch (err) {
-            console.error(err);
-            alert('Network error deleting desk');
-          }
+        const del = document.createElement('button');
+        del.className = 'btn secondary';
+        del.textContent = 'Delete';
+        del.onclick = async () => {
+          await api.deleteDesk(d.id);
+          load();
         };
 
-        li.appendChild(remove);
-        list.appendChild(li);
+        li.appendChild(del);
+        els.list.appendChild(li);
       });
     }
 
-    async function loadFleetUsage(desks) {
-      if (!desks.length) {
-        usageEls.totalMin.textContent = '0 min';
-        usageEls.donut.style.background = 'conic-gradient(#22c55e 0% 50%, #f97316 50% 100%)';
-        usageEls.standPct.textContent = '0%';
-        usageEls.standLegend.textContent = '0%';
-        usageEls.sitPct.textContent = '0%';
-        usageEls.bars.innerHTML = '';
-        usageEls.topCount.textContent = 'Top 0';
-        usageEls.moves.textContent = '0';
-        usageEls.standShareText.textContent = '0%';
-        usageEls.totalTimeText.textContent = '0 min';
-        return;
-      }
+    function renderUsage(desks) {
+      const sit = desks.reduce((s, d) => s + (d.sitting_minutes || 0), 0);
+      const stand = desks.reduce((s, d) => s + (d.standing_minutes || 0), 0);
+      const total = sit + stand || 1;
 
-      const results = await Promise.all(desks.map(async d => {
-        try {
-          const res = await fetch(`/api/desks/${d.id}/today-stats`, { headers: authHeaders() });
-          if (!res.ok) throw new Error();
-          const stats = await res.json();
-          return { desk: d, stats };
-        } catch (_) {
-          return null;
-        }
-      }));
+      const standPct = Math.round((stand / total) * 100);
 
-      const valid = results.filter(Boolean);
-      const totalSit = valid.reduce((sum, r) => sum + (r.stats.sitting_minutes || 0), 0);
-      const totalStand = valid.reduce((sum, r) => sum + (r.stats.standing_minutes || 0), 0);
-      const totalMoves = valid.reduce((sum, r) => sum + (r.stats.movements_today || 0), 0);
-      const total = totalSit + totalStand || 1;
-      const standShare = Math.round((totalStand / total) * 100);
-      const sitShare = 100 - standShare;
+      els.donut.style.background =
+        `conic-gradient(#22c55e 0 ${standPct}%, #f97316 ${standPct}% 100%)`;
 
-      usageEls.donut.style.background = `conic-gradient(#22c55e 0% ${standShare}%, #f97316 ${standShare}% 100%)`;
-      usageEls.standPct.textContent = `${standShare}%`;
-      usageEls.standLegend.textContent = `${standShare}%`;
-      usageEls.sitPct.textContent = `${sitShare}%`;
-      usageEls.totalMin.textContent = `${totalSit + totalStand} min`;
-      usageEls.moves.textContent = `${Math.round(totalMoves / (valid.length || 1))} avg moves`;
-      usageEls.standShareText.textContent = `${standShare}% standing`;
-      usageEls.totalTimeText.textContent = `${totalSit + totalStand} min`;
-
-      const top = valid
-        .map(r => {
-          const totalMinutes = (r.stats.sitting_minutes || 0) + (r.stats.standing_minutes || 0);
-          return { name: r.desk.name || `Desk ${r.desk.id}`, total: totalMinutes };
-        })
-        .sort((a, b) => b.total - a.total)
-        .slice(0, 5);
-      usageEls.topCount.textContent = `Top ${top.length}`;
-      usageEls.bars.innerHTML = '';
-      const maxTotal = Math.max(1, ...top.map(t => t.total));
-      top.forEach(t => {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.innerHTML = `
-          <div class="fill" style="height:${(t.total / maxTotal) * 100}%"></div>
-          <span class="bar-label">${t.name}</span>
-        `;
-        usageEls.bars.appendChild(bar);
-      });
+      els.standPct.textContent = `${standPct}%`;
+      els.standLegend.textContent = `${standPct}%`;
+      els.sitPct.textContent = `${100 - standPct}%`;
+      els.totalMin.textContent = `${sit + stand} min`;
+      els.standShare.textContent = `${standPct}%`;
+      els.totalTime.textContent = `${sit + stand} min`;
     }
 
-    async function loadDesks() {
+    /* ---------- actions ---------- */
+    async function load() {
       try {
-        const res = await fetch('/api/desks', { headers: authHeaders() });
-        if (!res.ok) throw new Error(`List failed: ${res.status}`);
-        const desks = await res.json();
+        const desks = await api.getDesks();
         renderDesks(desks);
-        loadFleetUsage(desks);
-        newDeskHighlightId = null;
-      } catch (err) {
-        console.error(err);
-        document.getElementById('manager-status').textContent = 'Failed to load desks';
-        document.getElementById('id-hint').textContent = '';
+        renderUsage(desks);
+        highlightId = null;
+      } catch {
+        els.status.textContent = 'Failed to load desks.';
       }
     }
 
-    async function createDesk() {
-      const name = document.getElementById('desk-name').value.trim();
-      const external_id = document.getElementById('desk-external').value.trim();
-      const manufacturer = document.getElementById('desk-mfr').value.trim();
-      const height = document.getElementById('desk-height').value;
-
-      if (!name) {
-        alert('Name is required');
-        return;
-      }
-
-      const body = { name };
-      if (external_id) body.external_id = external_id;
-      if (manufacturer) body.manufacturer = manufacturer;
-      if (height) body.height = Number(height);
-
+    async function logout() {
       try {
-        const res = await fetch('/api/desks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || 'Failed to create desk');
-        }
-
-        try {
-          const created = await res.json();
-          if (created && created.id) {
-            newDeskHighlightId = created.id;
-          }
-        } catch (_) {
-          newDeskHighlightId = null;
-        }
-
-        document.getElementById('manager-hint').textContent = 'Desk created.';
-        document.getElementById('desk-name').value = '';
-        document.getElementById('desk-external').value = '';
-        document.getElementById('desk-mfr').value = '';
-        document.getElementById('desk-height').value = '';
-        loadDesks();
-      } catch (err) {
-        console.error(err);
-        alert('Error creating desk: ' + err.message);
+        await fetch('/api/logout', { method: 'POST', headers: authHeaders() });
+      } finally {
+        localStorage.removeItem('token');
+        location.href = 'index.html';
       }
     }
 
-    document.getElementById('btn-create-desk').onclick = createDesk;
-    document.getElementById('btn-refresh').onclick = loadDesks;
-    document.getElementById('btn-sync-desks').onclick = syncAllDesks;
-    loadDesks();
+    document.getElementById('btn-refresh').onclick = load;
 
-    async function syncAllDesks() {
-      const height = Number(document.getElementById('sync-height').value);
-      const statusEl = document.getElementById('sync-status');
-      if (!height || Number.isNaN(height)) {
-        statusEl.textContent = 'Enter a valid height.';
-        statusEl.style.color = '#fca5a5';
-        return;
-      }
-      statusEl.textContent = 'Syncing...';
-      statusEl.style.color = '#cbd5e1';
-      try {
-        const res = await fetch('/api/desks/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ height })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data.message || `Failed (${res.status})`);
-        }
-        statusEl.textContent = `Synced ${data.desks_updated || 0} desks to ~${data.requested_height} cm.`;
-        statusEl.style.color = '#a7f3d0';
-        loadDesks();
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = `Error syncing: ${err.message}`;
-        statusEl.style.color = '#fca5a5';
-      }
-    }
+    load();
   </script>
 </body>
 </html>
