@@ -117,6 +117,21 @@
   const headers = { Authorization: `Bearer ${token}` };
   const json = u => fetch(u,{headers}).then(r=>r.ok?r.json():Promise.reject());
 
+  const requireUser = async () => {
+    const res = await fetch("/api/auth/me", { headers });
+    if (!res.ok) {
+      localStorage.removeItem("token");
+      location.href = "index.html";
+      return null;
+    }
+    const me = await res.json();
+    if (me.is_admin) {
+      location.href = "deskcontrol.html";
+      return null;
+    }
+    return me;
+  };
+
   const renderStats = s => {
     const stand=s.standing_minutes||0, sit=s.sitting_minutes||0, mv=s.movements_today||0;
     const pct=Math.round((stand/(stand+sit||1))*100);
@@ -168,11 +183,20 @@
   $("sit").onclick=()=>setHeight(75);
   $("stand").onclick=()=>setHeight(107);
 
-  document.querySelectorAll("[data-logout]").forEach(b =>
-    b.onclick=()=>{localStorage.removeItem("token");location.href="index.html";}
-  );
+  const logout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST", headers });
+    } finally {
+      localStorage.removeItem("token");
+      location.href = "index.html";
+    }
+  };
+
+  document.querySelectorAll("[data-logout]").forEach(b => b.onclick = logout);
 
   (async()=>{
+    const me = await requireUser();
+    if (!me) return;
     const desks=await json(`${API}/desks`);
     if(!desks.length) return;
     deskId=desks[0].id;

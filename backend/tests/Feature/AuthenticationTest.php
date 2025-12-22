@@ -77,7 +77,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(401)
-                 ->assertJson(['message' => 'Credenciales incorrectas']);
+                 ->assertJson(['message' => 'Incorrect credentials']);
     }
 
     /** @test */
@@ -96,7 +96,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(403)
-                 ->assertJson(['message' => 'No tienes permisos de administrador']);
+                 ->assertJson(['message' => 'You do not have administrator privileges']);
     }
 
     /** @test */

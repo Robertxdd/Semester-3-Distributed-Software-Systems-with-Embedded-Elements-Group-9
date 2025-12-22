@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Smart Desk Supervisor – Health & Reports</title>
+  <title>Smart Desk Supervisor - Health & Reports</title>
 
   <link rel="stylesheet" href="styles.css">
   <script src="theme.js" defer></script>
@@ -22,8 +22,8 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="deskcontrol.html"><span>My Desk</span></a>
         <a href="healthreport.html" class="active"><span>Health & Reports</span></a>
-        <a href="settings.html"><span>Admin - Settings</span></a>
-        <a href="manager.html"><span>Manager</span></a>
+        <a href="settings.html" data-admin-only><span>Admin - Settings</span></a>
+        <a href="manager.html" data-admin-only><span>Manager</span></a>
         <a href="user.html"><span>User</span></a>
       </nav>
 
@@ -195,3 +195,4 @@
   <script src="healthreport.js"></script>
 </body>
 </html>
+

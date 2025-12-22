@@ -321,6 +321,21 @@
       return token ? { "Authorization": `Bearer ${token}` } : {};
     };
 
+    const requireAdmin = async () => {
+      const res = await fetch("/api/auth/me", { headers: authHeaders() });
+      if (!res.ok) {
+        localStorage.removeItem("token");
+        window.location.href = "index.html";
+        return false;
+      }
+      const me = await res.json();
+      if (!me.is_admin) {
+        window.location.href = "user.html";
+        return false;
+      }
+      return true;
+    };
+
     async function logout() {
       const token = localStorage.getItem("token");
       try {
@@ -521,6 +536,9 @@
         })
         .then(data => {
           updateUI(data);
+          if (data.height !== undefined && data.height !== lastLoggedHeight) {
+            logState(data.height, data.state || "stopped");
+          }
         })
         .catch(() => {
           setStatus("Desk offline", true);
@@ -560,7 +578,11 @@
       setInterval(loadTodayStats, 60000);
     }
 
-    initDesk();
+    (async () => {
+      const ok = await requireAdmin();
+      if (!ok) return;
+      initDesk();
+    })();
 
     // Stand Reminder Logic
 (function() {

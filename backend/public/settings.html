@@ -226,6 +226,21 @@
 
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+  const requireAdmin = async () => {
+    const res = await fetch('/api/auth/me', { headers });
+    if (!res.ok) {
+      localStorage.removeItem('token');
+      location.href = 'index.html';
+      return false;
+    }
+    const me = await res.json();
+    if (!me.is_admin) {
+      location.href = 'user.html';
+      return false;
+    }
+    return true;
+  };
+
   document.querySelectorAll('[data-logout]').forEach(b =>
     b.onclick = async () => {
       try { await fetch('/api/logout', { method: 'POST', headers }); } catch {}
@@ -311,8 +326,12 @@
     }
   };
 
-  loadSettings();
-  loadUsers();
+  (async () => {
+    const ok = await requireAdmin();
+    if (!ok) return;
+    loadSettings();
+    loadUsers();
+  })();
 </script>
 
 </html>

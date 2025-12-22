@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -26,7 +28,7 @@ class AuthController extends Controller
         $token = $user->createToken('authToken')->plainTextToken;
 
         return response()->json([
-            'message' => 'Registro exitoso',
+            'message' => 'Registration successful',
             'token' => $token,
             'user' => $user,
         ], 201);
@@ -57,7 +59,7 @@ class AuthController extends Controller
         $token = $user->createToken('authToken')->plainTextToken;
 
         return response()->json([
-            'message' => 'Successfull login',
+            'message' => 'Successful login',
             'token' => $token,
             'user' => $user,
         ]);
@@ -65,12 +67,26 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $token = $request->user()->currentAccessToken();
-        if ($token) {
-            $token->delete();
+        $user = $request->user();
+        if ($user) {
+            $user->tokens()->delete();
+            $token = $user->currentAccessToken();
+            if ($token) {
+                $token->delete();
+            } else {
+                $bearer = $request->bearerToken();
+                if ($bearer) {
+                    $accessToken = PersonalAccessToken::findToken($bearer);
+                    if ($accessToken) {
+                        $accessToken->delete();
+                    }
+                }
+            }
         }
 
-        return response()->json(['message' => 'Logout exitoso']);
+        Auth::forgetGuards();
+
+        return response()->json(['message' => 'Logout successful']);
     }
 
     public function logoutAll(Request $request)
