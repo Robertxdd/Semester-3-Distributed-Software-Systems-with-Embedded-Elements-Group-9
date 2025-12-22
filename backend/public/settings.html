@@ -219,147 +219,100 @@
 </body>
 <script>
   initThemeToggle();
+
+  const $ = id => document.getElementById(id);
   const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = 'index.html';
-  }
+  if (!token) location.href = 'index.html';
 
-  async function logout() {
-    try {
-      if (token) {
-        await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
-      }
-    } catch (err) {
-      console.warn('Logout failed', err);
+  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+  document.querySelectorAll('[data-logout]').forEach(b =>
+    b.onclick = async () => {
+      try { await fetch('/api/logout', { method: 'POST', headers }); } catch {}
+      localStorage.removeItem('token');
+      location.href = 'index.html';
     }
-    localStorage.removeItem('token');
-    window.location.href = 'index.html';
-  }
-  document.querySelectorAll('[data-logout]').forEach(btn => btn.addEventListener('click', logout));
+  );
 
-  const authHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  const status = (id, msg, ok = true) => {
+    $(id).textContent = msg;
+    $(id).style.color = ok ? '#a7f3d0' : '#fca5a5';
   };
 
-  const setStatus = (id, msg, ok = true) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = msg;
-    el.style.color = ok ? '#a7f3d0' : '#fca5a5';
-  };
-
-  const fetchSettings = async () => {
+  const loadSettings = async () => {
     try {
-      const res = await fetch('/api/admin/settings', { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) throw new Error(`Load settings failed: ${res.status}`);
-      const data = await res.json();
-      const conn = data.connection_settings || {};
-      if (conn.mode) document.getElementById('mode').value = conn.mode;
-      if (conn.base_url) document.getElementById('base-url').value = conn.base_url;
-      if (conn.api_key) document.getElementById('api-key').value = conn.api_key;
-      if (conn.poll_interval) document.getElementById('poll-interval').value = conn.poll_interval;
+      const d = await fetch('/api/admin/settings', { headers }).then(r => r.json());
 
-      const energy = data.energy_settings || {};
-      if (energy.idle_timeout) document.getElementById('idle-timeout').value = energy.idle_timeout;
-      if (energy.wake_mode) document.getElementById('wake-mode').value = energy.wake_mode;
+      Object.assign($('mode'), { value: d.connection_settings?.mode ?? $('mode').value });
+      $('base-url').value = d.connection_settings?.base_url ?? '';
+      $('api-key').value = d.connection_settings?.api_key ?? '';
+      $('poll-interval').value = d.connection_settings?.poll_interval ?? $('poll-interval').value;
 
-      const privacy = data.data_settings || {};
-      if (privacy.retention) document.getElementById('retention').value = privacy.retention;
-      setStatus('connection-status', 'Loaded from API.');
-    } catch (err) {
-      console.error(err);
-      setStatus('connection-status', 'Failed to load from API, using defaults.', false);
+      $('idle-timeout').value = d.energy_settings?.idle_timeout ?? $('idle-timeout').value;
+      $('wake-mode').value = d.energy_settings?.wake_mode ?? $('wake-mode').value;
+      $('retention').value = d.data_settings?.retention ?? $('retention').value;
+
+      status('connection-status', 'Loaded from API.');
+    } catch {
+      status('connection-status', 'Using defaults.', false);
     }
   };
 
-  const saveSettings = async (payload, key, statusId) => {
+  const save = (key, payload, statusId) =>
+    fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ [key]: payload })
+    })
+      .then(r => r.ok ? status(statusId, 'Saved via API.') : Promise.reject())
+      .catch(() => status(statusId, 'Failed to save.', false));
+
+  $('save-connection').onclick = () => save('connection_settings', {
+    mode: $('mode').value,
+    base_url: $('base-url').value,
+    api_key: $('api-key').value,
+    poll_interval: $('poll-interval').value,
+    health_collection: true,
+    anonymize: true
+  }, 'connection-status');
+
+  $('save-energy').onclick = () => save('energy_settings', {
+    idle_timeout: $('idle-timeout').value,
+    wake_mode: $('wake-mode').value
+  }, 'energy-status');
+
+  $('save-data').onclick = () => save('data_settings', {
+    retention: $('retention').value,
+    aggregated_only: true,
+    mask_ids: true
+  }, 'data-status');
+
+  const loadUsers = async () => {
+    const body = $('roles-body');
+    const helper = $('roles-helper');
+    body.innerHTML = '';
+
     try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ [key]: payload }),
-      });
-      if (!res.ok) throw new Error(`Save failed: ${res.status}`);
-      setStatus(statusId, 'Saved via API.');
-    } catch (err) {
-      console.error(err);
-      setStatus(statusId, 'Failed to save via API.', false);
+      const users = await fetch('/api/users', { headers }).then(r => r.json());
+      helper.textContent = `Users available: ${users.length}`;
+
+      body.innerHTML = users.length
+        ? users.map(u => `
+          <tr>
+            <td>${u.id}</td>
+            <td>${u.name || 'User'} (${u.email || 'n/a'})</td>
+            <td>${u.role || (u.is_admin ? 'ADMIN' : 'OCCUPANT')}</td>
+            <td>${u.is_admin ? 'Admin' : 'User'}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="4">No users available.</td></tr>';
+    } catch {
+      helper.textContent = 'Failed to load users.';
+      body.innerHTML = '<tr><td colspan="4">API error</td></tr>';
     }
   };
 
-  document.getElementById('save-connection').onclick = async () => {
-    const payload = {
-      mode: document.getElementById('mode').value,
-      base_url: document.getElementById('base-url').value,
-      api_key: document.getElementById('api-key').value,
-      poll_interval: document.getElementById('poll-interval').value,
-      health_collection: true,
-      anonymize: true,
-    };
-    await saveSettings(payload, 'connection_settings', 'connection-status');
-  };
-
-  document.getElementById('save-energy').onclick = () => {
-    const payload = {
-      idle_timeout: document.getElementById('idle-timeout').value,
-      wake_mode: document.getElementById('wake-mode').value,
-    };
-    saveSettings(payload, 'energy_settings', 'energy-status');
-  };
-
-  document.getElementById('save-data').onclick = () => {
-    const payload = {
-      retention: document.getElementById('retention').value,
-      aggregated_only: true,
-      mask_ids: true,
-    };
-    saveSettings(payload, 'data_settings', 'data-status');
-  };
-
-  const updateRolesCard = async () => {
-    const helper = document.getElementById('roles-helper');
-    const body = document.getElementById('roles-body');
-    if (body) body.innerHTML = '';
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        helper.textContent = 'No token stored; login to load data.';
-        if (body) body.innerHTML = '<tr><td colspan="4">Not authenticated.</td></tr>';
-        return;
-      }
-      const res = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) {
-        helper.textContent = `API reachable, but returned ${res.status}.`;
-        if (body) body.innerHTML = `<tr><td colspan="4">Error ${res.status}</td></tr>`;
-        return;
-      }
-      const users = await res.json();
-      helper.textContent = `API reachable. Users available: ${users.length}.`;
-      if (body) {
-        if (!users.length) {
-          body.innerHTML = '<tr><td colspan="4">No users available.</td></tr>';
-        } else {
-          users.forEach(u => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${u.id}</td>
-              <td>${u.name || 'User'} (${u.email || 'n/a'})</td>
-              <td>${u.role || (u.is_admin ? 'ADMIN' : 'OCCUPANT')}</td>
-              <td>${u.is_admin ? 'Admin' : 'User'}</td>
-            `;
-            body.appendChild(tr);
-          });
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      helper.textContent = 'Failed to reach API.';
-      if (body) body.innerHTML = '<tr><td colspan="4">Failed to load desks.</td></tr>';
-    }
-  };
-
-  fetchSettings();
-  updateRolesCard();
+  loadSettings();
+  loadUsers();
 </script>
+
 </html>
